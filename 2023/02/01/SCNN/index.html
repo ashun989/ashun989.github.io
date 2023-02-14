@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="论文：Sparse Convolutional Neural Networks 作者：Baoyuan Liu, Min Wang, Hassan Foroosh, Marshall F. Tappen, Marianna Penksy 一作单位：Computational Imaging Lab, Computer Science, University of Central Flo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法">
+<meta property="og:url" content="https://ashun989.github.io/2023/02/01/SCNN/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="论文：Sparse Convolutional Neural Networks 作者：Baoyuan Liu, Min Wang, Hassan Foroosh, Marshall F. Tappen, Marianna Penksy 一作单位：Computational Imaging Lab, Computer Science, University of Central Flo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2023/02/01/SCNN/fig1.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/02/01/SCNN/equ2.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/02/01/SCNN/equ3.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/02/01/SCNN/equ6.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/02/01/SCNN/fig3.png">
+<meta property="article:published_time" content="2023-02-01T08:52:54.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.297Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="模型压缩">
+<meta property="article:tag" content="卷积分解">
+<meta property="article:tag" content="稀疏化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2023/02/01/SCNN/fig1.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2023/02/01/SCNN/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2023/02/01/SCNN/","path":"2023/02/01/SCNN/","title":"SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%88%86%E8%A7%A3%E7%A8%80%E7%96%8F%E5%8C%96"><span class="nav-number">1.1.</span> <span class="nav-text">线性分解+稀疏化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.2.</span> <span class="nav-text">参数学习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.2.1.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AE%E8%B0%83"><span class="nav-number">1.2.2.</span> <span class="nav-text">微调</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%80%E7%96%8F%E5%8C%96%E4%B8%8E%E4%BD%8E%E7%A7%A9%E5%8C%96%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.3.</span> <span class="nav-text">稀疏化与低秩化的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%80%E7%96%8F%E7%9A%84%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">稀疏的矩阵乘法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%B1%82%E7%9A%84%E7%A8%80%E7%96%8F%E5%8C%96"><span class="nav-number">1.5.</span> <span class="nav-text">线性层的稀疏化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.</span> <span class="nav-text">实验</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/02/01/SCNN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-02-01 16:52:54" itemprop="dateCreated datePublished" datetime="2023-02-01T16:52:54+08:00">2023-02-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <img src="/2023/02/01/SCNN/fig1.png" class="">
+<p><strong>论文</strong>：<a
+target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Liu_Sparse_Convolutional_Neural_2015_CVPR_paper.pdf"><strong>Sparse
+Convolutional Neural Networks</strong></a></p>
+<p><strong>作者</strong>：<em>Baoyuan Liu, Min Wang, Hassan Foroosh,
+Marshall F. Tappen, Marianna Penksy</em></p>
+<p><strong>一作单位</strong>：Computational Imaging Lab, Computer
+Science, University of Central Florida, Orlando, FL, USA</p>
+<p><strong>录用情况</strong>：CVPR'2015</p>
+<blockquote>
+<p>本文将卷积核两次分解，之后对第二次分解得到的“权重”矩阵进行稀疏化，对于ILSVRC2012数据集上训练的一个5层卷积层的网络，经过微调，在1%的性能损失下，获得了90%的稀疏率；尽管稀疏的算法在高度并行的GPU设备上并不吃香，但是对无GPU设备的加速仍有其意义，因此本文设计了在CPU上高效的稀疏矩阵乘法，获得了实质的推理加速；</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<h3 id="线性分解稀疏化">线性分解+稀疏化</h3>
+<p>记输入 <span class="math inline">\(I\in \mathbb{R}^{h\times w \times
+m}\)</span>，原来的卷积核为 <span class="math inline">\(K \in
+\mathbb{R}^{s\times s \times m \times n}\)</span>，输出为 <span
+class="math inline">\(O \in \mathbb{R}^{(h-s+1)\times(h-s+1)\times
+n}\)</span> （stride=1,
+padding=0），作者将标准卷积表示为如下形式，计算复杂度为 <span
+class="math inline">\(O(s^2mn(h-s+1)^2)\)</span></p>
+<p><span class="math display">\[
+O(y, x, j) = \sum_{i=1}^m\sum_{u,v=1}^s K(u,v,i,j)I(y+u-1, x+v-1,i)
+\]</span></p>
+<p>使用的第一种变换是对原卷积核 <span class="math inline">\(K\)</span>
+在通道维度上进行分解，得到 <span class="math inline">\(P\in
+\mathbb{R}^{m\times m}\)</span> 和 <span class="math inline">\(R \in
+\mathbb{R}^{s\times s \times m \times n}\)</span>；这样有 <span
+class="math inline">\(O \approx R*J\)</span>；</p>
+<p><img src="equ2.png" /></p>
+<p>第二种变换是继续将 <span class="math inline">\(R\)</span>
+进行线性分解，为第 <span class="math inline">\(i\)</span> 个通道的 <span
+class="math inline">\(R(\cdot,\cdot, i, \cdot)\)</span> 找到 <span
+class="math inline">\(q_i\)</span> 个基 <span
+class="math inline">\(\mathcal{Q}_i\in \mathbb{R}^{s\times s\times
+q_i}\)</span>，与权重 <span class="math inline">\(\mathcal{S}_i\in
+\mathbb{R}^{q_i\times n}\)</span> 的线性组合得到 <span
+class="math inline">\(R(\cdot,\cdot, i, \cdot)\)</span></p>
+<p>用 <span class="math inline">\(\mathcal{T}_i \in
+\mathbb{R}^{(h-s+1)\times (h-s+1)\times q_i}\)</span>
+表示变换后的输入的第 <span class="math inline">\(i\)</span> 的通道与第
+<span class="math inline">\(i\)</span> 组基进行卷积得到的 <span
+class="math inline">\(q_i\)</span> 个中间结果：</p>
+<p><img src="equ3.png" /></p>
+<p>将此中间结果再与权重进行线性组合得到输出：</p>
+<p><span class="math display">\[
+O(y, x, j) \approx \sum_{i=1}^m \sum_{k=1}^{q_i} \mathcal{S}_i(k, j)
+\mathcal{T}_i(y, x, k)
+\]</span></p>
+<p>从 <span class="math inline">\(I\)</span> 到 <span
+class="math inline">\(J\)</span> 的变换需要 <span
+class="math inline">\(O(m^2hw)\)</span> 的计算；</p>
+<p>从 <span class="math inline">\(J\)</span> 到 <span
+class="math inline">\(\mathcal{T}\)</span> 需要 <span
+class="math inline">\(s^2(h-s+1)^2\sum_{i=1}^mq_i\)</span> 的计算；</p>
+<p>最后与权重线性组合的过程可以用单个 <span
+class="math inline">\((h-s+1)^2\times\sum_{i=1}^m q_i\)</span> (变形
+<span class="math inline">\(\mathcal{T}\)</span>) 和 <span
+class="math inline">\(\sum_{i=1}^m q_i \times n\)</span> (变形 <span
+class="math inline">\(\mathcal{S}\)</span>)
+矩阵乘法得到，而我们希望权重矩阵是稀疏的（<span
+class="math inline">\(\gamma\)</span>
+是密集度，即非零元素占比）并使用稀疏的矩阵乘法，这样最后的稀疏矩阵乘法计算复杂度为
+<span class="math inline">\(O(\gamma
+n(\sum_{i=1}^mq_i)(h-s+1)^2)\)</span>；</p>
+<p>综上，笔者得到总体的计算复杂度是： <span class="math display">\[
+(\gamma n + s^2)\left( \sum_{i=1}^m q_i \right ) (h-s+1)^2 + m^2hw
+\]</span></p>
+<p>而原文中给的复杂度，将 <span class="math inline">\(i\)</span>
+上限错误写成了 <span class="math inline">\(n\)</span>；在 <span
+class="math inline">\(q_i &lt; s^2\)</span> 的条件下，<span
+class="math inline">\(\sum_{i=1}^m q_i &lt;
+ms^2\)</span>，即我们给出的这个复杂度比原文的复杂度更“紧”；而原文的写法也更好与原卷积的计算复杂度进行比较；</p>
+<p><img src="equ6.png" /></p>
+<p>不过原文对 <span class="math inline">\(i\)</span>
+的上限错误也导致其接下来的另一个小错误：与原复杂度 <span
+class="math inline">\(mns^2(h-s+1)^2\)</span>
+对比，希望现在的复杂度优势项是 <span class="math inline">\(\gamma
+mns^2(h-s+1)\)</span>（<span class="math inline">\(\gamma\)</span>
+决定了加速比），另外两项就要相比于优势项可忽略，即 <span
+class="math inline">\(\sum_{i=1}^m q_i = m\overline{q} &lt; \gamma
+mn\)</span> （原文写的是 <span class="math inline">\(\overline{q}
+&lt;\gamma m\)</span>），还有 <span class="math inline">\(m \ll \gamma
+ns^2\)</span>；</p>
+<p>综上，要想在理论上对算法复杂度有改进，需要满足：</p>
+<p><span class="math display">\[
+\left\{
+  \begin{matrix}
+    q_i &lt; s^2\\
+    \overline{q} &lt; \gamma n\\
+    m &lt; \gamma ns^2
+  \end{matrix}
+\right.
+\]</span></p>
+<blockquote>
+<p>如果了解论文<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1405.3866">Speeding up
+Convolutional Neural Networks with Low Rank
+Expansions</a>，就会发现这里使用的kernel
+basis线性组合的方法与该论文的scheme1分解方法基本一致，这里在之前添加了channel
+basis，没有把kernel
+basis进一步做成可分离的，并且对于每个通道使用不同数量的kernel
+basis；</p>
+</blockquote>
+<h3 id="参数学习">参数学习</h3>
+<p>接下来的问题就是，如何学习 <span class="math inline">\(P\)</span>,
+<span class="math inline">\(Q_i\)</span>, <span
+class="math inline">\(S_i\)</span> (<span class="math inline">\(i = 1,
+\dots, m\)</span>)，并且让 <span class="math inline">\(S_i\)</span>
+是稀疏的？</p>
+<p>总体步骤分为初始化和微调，在初始化阶段主要获得合适的 <span
+class="math inline">\(P\)</span>, <span
+class="math inline">\(Q_i\)</span>, <span
+class="math inline">\(S_i\)</span>，使得重建误差很小，但是此时的稀疏性并不好；在微调阶段使用分类损失+稀疏正则项，对
+<span class="math inline">\(S_i\)</span> 进行稀疏化；</p>
+<h4 id="初始化">初始化</h4>
+<p>对 <span class="math inline">\(K\)</span> 在 通道方向分解得到 <span
+class="math inline">\(R\)</span>, <span
+class="math inline">\(P\)</span>；对 <span
+class="math inline">\(R(\cdot, \cdot, i, \cdot)\)</span>
+在个数方向上分解得到 <span class="math inline">\(S_i\)</span>, <span
+class="math inline">\(Q_i\)</span>；这两种高维张量的分解都可以通过reshape转化为矩阵分解问题，因而有三种初始化方法：</p>
+<ul>
+<li>使用字典学习算法（本文作者指出该优化是非凸的且在精度和稀疏度上有中和）；</li>
+<li>使用主成分分析；</li>
+<li>初始化 <span class="math inline">\(P\)</span> 和 <span
+class="math inline">\(Q_i\)</span> 为单位标准基：那么令 <span
+class="math inline">\(R=K\)</span> 即可以使得 <span
+class="math inline">\(K(u,v,i,j) = \sum_{k=1}^m R(u, v, k,
+j)P(k,i)\)</span>；不过，<span class="math inline">\(S_i\)</span> 与
+<span class="math inline">\(R(\cdot, \cdot, i, \cdot)\)</span>
+的维度不一致，如果 <span class="math inline">\(q_i \ge
+n\)</span>，可以通过构造在初始化时使得 <span
+class="math inline">\(R(u,v,i,j) = \sum_{k=1}^{q_i}
+S_i(k,j)Q_i(u,v,k)\)</span>，反之若 <span class="math inline">\(q_i &lt;
+n\)</span>，则不能；</li>
+</ul>
+<h4 id="微调">微调</h4>
+<p>微调阶段作者主要希望在保持性能的前提下增加 <span
+class="math inline">\(S_i\)</span> 的稀疏度，设计目标函数如下： <img
+src="equ7.png" /></p>
+<h3 id="稀疏化与低秩化的区别">稀疏化与低秩化的区别</h3>
+<p>设 <span class="math inline">\(M \in \mathbb{R}^{m\times
+n}\)</span>，<span class="math inline">\(S \in \mathbb{R}^{m\times
+n}\)</span>，<span class="math inline">\(P\in \mathbb{R}^{n \times
+n}\)</span>，有矩阵分解 <span class="math inline">\(M=SP\)</span>；对
+<span class="math inline">\(S\)</span> 进行稀疏化，相当于增多 <span
+class="math inline">\(S\)</span> 的零元素个数；对 <span
+class="math inline">\(S\)</span> 进行低秩化，相当于增加 <span
+class="math inline">\(S\)</span>
+的零列（可以由其他列线性组合得到的列）；</p>
+<p>从性能上看，稀疏化比起低秩化损失更小；从速度上看，低秩化是结构性的，稀疏化是非结构性的，前者更便于使用现有的算子高效实现达到实际的加速目的；</p>
+<h3 id="稀疏的矩阵乘法">稀疏的矩阵乘法</h3>
+<p>作者利用推理时模型的如下两个事实：</p>
+<ul>
+<li>与卷积核相关的稀疏矩阵不再改变；</li>
+<li>输入不是稀疏的；</li>
+</ul>
+<p>在OpenBLAS上实现了一种密集卷积与稀疏卷积的算法：</p>
+<p>对于每一个子块的乘法，<span class="math inline">\(C=A\times
+B\)</span>，其中 <span class="math inline">\(A\in \mathbb{R}^{8\times
+k}\)</span>，<span class="math inline">\(B\in \mathbb{R}^{k\times
+8}\)</span>，8是当时作者使用的AVX指令集最大可以并行计算的float的数量；在密集乘法中，<span
+class="math inline">\(C\)</span> 的一列可以看作是 <span
+class="math inline">\(A\)</span> 的一列与 <span
+class="math inline">\(B\)</span> 的对应列的加权和；假设 <span
+class="math inline">\(A\)</span> 是密集的，<span
+class="math inline">\(B\)</span> 是稀疏的，作者通过寻找 <span
+class="math inline">\(B\)</span> 中非零元素的位置，按照 <span
+class="math inline">\(B\)</span>
+的行列顺序，重新生成了乘法计算的代码，如下图所示：</p>
+<p><img src="fig3.png" /></p>
+<h3 id="线性层的稀疏化">线性层的稀疏化</h3>
+<p>可以将线性层权重分解为密集矩阵与稀疏矩阵的乘法，并选择稀疏化维度更大的那个矩阵，为了使得密集矩阵更小；</p>
+<h2 id="实验">实验</h2>
+<p>在对分类模型稀疏化时，作者首先拿到已训练好的权重，之后按照前文方法修改卷积计算，进行初始化+微调，并应用阈值函数来获得稳定的稀疏；在收敛之后，去除稀疏限制（但保留阈值函数）再微调一阵以达到最佳精度；</p>
+<p>作者在实验中比较了微调后卷积核与原来卷积核的相似度，发现从conv1到conv3，这种相似度从0.85下降到0.34，而精度没有太大损失，说明没有必要逐个卷积核地恢复，基于分类损失的全局微调很有效；</p>
+<p>作者还比较了对基的三种初始化方式，发现他们在性能上没有显著差异，但PCA的初始化，微调后得到的稀疏度最高；接着作者发现，稀疏度与主成分有很强的相关性，越重要的成分越容易稀疏；</p>
+<p>更多实验详见原文。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/" rel="tag"><i class="fa fa-tag"></i> 模型压缩</a>
+              <a href="/tags/%E5%8D%B7%E7%A7%AF%E5%88%86%E8%A7%A3/" rel="tag"><i class="fa fa-tag"></i> 卷积分解</a>
+              <a href="/tags/%E7%A8%80%E7%96%8F%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> 稀疏化</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/01/19/LCNN/" rel="prev" title="字典学习卷积模块以加速网络推理">
+                  <i class="fa fa-chevron-left"></i> 字典学习卷积模块以加速网络推理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/02/04/Structured-Sparsity/" rel="next" title="学习结构化稀疏：精度与速度的双赢？">
+                  学习结构化稀疏：精度与速度的双赢？ <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"1d1ac12a603b905c750ac4b5bc34c634"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

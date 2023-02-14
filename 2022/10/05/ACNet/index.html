@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="论文：ACNet: Strengthening the Kernel Skeletons for Powerful CNN via Asymmetric Convolution Blocks 作者：Xiaohan Ding , Yuchen Gu , Guiguang Ding , Jungong Han 录用情况：ICCV&#39;2019 第一作者单位：Beijing National">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ACNet论文阅读">
+<meta property="og:url" content="https://ashun989.github.io/2022/10/05/ACNet/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="论文：ACNet: Strengthening the Kernel Skeletons for Powerful CNN via Asymmetric Convolution Blocks 作者：Xiaohan Ding , Yuchen Gu , Guiguang Ding , Jungong Han 录用情况：ICCV&#39;2019 第一作者单位：Beijing National">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/05/ACNet/image-20221005224216241.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/05/ACNet/image-20221006220034278.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/05/ACNet/image-20221006220145664.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/05/ACNet/image-20221006223639906.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/05/ACNet/image-20221006224305290.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/05/ACNet/image-20221006225839924.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/05/ACNet/image-20221006230243484.png">
+<meta property="article:published_time" content="2022-10-05T14:23:22.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.265Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="结构重参数化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2022/10/05/ACNet/image-20221005224216241.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2022/10/05/ACNet/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/10/05/ACNet/","path":"2022/10/05/ACNet/","title":"ACNet论文阅读"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ACNet论文阅读 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.</span> <span class="nav-text">实验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%AA%E8%A3%81%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.1.</span> <span class="nav-text">剪裁实验</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E8%AE%AD%E7%BB%83%E6%96%B9%E5%BC%8F%E4%B8%8B%E5%89%AA%E8%A3%81%E5%8D%B7%E7%A7%AF%E6%A0%B8%E4%B8%8D%E5%90%8C%E4%BD%8D%E7%BD%AE%E5%AF%B9%E6%80%A7%E8%83%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">2.1.1.</span> <span class="nav-text">不同训练方式下，剪裁卷积核不同位置对性能的影响</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8E%9F%E6%9D%A5%E7%9A%84%E8%AE%AD%E7%BB%83%E6%96%B9%E5%BC%8F"><span class="nav-number">2.1.1.1.</span> <span class="nav-text">原来的训练方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#acnet%E4%B8%AD%E7%9A%84%E8%AE%AD%E7%BB%83%E5%90%88%E5%B9%B6%E6%96%B9%E5%BC%8F"><span class="nav-number">2.1.1.2.</span> <span class="nav-text">ACNet中的训练、合并方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#acnet%E4%B8%AD%E7%9A%84%E8%AE%AD%E7%BB%83%E4%BD%86%E5%90%88%E5%B9%B6%E5%88%B0%E8%BE%B9%E7%BC%98"><span class="nav-number">2.1.1.3.</span> <span class="nav-text">ACNet中的训练但合并到边缘</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%B7%E7%A7%AF%E6%A0%B8%E7%9A%84%E7%BB%9D%E5%AF%B9%E5%80%BC"><span class="nav-number">2.1.2.</span> <span class="nav-text">卷积核的绝对值</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/10/05/ACNet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ACNet论文阅读 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ACNet论文阅读
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-10-05 22:23:22" itemprop="dateCreated datePublished" datetime="2022-10-05T22:23:22+08:00">2022-10-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <img src="/2022/10/05/ACNet/image-20221005224216241.png" class="">
+<p><strong>论文</strong>：<a
+target="_blank" rel="noopener" href="https://arxiv.org/pdf/1908.03930.pdf">ACNet: Strengthening the
+Kernel Skeletons for Powerful CNN via Asymmetric Convolution
+Blocks</a></p>
+<p><strong>作者</strong>：<em>Xiaohan Ding</em> , <em>Yuchen Gu</em> ,
+<em>Guiguang Ding</em> , <em>Jungong Han</em></p>
+<p><strong>录用情况</strong>：ICCV'2019</p>
+<p><strong>第一作者单位</strong>：Beijing National Research Center for
+Information Science and Technology (BNRist); School of Software,
+Tsinghua University, Beijing, China</p>
+<blockquote>
+<p>本文是结构重参数化的第一篇文章，使用1D的卷积来增强方形卷积，并且在推理前进行结构重参数化，用这样的块替换先前的网络架构进行训练，或多多少的都在CIFAR和ImageNet上获得了提升，原因可能是1D卷积对旋转、翻转变换具有更好的鲁棒性以及。网络上已经有很多介绍具体方法的文章（<a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/131282789">知乎 -
+【CNN结构设计】无痛的涨点技巧：ACNet</a>），笔者在这里主要关注论文最后剪裁(pruning)实验，感觉还挺独特的。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<p>本文提出的ACB块使用$dd $, <span class="math inline">\(d\times
+1\)</span>, <span class="math inline">\(1\times
+d\)</span>三种卷积并行训练，并在每个分支使用BN；在推理前，使用吸BN技巧以及卷积对加法的可分配性，将3个分支转换为与之等价的1个<span
+class="math inline">\(d\times d\)</span>卷积用于推理。</p>
+<p><img src="image-20221006220034278.png" /></p>
+<p>作者提到，推理时等价并不意味着训练时等价，由于初始化的随机性，并行的几个卷积核可能朝着不同的方向优化，这也引出一个作者的隐忧：如果并行分支的卷积核符号相反，在相加后反而抵消彼此的作用从而削弱性能。不过作者通过后续实验观察到合并后模型每一层卷积的骨干都得到了提升。</p>
+<blockquote>
+<p>以3x3卷积为例，卷积的骨干(skeleton)指中心十字形位置上的参数，占整体的5/9；其余的称为边角(corner)，占整体的4/9；</p>
+</blockquote>
+<p>作者将<span class="math inline">\(d\times 1\)</span>, <span
+class="math inline">\(1\times
+d\)</span>形状的卷积称为非对称卷积，并且简单的理论和消融实验证明了这种卷积对于翻转、旋转具有较好的鲁棒性：</p>
+<p><img src="image-20221006220145664.png" /></p>
+<h2 id="实验">实验</h2>
+<p>性能实验部分，作者使用ACB代替经典网络中的Conv-BN层，分别在CIFAR和ImageNet上测试性能，这种提升，是在推理时不需要任何额外代价（更多参数or更多计算量）就能够获得的；</p>
+<p>消融实验部分，作者证明了3个分支都对性能有帮助，并且对于水平翻转，旋转有更好的鲁棒性；</p>
+<h3 id="剪裁实验">剪裁实验</h3>
+<p>剪裁实验部分，是笔者最感兴趣的部分，作者希望证明，ACB能够提升方形卷积核的骨架；</p>
+<h4
+id="不同训练方式下剪裁卷积核不同位置对性能的影响">不同训练方式下，剪裁卷积核不同位置对性能的影响</h4>
+<p>剪裁，就是对于训练好的模型，将其卷积核的部分位置以一定比率设置为0，之后再进行推理，以比较卷积核不同部分的贡献差异。有三种剪裁方式：</p>
+<ul>
+<li>corner: 按一定比例将卷积核的四角设置为0，上限为4/9=44.4%；</li>
+<li>skeleton: 按一定比例将卷积核的骨架设置为0；</li>
+<li>global: 卷积核所有位置都时同等概率地被设置为0；</li>
+</ul>
+<p>作者在CIFAR 10上统计top1 acc。每个剪裁率下多次实验，绘制mean<span
+class="math inline">\(\pm\)</span> std的曲线：</p>
+<h5 id="原来的训练方式">原来的训练方式</h5>
+<p><img src="image-20221006223639906.png" /></p>
+<p>这幅图表明了，原本的卷积核就存在着，骨干比边缘贡献更大的情况；</p>
+<h5 id="acnet中的训练合并方式">ACNet中的训练、合并方式</h5>
+<p>即在合并分支时，将1x3和3x1卷积加到3x3卷积的骨干位置上，下图中，corner时的剪裁下，性能始终能保持在60%以上：</p>
+<p><img src="image-20221006224305290.png" /></p>
+<h5 id="acnet中的训练但合并到边缘">ACNet中的训练但合并到边缘</h5>
+<p>即在合并分支时，将1x3和3x1卷积加到3x3卷积的右边和下边，为保证等价性，对应分支的吸BN也要移到右下边，这种情况下，尽管性能相比于ACNet只下降了0.42%，但在剪裁实验中，剪裁corner的仍然是最好的（相比前两种也大打折扣了）；而剪裁被增强的右下角5个位置，与剪裁左上角4个位置，没有特别明显的差异（后者稍微好一点），意味着尽管我们增强了边界，也不能忽视卷积核的其他部分。</p>
+<p><img src="image-20221006225839924.png" /></p>
+<h4 id="卷积核的绝对值">卷积核的绝对值</h4>
+<p>作者将训练好的模型的各卷积层的各个通道求和，并使用最大值归一化，之后再对各个层归一化的结果求平均，得到一个“幅值”核，希望能够用来代表各个位置上的重要性，三种训练and合并方式下得到的结果如下：</p>
+<p><img src="image-20221006230243484.png" /></p>
+<p>能够吻合先前的结论。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BB%93%E6%9E%84%E9%87%8D%E5%8F%82%E6%95%B0%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> 结构重参数化</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/10/03/RepVGG/" rel="prev" title="RepVGG论文与代码阅读">
+                  <i class="fa fa-chevron-left"></i> RepVGG论文与代码阅读
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/10/13/Linear-Structure-Within-Conv/" rel="next" title="探索卷积网络的线性性质来进行推理时加速">
+                  探索卷积网络的线性性质来进行推理时加速 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"36f55d80ddd783a59c988d772a19c7ef"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="论文：Structured Convolutions for Efficient Neural Network Design 作者：Yash Bhalgat, Yizhe Zhang, Jamie Menjay Lin, Fatih Porikli 一作单位：Qualcomm AI Research 录用情况：Neurips&#39;2020  本文提出了一种Structured Con">
+<meta property="og:type" content="article">
+<meta property="og:title" content="把卷积分解成sum-pooling和更小的卷积">
+<meta property="og:url" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="论文：Structured Convolutions for Efficient Neural Network Design 作者：Yash Bhalgat, Yizhe Zhang, Jamie Menjay Lin, Fatih Porikli 一作单位：Qualcomm AI Research 录用情况：Neurips&#39;2020  本文提出了一种Structured Con">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/fig1.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/def12.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/comp_kernel_conv.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/def3.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/fig23.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/fig4.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/fig5.png">
+<meta property="article:published_time" content="2023-01-01T15:58:32.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.297Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="模型压缩">
+<meta property="article:tag" content="卷积分解">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2023/01/01/Structured-Convolutions/fig1.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2023/01/01/Structured-Convolutions/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2023/01/01/Structured-Convolutions/","path":"2023/01/01/Structured-Convolutions/","title":"把卷积分解成sum-pooling和更小的卷积"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>把卷积分解成sum-pooling和更小的卷积 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#composite-kernels"><span class="nav-number">1.1.</span> <span class="nav-text">Composite Kernels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#structured-convolutions"><span class="nav-number">1.2.</span> <span class="nav-text">Structured Convolutions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E8%A7%A3%E5%8D%B7%E7%A7%AF%E6%A0%B8"><span class="nav-number">1.3.</span> <span class="nav-text">分解卷积核</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/01/01/Structured-Convolutions/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="把卷积分解成sum-pooling和更小的卷积 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          把卷积分解成sum-pooling和更小的卷积
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-01-01 23:58:32" itemprop="dateCreated datePublished" datetime="2023-01-01T23:58:32+08:00">2023-01-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <img src="/2023/01/01/Structured-Convolutions/fig1.png" class="">
+<p><strong>论文</strong>：<a
+target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2020/hash/3be0214185d6177a9aa6adea5a720b09-Abstract.html"><strong>Structured
+Convolutions for Efficient Neural Network Design</strong></a></p>
+<p><strong>作者</strong>：<em>Yash Bhalgat, Yizhe Zhang, Jamie Menjay
+Lin, Fatih Porikli</em></p>
+<p><strong>一作单位</strong>：Qualcomm AI Research</p>
+<p><strong>录用情况</strong>：Neurips'2020</p>
+<blockquote>
+<p>本文提出了一种Structured Convolution，将传统的卷积运算分解为sum
+pooling操作和卷积核更小的卷积操作，从而能够获得更小、更快的推理模型；为了使得分解带来的损失更小，作者还设计了一种Structural
+Regularization的正则项添加到训练过程中。该方法不亚于先前的各种张量分解或者通道剪枝方法。笔者认为，本文的分解方法很有意思。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<h3 id="composite-kernels">Composite Kernels</h3>
+<p>模型压缩的方法都基于这样一条假设，神经网络都是过参数化的(over-parameterized)。本文主要关注的是卷积核的冗余性。首先，作者定义了卷积核的二元基（命名为Composite
+Basis）以及这些基的线性组合得到的卷积核（命名为Composite Kernels）。</p>
+<p>原文中的定义如下： <img src="def12.png" /></p>
+<p>到目前为止，从原来的 <span class="math inline">\(C\times N^2\)</span>
+的一个卷积核，变成了 <span class="math inline">\(M\times C\times
+N^2\)</span> 的一组二值基和 <span class="math inline">\(M\)</span>
+个权重；</p>
+<p>作者带着我们回忆了一下线性代数知识，<span
+class="math inline">\(M\)</span>个线性无关的基张成维度为<span
+class="math inline">\(M\)</span>的子空间，其中每个张量的长度是<span
+class="math inline">\(CN^2\)</span>，因此在<span
+class="math inline">\(M&lt;CN^2\)</span>的条件下，这个子空间中的Composite
+Kernels相比于任意的Kernels是降维的版本；</p>
+<blockquote>
+<p>笔者看到这里时有两个后来证明是没什么关联的联想：</p>
+<ul>
+<li><p>基的binary属性让我一开始想到量化和二值网络，实际上应该只是为了得到类似标准正交基，容易地拥有线性无关属性；</p></li>
+<li><p>还会联想到矩阵分解，在<span
+class="math inline">\(M\)</span>组分解方向中选出重要的方向，但是本文不是这样；与矩阵分解的核心区别是，矩阵分解得到的基和坐标都是“学得”的（不管是用SVD还是什么方法），而这里的基是固定的；</p></li>
+</ul>
+</blockquote>
+<p>将这种对卷积核的分解带入卷积运算中，带来的收益是乘法运算次数的减少：</p>
+<p><img src="comp_kernel_conv.png" /></p>
+<p>这里用到了卷积的可加性，并且，利用 <span
+class="math inline">\(\beta_m\)</span> 的二值化特征，其与<span
+class="math inline">\(X\)</span>的逐点乘法转化成了仅在 <span
+class="math inline">\(\beta_m = 1\)</span> 位置的加法（后文结合 <span
+class="math inline">\(\beta_m\)</span>
+的构造我们才能知道具体如何实现）；这样一来，将原来卷积需要的<span
+class="math inline">\(CN^2\)</span>次乘法和<span
+class="math inline">\(CN^2-1\)</span>次加法变成了 <span
+class="math inline">\(\sum_{m=1}^{M}\mathrm{sum}(\beta_m)-1\)</span>
+次加法；</p>
+<p>论文的图一（本文文首图）展示了几种不同自由度的 <span
+class="math inline">\(\beta_m\)</span>
+的构造方式（图中带上了权重），至此，加法的次数相较于原来还是有可能增加的；</p>
+<h3 id="structured-convolutions">Structured Convolutions</h3>
+<p>作者提出了一种structured kernel的构造基的方式，定义和图示如下：</p>
+<p><img src="def3.png" /></p>
+<p><img src="fig23.png" /></p>
+<p>图1(b)展示了一种2D structured kernel的构造；图2展示了一种3D
+structured kernel的构造；图3以2D为例说明了为什么要用这样的构造；</p>
+<p>在这种构造方式下，我们不需要再利用卷积的可加性拆成与每个基的卷积后再求和，因为这些基的和与<span
+class="math inline">\(X\)</span>的卷积输出很有特点，正如先对<span
+class="math inline">\(X\)</span>进行sum-pooling,
+再与一个小卷积核做卷积一样，且这个小卷积核正是有所有的权重向量组成；</p>
+<p>考虑多个卷积核的情况，容易发现，sum-pooling的结果是可以被各个卷积核复用的，这也是相比传统卷积能够减少加法次数的关键；</p>
+<p><img src="fig4.png" /></p>
+<p>在4.2节，作者分析了使用sum-pooling + structured
+convolution相比于传统卷积在加法次数以及乘法次数上的提升比例，经分析（详见原文），作者使用
+<span class="math inline">\(CN^2/cn^2\)</span>
+作为卷积层的近似压缩比；</p>
+<p>由于线性操作可以视为1*1的卷积，因此，上述压缩方式又可以扩展到线性层上，如图5所示：</p>
+<p><img src="fig5.png" /></p>
+<h3 id="分解卷积核">分解卷积核</h3>
+<p>被分解的卷积核 <span class="math inline">\(W =
+\sum_{m}\alpha_m\beta_m\)</span>，定义矩阵 <span
+class="math inline">\(A\in \mathbb{R}^{CN^2\times cn^2}\)</span>，其第
+<span class="math inline">\(i\)</span> 列都是基 <span
+class="math inline">\(\beta_i\)</span> 的展开(vectorized)，定义 <span
+class="math inline">\(\boldsymbol{\alpha} = [\alpha_1,\dots,
+\alpha_{cn^2}]\)</span>，有： <span class="math display">\[
+\mathrm{vectorized}(W) = A \cdot \boldsymbol{\alpha}
+\]</span></p>
+<p>我们需要表示出在structured kernel下，<span
+class="math inline">\(A\)</span> 的形式；</p>
+<p><span
+class="math inline">\((C-c+1)\times(N-n+1)\times(N-n+1)\)</span>
+的sum-pooling可以视为同等大小的全为1的卷积核，因此structured
+convolution可以表示为： <span class="math display">\[
+X * W = X * \mathbf{1}_{(C-c+1)\times(N-n+1)\times(N-n+1)} *
+\boldsymbol{\alpha}_{c\times n\times n}
+\]</span></p>
+<p>因此有 <span class="math display">\[
+W = \mathbf{1}_{(C-c+1)\times(N-n+1)\times(N-n+1)} *
+\boldsymbol{\alpha}_{c\times n\times n}
+\]</span></p>
+<p>使用<a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/63974249">im2col</a>的方法，在步长为1的条件下可以视为把输入表示成<a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Toeplitz_matrix">Topelitz矩阵</a>，有：
+<span class="math display">\[
+\mathrm{vectorized}(W) =
+\mathrm{Topelitz}(\mathbf{1}_{(C-c+1)\times(N-n+1)\times(N-n+1)}) \cdot
+\mathrm{vectorized}(\boldsymbol{\alpha}_{c\times n\times n})
+\]</span></p>
+<p>因此，我们得到 <span class="math display">\[
+A = \mathrm{Topelitz}(\mathbf{1}_{(C-c+1)\times(N-n+1)\times(N-n+1)})
+\]</span></p>
+<p>在 <span class="math inline">\(A\)</span> 和 <span
+class="math inline">\(W\)</span> 已知的情况下，如何求解出 <span
+class="math inline">\(\alpha\)</span>？ <span class="math display">\[
+\alpha = A^+W
+\]</span> 其中，<span class="math inline">\(A^+\)</span> 是 <span
+class="math inline">\(A\)</span> 的<a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse">伪逆</a>；这样，我们可以把对<span
+class="math inline">\(W\)</span>的分解写成 <span class="math inline">\(W
+= A\alpha =
+AA^+W\)</span>，为了使得这种分解造成的性能损失更小，在训练时引入正则项：
+<span class="math display">\[
+\lambda\sum_{l=1}^L\frac{\|(I-A_lA_l^+)W_l\|_F}{\|W_l\|_F}
+\]</span></p>
+<p>相比于直接使用structured
+convolution结构训练，这种带正则项训练，完成训练后分解的方式性能更好，因为正则项使得权重是从
+<span class="math inline">\(\mathbb{R}^{C\times N\times N}\)</span>
+渐进地压缩到 <span class="math inline">\(\mathbb{R}^{c\times n\times
+n}\)</span> 中的；</p>
+<h2 id="实验">实验</h2>
+<p>在正文部分作者报告了ImageNet、CIFAR-10上的分类性能和CityScape上的分割性能，都是将常见的轻量级模型添加正则项后训练再分解得到的，并给出了保持性能版本(A)和尽力压缩版本(B)，详见原文；</p>
+<h2 id="总结">总结</h2>
+<p>基于固定的基(prefixed
+basis)的分解方法先前已经有很多，笔者认为本文出彩之处就在于structured
+kernel的构造基的方式，使得运算被简化成sum-pooling和更小的卷积；这种分解对于训练好的模型来说，是数据无关的；这种分解的另一个好处是，分解后算子仍然可以用传统算子完成，这意味着可以集成更多的模型压缩方法。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/" rel="tag"><i class="fa fa-tag"></i> 模型压缩</a>
+              <a href="/tags/%E5%8D%B7%E7%A7%AF%E5%88%86%E8%A7%A3/" rel="tag"><i class="fa fa-tag"></i> 卷积分解</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/11/14/Convex-Optimization/" rel="prev" title="凸优化学习笔记(一)">
+                  <i class="fa fa-chevron-left"></i> 凸优化学习笔记(一)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/01/12/Conv-Spatial-Low-Rank-Decomp/" rel="next" title="在空间域上的低秩分解和在通道上的线性组合加速卷积运算">
+                  在空间域上的低秩分解和在通道上的线性组合加速卷积运算 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"3d27b9c83bac4c7366a705bc07673b65"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

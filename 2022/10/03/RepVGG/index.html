@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="论文：RepVGG: Making VGG-style ConvNets Great Again 作者：Xiaohan Ding, Xiangyu Zhang, Ningning Ma, Jungong Han, Guiguang Ding, Jian Sun 录用情况：CVPR&#39;2021 第一作者单位：Beijing National Research Center for I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RepVGG论文与代码阅读">
+<meta property="og:url" content="https://ashun989.github.io/2022/10/03/RepVGG/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="论文：RepVGG: Making VGG-style ConvNets Great Again 作者：Xiaohan Ding, Xiangyu Zhang, Ningning Ma, Jungong Han, Guiguang Ding, Jian Sun 录用情况：CVPR&#39;2021 第一作者单位：Beijing National Research Center for I">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/03/RepVGG/image-20221003122122530.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/03/RepVGG/image-20221003132412029.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/03/RepVGG/image-20221003132802917.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/03/RepVGG/image-20221003133459134.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/10/03/RepVGG/image-20221003142015913.png">
+<meta property="article:published_time" content="2022-10-03T03:45:13.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.281Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="结构重参数化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2022/10/03/RepVGG/image-20221003122122530.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2022/10/03/RepVGG/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/10/03/RepVGG/","path":"2022/10/03/RepVGG/","title":"RepVGG论文与代码阅读"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>RepVGG论文与代码阅读 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%A4%9A%E5%88%86%E6%94%AF%E7%9A%84%E7%BD%91%E7%BB%9C"><span class="nav-number">1.1.</span> <span class="nav-text">为什么需要多分支的网络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E9%87%8D%E5%8F%82%E6%95%B0%E5%8C%96"><span class="nav-number">1.2.</span> <span class="nav-text">模型重参数化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#winograd-convolution"><span class="nav-number">1.3.</span> <span class="nav-text">Winograd Convolution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E6%97%B6%E5%9D%97%E7%BB%93%E6%9E%84%E4%B8%8E%E9%87%8D%E5%8F%82%E6%95%B0%E5%8C%96%E6%96%B9%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">训练时块结构与重参数化方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">1.5.</span> <span class="nav-text">整体架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/10/03/RepVGG/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="RepVGG论文与代码阅读 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RepVGG论文与代码阅读
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-10-03 11:45:13" itemprop="dateCreated datePublished" datetime="2022-10-03T11:45:13+08:00">2022-10-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <img src="/2022/10/03/RepVGG/image-20221003122122530.png" class="">
+<p><strong>论文</strong>：<a
+target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/CVPR2021/papers/Ding_RepVGG_Making_VGG-Style_ConvNets_Great_Again_CVPR_2021_paper.pdf">RepVGG:
+Making VGG-style ConvNets Great Again</a></p>
+<p><strong>作者</strong>：<em>Xiaohan Ding</em>, <em>Xiangyu Zhang</em>,
+<em>Ningning Ma</em>, <em>Jungong Han</em>, <em>Guiguang Ding</em>,
+<em>Jian Sun</em></p>
+<p><strong>录用情况</strong>：CVPR'2021</p>
+<p><strong>第一作者单位</strong>：Beijing National Research Center for
+Information Science and Technology (BNRist); School of Software,
+Tsinghua University, Beijing, China</p>
+<blockquote>
+<p>本文借助重参数化技巧，提出了一个在训练时多分支，而在推理时为类似于VGG的直筒形网络（3x3卷积+ReLU堆叠成的基本块），命名为RepVGG。这是第一次一个简单的模型在ImageNet上获得了80%以上的top1准确率，并且直筒形状的结构让RepVGG有着很高的计算密度与推理速度，相比于EfficientNet和RegNet有更好的性能与速度的折中。<a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/344324470">作者本人在知乎上的稿子</a>。<a
+target="_blank" rel="noopener" href="https://github.com/DingXiaoH/RepVGG">代码仓库</a>。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<h3 id="为什么需要多分支的网络">为什么需要多分支的网络</h3>
+<p>我们不否认直筒型的、深层的网络理论上具有足够的学习能力，但是很难训练；从GoogLeNet、ResNet起，大家就尝到了多分支网络的甜头，对于shortcut连接，一些普遍的解释为：</p>
+<ul>
+<li>获得了多种浅层模型的集成的效果，具体地说，<span
+class="math inline">\(n\)</span>个有shortcut的block，相当于<span
+class="math inline">\(2^n\)</span>个网络的集成；</li>
+<li>在非线性层存在的前提下，复杂的连接，增加了模型的非线性；</li>
+</ul>
+<p>然而，这种多分支结构也引入了缺陷：</p>
+<ul>
+<li>多分支使得显存消耗增加；</li>
+<li>复杂的模型降低了并行度；</li>
+</ul>
+<p>作者指出，尽管一些模型具有较低的FLOPs，但是因为并行度不够等原因，计算密度低，模型在推理时的速度慢。</p>
+<h3 id="模型重参数化">模型重参数化</h3>
+<p>本文的重参数化，侧重于“使用先前的模型结构的参数，构造新结构的参数，使得模型结构修改前后，对于数据流的作用是等价的”，即找到一种参数的代数变换，使得<span
+class="math inline">\(x+g(x)+f(x)=h(x)\)</span>；</p>
+<p>作者在文中强调了这个工作与DiractNet的区别：DiractNet的重参数化是用得到的参数计算另一个数学表达式来优化。笔者后续也会更新一些别的重参数化的论文阅读。</p>
+<h3 id="winograd-convolution">Winograd Convolution</h3>
+<p>这是一种对于步长为1的3x3卷积的加速算法，对于<span
+class="math inline">\(F(2\times 2, 3\times
+3)\)</span>（表示输出尺寸为2x2，卷积核尺寸为3x3的一卷积运算），考虑每一个输出的每一个位置来自一对长度为9的向量的内积，标准卷积方法需要2x2x3x3=36次乘法计算，而winograd方法通过观察到im2col之后的矩阵存在大量重复元素，设计算法将乘法次数减少到16次。这个<a
+target="_blank" rel="noopener" href="https://www.slideshare.net/embeddedvision/even-faster-cnns-exploring-the-new-class-of-winograd-algorithms-a-presentation-from-arm?from_action=save">slide</a>清楚地讲述了在<span
+class="math inline">\(F(2,3)\)</span>上的算法，又如何扩展到<span
+class="math inline">\(F(2\times 2, 3\times
+3)\)</span>，进而再扩展到更大尺寸，更多通道上的3x3步长1卷积。</p>
+<p>作者整个模型都使用3x3,stride=1的卷积，旨在利用上这种加速算法。</p>
+<h3 id="训练时块结构与重参数化方法">训练时块结构与重参数化方法</h3>
+<p><img src="image-20221003132412029.png" /></p>
+<p>作者为每个块设计了两条额外分支，在每个块的最后（图中没有画出来）的是ReLU非线性层，不参与后续的重参数化。在推理前，目的时将3个分支的参数合并到单分支的3x3卷积中去。</p>
+<p><img src="image-20221003132802917.png" /></p>
+<p>上图主要展示了，如何将1x1卷积和原始输入构造为具有等价输出的3x3卷积，下面的公式化描述介绍了如何“吸BN”。</p>
+<p><img src="image-20221003133459134.png" /></p>
+<p>在实现时，注意的第一个细节是，将1x1卷积转化为3x3卷积时，除了给卷积核pad
+0之外，图像的padding也要减去<span class="math inline">\(\lfloor
+\frac{\text{kernel size}}{2}\rfloor\)</span>，这才使得结果等价。</p>
+<p>另一个细节是，由于作者穿插设置了部分块使用分组卷积（后面的整体架构一节中会讲到），对于3x3卷积和1x1卷积的分支，在重参数化时没有什么需要对此特殊处理的，对与将恒等映射改写为3x3卷积的情况，则需要注意分组卷积的组数。</p>
+<blockquote>
+<p>分组卷积，就是将<span
+class="math inline">\(C_1\)</span>维的输入tensor和<span
+class="math inline">\(C_2/g\)</span>个<span
+class="math inline">\(C_1\)</span>维卷积核分成<span
+class="math inline">\(g\)</span>个<span
+class="math inline">\(C_1/g\)</span>维的卷积，得到的<span
+class="math inline">\(g\)</span>个<span
+class="math inline">\(C_2/g\)</span>的tensor在channel维度拼接到一起。因此，对于恒等映射等价的第<span
+class="math inline">\(i\)</span>个卷积核，应该只在<span
+class="math inline">\(i ~\text{mod}~
+g\)</span>维的3x3的矩阵的中心为1。</p>
+</blockquote>
+<p>对于一个<code>RepVGGBlock</code>，作者定义了<code>switch_to_deploy</code>方法，在训练后，推理前，遍历网络并对所有<code>RepVGGBlock</code>调用该方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">switch_to_deploy</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;rbr_reparam&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="comment"># 获得与3个分支的作用等价的1个卷积核以及偏差</span></span><br><span class="line">    kernel, bias = self.get_equivalent_kernel_bias()</span><br><span class="line">    <span class="comment"># 构造新的3x3卷积，各种参数配置保持不变，但使用计算好的参数</span></span><br><span class="line">    self.rbr_reparam = nn.Conv2d(in_channels=self.rbr_dense.conv.in_channels, out_channels=self.rbr_dense.conv.out_channels,</span><br><span class="line">                                 kernel_size=self.rbr_dense.conv.kernel_size, stride=self.rbr_dense.conv.stride,</span><br><span class="line">                                 padding=self.rbr_dense.conv.padding, dilation=self.rbr_dense.conv.dilation, groups=self.rbr_dense.conv.groups, bias=<span class="literal">True</span>)</span><br><span class="line">    self.rbr_reparam.weight.data = kernel</span><br><span class="line">    self.rbr_reparam.bias.data = bias</span><br><span class="line">    <span class="comment"># 删除训练时模型中的分支结构</span></span><br><span class="line">    self.__delattr__(<span class="string">&#x27;rbr_dense&#x27;</span>)</span><br><span class="line">    self.__delattr__(<span class="string">&#x27;rbr_1x1&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;rbr_identity&#x27;</span>):</span><br><span class="line">        self.__delattr__(<span class="string">&#x27;rbr_identity&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;id_tensor&#x27;</span>):</span><br><span class="line">            self.__delattr__(<span class="string">&#x27;id_tensor&#x27;</span>)</span><br><span class="line">            self.deploy = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_equivalent_kernel_bias</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;三合一</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    kernel3x3, bias3x3 = self._fuse_bn_tensor(self.rbr_dense)</span><br><span class="line">    kernel1x1, bias1x1 = self._fuse_bn_tensor(self.rbr_1x1)</span><br><span class="line">    kernelid, biasid = self._fuse_bn_tensor(self.rbr_identity)</span><br><span class="line">    <span class="keyword">return</span> kernel3x3 + self._pad_1x1_to_3x3_tensor(kernel1x1) + kernelid, bias3x3 + bias1x1 + biasid</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_pad_1x1_to_3x3_tensor</span>(<span class="params">self, kernel1x1</span>):</span><br><span class="line">    <span class="keyword">if</span> kernel1x1 <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> torch.nn.functional.pad(kernel1x1, [<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_fuse_bn_tensor</span>(<span class="params">self, branch</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;吸BN</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> branch <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(branch, nn.Sequential):</span><br><span class="line">        <span class="comment"># 3x3或1x1的conv_bn分支</span></span><br><span class="line">        kernel = branch.conv.weight</span><br><span class="line">        running_mean = branch.bn.running_mean</span><br><span class="line">        running_var = branch.bn.running_var</span><br><span class="line">        gamma = branch.bn.weight</span><br><span class="line">        beta = branch.bn.bias</span><br><span class="line">        eps = branch.bn.eps</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># 恒等映射分支（只有一个BN层）</span></span><br><span class="line">        <span class="keyword">assert</span> <span class="built_in">isinstance</span>(branch, nn.BatchNorm2d)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;id_tensor&#x27;</span>):</span><br><span class="line">            input_dim = self.in_channels // self.groups</span><br><span class="line">            kernel_value = np.zeros((self.in_channels, input_dim, <span class="number">3</span>, <span class="number">3</span>), dtype=np.float32)  <span class="comment"># 构造的3x3卷积核</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(self.in_channels):</span><br><span class="line">                kernel_value[i, i % input_dim, <span class="number">1</span>, <span class="number">1</span>] = <span class="number">1</span></span><br><span class="line">                self.id_tensor = torch.from_numpy(kernel_value).to(branch.weight.device)</span><br><span class="line">                kernel = self.id_tensor</span><br><span class="line">                running_mean = branch.running_mean</span><br><span class="line">                running_var = branch.running_var</span><br><span class="line">                gamma = branch.weight</span><br><span class="line">                beta = branch.bias</span><br><span class="line">                eps = branch.eps</span><br><span class="line">                std = (running_var + eps).sqrt()</span><br><span class="line">     t = (gamma / std).reshape(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">     <span class="keyword">return</span> kernel * t, beta - running_mean * gamma / std</span><br></pre></td></tr></table></figure>
+<h3 id="整体架构">整体架构</h3>
+<p>作者配置架构的原则就两个：简单的根据经验设置+减少参数；</p>
+<p><img src="image-20221003142015913.png" /></p>
+<p>上表展示了不同分辨率的特征图有几个block，以及每个block的通道数，其中<span
+class="math inline">\(a, b\)</span>是缩放因子，有<span
+class="math inline">\(a&lt;b\)</span>，stage1个stage5都只有一一个block的原因是为了减少参数量。</p>
+<p>可选的，可以穿插地将部分block的groups设置为一个全局常数，比如2或者4。相邻的block都使用分组卷积，可能会导致通道内信息交换受限。</p>
+<p>最新的代码中，作者添加了RepVGGplus，使用了更深的层数，辅助头，以及在非线性层之后使用<a
+target="_blank" rel="noopener" href="https://arxiv.org/pdf/1709.01507.pdf">SEBlock</a>。</p>
+<h2 id="实验">实验</h2>
+<p>这一部分作者想强调的点在于，他们使用了Pytorch官方教程中简单的数据增强，随心的模型配置，就让推理时的模型获得了相比于同样训练设置下参数相近的ResNet，
+EfficientNet,
+ResNeXt等更快的推理速度和更好的性能（尽管该模型往往参数量更大，FLOPs更大，但速度却最快）。</p>
+<p>在消融实验中，作者不仅证明了3个并行分支，一个不能少，并且，通过将ResNet中的Block替换为RepVGG
+Block，证明了性能的优越并不是靠在训练时堆参数得到的。</p>
+<p>此外作者还刷了刷Cityscapes的点。</p>
+<p>实验结果的细节见论文，并且在仓库中，作者更新了最新的模型配置与性能（在ImageNet上最高刷到了84.06%）。</p>
+<h2 id="总结">总结</h2>
+<p>本文提出的结构重参数化技巧让VGG风格的模型“再次伟大”，本质上还是利用数学上的等价转换将训练好的复杂模型简化。除了卷积，其他算子（如MLP）有没有响应的简化方法？该模型虽然速度快，适用于满载荷的业务场景，但是较高的FLOPs也将带来更多功耗，这在各种终端中也是至关重要的。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BB%93%E6%9E%84%E9%87%8D%E5%8F%82%E6%95%B0%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> 结构重参数化</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/09/30/ML-Class/" rel="prev" title="机器学习课堂笔记">
+                  <i class="fa fa-chevron-left"></i> 机器学习课堂笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/10/05/ACNet/" rel="next" title="ACNet论文阅读">
+                  ACNet论文阅读 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"e793c4a6fa166379a4141d039f2bbe71"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

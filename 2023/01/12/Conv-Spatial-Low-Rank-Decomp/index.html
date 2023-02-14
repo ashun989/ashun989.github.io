@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="论文：Speeding up Convolutional Neural Networks with Low Rank Expansions 作者：Max Jaderberg, Andrea Vedaldi and Andrew Zisserman; 一作单位：Visual Geometry Group Department of Engineering Science Univers">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在空间域上的低秩分解和在通道上的线性组合加速卷积运算">
+<meta property="og:url" content="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="论文：Speeding up Convolutional Neural Networks with Low Rank Expansions 作者：Max Jaderberg, Andrea Vedaldi and Andrew Zisserman; 一作单位：Visual Geometry Group Department of Engineering Science Univers">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/fig1.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/p2-tab5.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/p2-equ3.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/p2-equ5.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/p2-equ4.png">
+<meta property="article:published_time" content="2023-01-12T04:05:58.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.265Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="模型压缩">
+<meta property="article:tag" content="卷积分解">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/fig1.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/","path":"2023/01/12/Conv-Spatial-Low-Rank-Decomp/","title":"在空间域上的低秩分解和在通道上的线性组合加速卷积运算"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>在空间域上的低秩分解和在通道上的线性组合加速卷积运算 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="nav-number">1.1.</span> <span class="nav-text">前置知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#d%E5%8D%B7%E7%A7%AF%E4%B8%8D%E8%BF%87%E6%98%AF2d%E5%8D%B7%E7%A7%AF%E7%9A%84%E7%BB%84%E5%90%88"><span class="nav-number">1.2.</span> <span class="nav-text">3D卷积不过是2D卷积的组合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scheme-1"><span class="nav-number">1.3.</span> <span class="nav-text">Scheme 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scheme-2"><span class="nav-number">1.4.</span> <span class="nav-text">Scheme 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%8D%B7%E7%A7%AF%E6%A0%B8%E9%87%8D%E5%BB%BA%E7%9A%84%E4%BC%98%E5%8C%96"><span class="nav-number">1.5.</span> <span class="nav-text">基于卷积核重建的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#scheme-1-1"><span class="nav-number">1.5.1.</span> <span class="nav-text">scheme 1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#scheme-2-1"><span class="nav-number">1.5.2.</span> <span class="nav-text">scheme 2</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E6%95%B0%E6%8D%AE%E9%87%8D%E5%BB%BA%E7%9A%84%E4%BC%98%E5%8C%96"><span class="nav-number">1.6.</span> <span class="nav-text">基于数据重建的优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8E%E6%9D%A5%E7%9A%84%E7%A0%94%E7%A9%B6"><span class="nav-number">3.</span> <span class="nav-text">后来的研究</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="在空间域上的低秩分解和在通道上的线性组合加速卷积运算 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          在空间域上的低秩分解和在通道上的线性组合加速卷积运算
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-01-12 12:05:58" itemprop="dateCreated datePublished" datetime="2023-01-12T12:05:58+08:00">2023-01-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <img src="/2023/01/12/Conv-Spatial-Low-Rank-Decomp/fig1.png" class="">
+<p><strong>论文</strong>：<a
+target="_blank" rel="noopener" href="https://arxiv.org/abs/1405.3866"><strong>Speeding up Convolutional
+Neural Networks with Low Rank Expansions</strong></a></p>
+<p><strong>作者</strong>：<em>Max Jaderberg, Andrea Vedaldi and Andrew
+Zisserman</em>;</p>
+<p><strong>一作单位</strong>：Visual Geometry Group Department of
+Engineering Science University of Oxford</p>
+<p><strong>录用情况</strong>：BMVC'2014</p>
+<blockquote>
+<p>本文在空间维度上对卷积的空间域进行低秩分解，提出了两种分解的Scheme，直接的和间接的，相比于只在空间域上分解卷积核，作者还利用了通道维度上的冗余性，将多个卷积核视为基的线性组合；对于从传统卷积核到分解后的结构，提出了两种优化方法，基于卷积核的重建和基于数据的重建；该可以用到任何一般的卷积层中去。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<h3 id="前置知识">前置知识</h3>
+<p>记输入 <span class="math inline">\(x\in \mathbb{R}^{H\times
+W}\)</span>，输出 <span class="math inline">\(Y = \{y_1, \dots,
+y_N\}\)</span>，（其中<span class="math inline">\(y_n\in
+\mathbb{R}^{H&#39;\times W&#39;}\)</span>），是由输入 <span
+class="math inline">\(x\)</span> 与 <span
+class="math inline">\(N\)</span> 个卷积核 <span class="math inline">\(F
+= \{f_i\}~\forall i \in [1\dots N]\)</span> 卷积（<span
+class="math inline">\(y_i = f_i * x\)</span>）得到的；</p>
+<p>对于单通道的输入，<span class="math inline">\(N\)</span> 个 <span
+class="math inline">\(d\times d\)</span>
+的2D卷积核，传统卷积的时间复杂度 <span
+class="math inline">\(O(d^2NH&#39;W&#39;)\)</span>；</p>
+<p>一种基本的想法是将卷积核由一系列更少的基 <span
+class="math inline">\(S = \{s_i\} ~\forall i \in [1\dots M]\)</span>
+表示；有 <span class="math display">\[
+y_i \simeq \sum_{k=1}^{M} a_{ik}s_{k} * x
+\]</span></p>
+<p>其中，<span class="math inline">\(a_{ik}\)</span> 是权重标量；</p>
+<p>在计算时，可以先算出输入与所有基的卷积结果，之后在计算 <span
+class="math inline">\(N\)</span> 种加权线性组合，因此时间复杂度是 <span
+class="math inline">\(O((d^2M + MN)H&#39;W&#39;)\)</span>；</p>
+<p>在满足 <span class="math inline">\(M&lt;\frac{d^2N}{d^2 + N}\)</span>
+时，这种分解才有理论上的加速；</p>
+<p>另一种基本的想法是将卷积核进行秩-1分解，有 <span
+class="math inline">\(s_i * x = v_i * (h_i * x)\)</span>，其中，<span
+class="math inline">\(s_i \in \mathbb{R}^{d\times d}\)</span>，<span
+class="math inline">\(v_i \in \mathbb{R}^{d\times 1}\)</span>，<span
+class="math inline">\(h_i \in \mathbb{R}^{1\times
+d}\)</span>；这种分解下，时间复杂度为 <span
+class="math inline">\(O(2dH&#39;W&#39;)\)</span>，理论上加速明显；</p>
+<p>作者的主要想法就是，在扩展到3D卷积时，将上述两种方法结合起来；</p>
+<h3 id="d卷积不过是2d卷积的组合">3D卷积不过是2D卷积的组合</h3>
+<p>首先补充一些符号定义：</p>
+<p>特征图 <span class="math inline">\(z_i(u, v)\)</span>，其中 <span
+class="math inline">\((u, v)\in \Omega_i\)</span> 是空间坐标，<span
+class="math inline">\(z_i(u, v)\in \mathbb{R}^C\)</span> 是 <span
+class="math inline">\(C\)</span> 个标量组成的通道特征，某个通道 <span
+class="math inline">\(c\)</span> 的特征图记为 <span
+class="math inline">\(z_i^c(u, v)\)</span>；</p>
+<p>经过卷积层后，得到下一层特征图 <span class="math inline">\(z_{i+1}
+\in \mathbb{R}^{H&#39;\times W\times N}\)</span>，其中 <span
+class="math inline">\(z_{i+1}^n = h_i(W_{i,n} * z_i + b_{i,n}) ~\forall
+i \in [1\dots N]\)</span>；<span class="math inline">\(h_i\)</span>
+是非线性激活函数；</p>
+<p>我们可以把3D卷积视为2D卷积的组合： <span class="math display">\[
+W_n * z = \sum_{c=1}^C W_n^c * z^c
+\]</span></p>
+<p>3D卷积的复杂度为 <span
+class="math inline">\(O(CNd^2H&#39;W&#39;)\)</span>；依此，结合上一节的两种方法，作者首先提出scheme
+1的分解方法：</p>
+<h3 id="scheme-1">Scheme 1</h3>
+<p>按照下式对卷积核直接进行分解： <span class="math display">\[
+W_n * z = \sum_{c=1}^C W_n^c * z^c \simeq \sum_{c=1}^C\sum_{m=1}^M
+a_n^{cm}(s_m^c * z^c)
+\]</span></p>
+<p>时间复杂度为 <span
+class="math inline">\(O(MC(d^2+N)H&#39;W&#39;)\)</span>；</p>
+<p>如果基 <span class="math inline">\(s_m^c\)</span>
+是秩-1矩阵且表示为可分离的，那么时间复杂度可以进一步减小为 <span
+class="math inline">\(O(MC(d+N)H&#39;W&#39;)\)</span>，那么，只要 <span
+class="math inline">\(M &lt; d\min\{d, N\}\)</span>，scheme
+1相比于传统卷积，在理论上更高效；</p>
+<blockquote>
+<p>这个条件似乎很苛刻，因为通常有 <span class="math inline">\(d \ll
+N\)</span>，即 <span class="math inline">\(M \le d^2\)</span>，这么小的
+<span class="math inline">\(M\)</span> 能得到好的拟合吗？</p>
+</blockquote>
+<p>在上式中，对于每一个通道 <span class="math inline">\(c\)</span>
+上的卷积，使用不同的基 <span
+class="math inline">\(S^c\)</span>，但是作者在实验中发现，所有通道共享相同的基，即
+<span class="math inline">\(s_m^1 = \dots = s_m^C =
+s_m\)</span>；但是，权重不可能再在通道维度上共享了，否则对原卷积的拟合结果在通道上一致，是非常差的拟合；学习到的权重是
+<span class="math inline">\(NC\times M\)</span>
+的张量，笔者怎么也不知道作者是怎么把这个权重放在 <span
+class="math inline">\(N\)</span> 个 <span class="math inline">\(M \times
+1 \times 1\)</span>
+卷积中的；按照分解式，结合现有的api，笔者得到的scheme 1流程是：</p>
+<ul>
+<li>将 <span class="math inline">\(C\)</span> 通道输入分 <span
+class="math inline">\(C\)</span> 组，每组用 <span
+class="math inline">\(CM\)</span> 个单通道<span
+class="math inline">\(d\times d\)</span>
+卷积，这一步是计算输入的各个通道与<span
+class="math inline">\(M\)</span>个基的各个通道的卷积；</li>
+<li>使用 <span class="math inline">\(N\)</span> 个 <span
+class="math inline">\(CM\)</span> 通道 <span
+class="math inline">\(1\times 1\)</span> 卷积，这一步是加权求和；</li>
+</ul>
+<p>在学习到合适的基后，对 <span class="math inline">\(CM\times 1\times
+d\times d\)</span> 的卷积核张量进行空间分解，得到如下的推理时流程：</p>
+<ul>
+<li>将 <span class="math inline">\(C\)</span> 通道输入分 <span
+class="math inline">\(C\)</span> 组，每组用 <span
+class="math inline">\(CM\)</span> 个单通道 <span
+class="math inline">\(1\times d\)</span> 卷积；</li>
+<li>将上一步结果分 <span class="math inline">\(CM\)</span> 组，每组用
+<span class="math inline">\(CM\)</span> 个单通道 <span
+class="math inline">\(d\times 1\)</span> 卷积；</li>
+<li>使用 <span class="math inline">\(N\)</span> 个 <span
+class="math inline">\(CM\)</span> 通道 <span
+class="math inline">\(1\times 1\)</span> 卷积，这一步是加权求和；</li>
+</ul>
+<h3 id="scheme-2">Scheme 2</h3>
+<p>这里作者希望用两次卷积解决问题：首先使用 <span
+class="math inline">\(K\)</span> 组 <span class="math inline">\(d\times
+1\)</span> 卷积 <span class="math inline">\(\{v_k \in
+\mathbb{R}^{d\times 1\times C}: ~k\in [1\dots, K]\}\)</span>，得到 <span
+class="math inline">\(V(u,v)\in \mathbb{R}^K\)</span>，再次使用 <span
+class="math inline">\(N\)</span> 组 <span class="math inline">\(1\times
+d\times K\)</span> 卷积 <span class="math inline">\(\{h_n\in
+\mathbb{R}^{1\times d\times K}\}\)</span>；（图1(c)的标注有误）</p>
+<p>由下式 <span class="math display">\[
+W_n * z \simeq h_n * V = \sum_{k=1}^K h_n^k * V^k = \sum_{k=1}^K h_n^k *
+(v_k * z) = \sum_{k=1}^K h_n^k * \sum_{c=1}^C v_k^c * z^c = \sum_{c=1}^C
+\left[\sum_{k=1}^K h_n^k * v_k^c \right] * z^c
+\]</span> 可得分解： <span class="math inline">\(W_n^c = \sum_{k=1}^K
+h_n^k * v_k^c\)</span>；</p>
+<p>Scheme 2的时间复杂度为 <span
+class="math inline">\(O(K(N+C)dH&#39;W&#39;)\)</span>，要想获得理论加速，应该有
+<span class="math inline">\(K(N + C) \ll NCd\)</span>；</p>
+<h3 id="基于卷积核重建的优化">基于卷积核重建的优化</h3>
+<h4 id="scheme-1-1">scheme 1</h4>
+<p>对于scheme 1，使用先前的论文提出的目标函数即可：</p>
+<p><span class="math display">\[
+\min_{\{s_m\}, \{a_n\}} \sum_{n=1}^N\sum_{c=1}^C \left \Vert W_n^c -
+\sum_{m=1}^M a_n^{cm} s_m \right\Vert_2^2 + \lambda \sum_{m=1}^M \Vert
+s_m\Vert_*
+\]</span></p>
+<p>交替优化 <span class="math inline">\(\{s_m\}, \{a_n\}\)</span>；</p>
+<p>值得注意的是，我们优化的是低秩的基 <span
+class="math inline">\(\{s_m\}\)</span>，得到最优解后我们还要对 <span
+class="math inline">\(\{s_m\}\)</span>
+进行低秩分解（如SVD），得到最终的形式；</p>
+<p>一个在实践中非常重要的问题就是 <span
+class="math inline">\(\lambda\)</span> 的确定，作者建议使用小的 <span
+class="math inline">\(\lambda\)</span> 开始，逐步增加；</p>
+<h4 id="scheme-2-1">scheme 2</h4>
+<p>对于scheme 2，使用如下目标函数，并使用共轭梯度下降优化：</p>
+<p><span class="math display">\[
+\min_{\{h_n^k\},\{v_k^c\}} \sum_{n=1}^{N}\sum_{c=1}^C \left \Vert W_n^c
+- \sum_{k=1}^K h_n^k * v_k^c \right\Vert_2^2
+\]</span></p>
+<h3 id="基于数据重建的优化">基于数据重建的优化</h3>
+<p>以scheme 2为例，目标函数为： <span class="math display">\[
+\min_{\{h_n^k\},\{v_k^c\}} \sum_{i=1}^{|X|}\sum_{n=1}^{N}\left \Vert
+W_n\Phi_{l-1}(x_i) - \sum_{c=1}^C \sum_{k=1}^K h_n^k * v_k^c *
+\Phi_{l-1}(x_i)
+\right \Vert_2^2
+\]</span> 其中，<span class="math inline">\(\Phi_{l-1}(x_i)\)</span>
+表示原网络在对于 <span class="math inline">\(x_i\)</span> 在 <span
+class="math inline">\(l-1\)</span> 层的输出；</p>
+<p>这种优化的实现相对简单，只需要同时运行费解版本和原始版本的卷积网络，并反向传播每层L2损失的梯度；</p>
+<p>作者也在文中指出，使用分类损失回传的梯度来进行数据重建优化，在实验中，不如使用L2损失，容易过拟合；（作者的意思应该是只更新分解的卷积层参数，其它层冻结）</p>
+<h2 id="实验">实验</h2>
+<p>作者在实验部分指出，在测试集上，基于数据重建的优化要好于（重建损失更低，精度损失更低）基于卷积核的优化，甚至，"This
+generally holds when data from a completely different distribution to
+what the data optimization scheme has been trained on"；</p>
+<p>而同等重建损失下scheme 1有比scheme
+2的更好的理论加速比，但是由于彼时Caffe框架对于2D卷积没有很好的优化，因此作者的实现下scheme
+1的实际耗时非常高；</p>
+<p>最终，基于一个4层的CNN，做26个字母加10个数字的图像分类，作者在2,3层卷积上使用scheme
+2 + 基于数据的重建，获得了1%的分类精度损失下的4.5倍的加速比；</p>
+<h2 id="后来的研究">后来的研究</h2>
+<p>在论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1511.06067">Convolutional
+Neural Networks with Low-Rank Regularziation</a> (<a
+target="_blank" rel="noopener" href="https://iclr.cc/archive/www/doku.php%3Fid=iclr2016:main.html">ICLR'2016</a>)
+中，对本文的scheme2的工作进行了扩展：</p>
+<ul>
+<li>scheme2基于卷积核重建的优化，本文给出了解析解，避免依次优化迭代次数多陷入局部最优的问题；</li>
+<li>证明了scheme2基于数据重建的优化是NP难问题；</li>
+<li>仍然使用分类误差对整个模型进行微调，比逐层使用L2 loss微调更好；</li>
+<li>从头训练带有低秩结构的模型，获得了不错的效果；</li>
+</ul>
+<p><img src="p2-tab5.png" /></p>
+<p>下面笔者简单梳理一下解析解的由来：</p>
+<p>本文基本沿用了相同的符号，目标函数是 <img src="p2-equ3.png" /></p>
+<p>Frobenius 范数矩阵向量化后的二范数，有如下性质：</p>
+<p><span class="math display">\[
+\lVert W_1 + W_2 \rVert _F^2 = \lVert W_1 \rVert _F^2 + \lVert W_2
+\rVert _F^2
+\]</span></p>
+<p>令</p>
+<p><img src="p2-equ5.png" /></p>
+<p>相当于N行C列，每个元素是一个 d<span
+class="math inline">\(\times\)</span>d 的块的矩阵；显然有 <span
+class="math inline">\(\operatorname{rank}\tilde{W} \le K\)</span>；</p>
+<p>结合上述两点，我们可以将优化问题等价为：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{min} &amp;\lVert W - \tilde{W}\rVert _F^2\\
+  \text{s.t.} &amp;\operatorname{rank}\tilde{W} \le K
+\end{array}
+\]</span></p>
+<p>该问题可以用 <span class="math inline">\(W\)</span>
+的奇异值分解结果得到，因此有：</p>
+<p><img src="p2-equ4.png" /></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/" rel="tag"><i class="fa fa-tag"></i> 模型压缩</a>
+              <a href="/tags/%E5%8D%B7%E7%A7%AF%E5%88%86%E8%A7%A3/" rel="tag"><i class="fa fa-tag"></i> 卷积分解</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/01/01/Structured-Convolutions/" rel="prev" title="把卷积分解成sum-pooling和更小的卷积">
+                  <i class="fa fa-chevron-left"></i> 把卷积分解成sum-pooling和更小的卷积
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/01/13/Non-linear-Conv-Decomp/" rel="next" title="卷积分解：考虑非线性函数、多层误差累积以及秩选择">
+                  卷积分解：考虑非线性函数、多层误差累积以及秩选择 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"2b8f53fcaba6792755d29b7c149e3ef0"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

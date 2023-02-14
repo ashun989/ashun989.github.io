@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="论文：Non-local Neural Networks 作者：Xiaolong Wang, Ross Girshick, Abhinav Gupta, Kaiming He 录用情况：CVPR&#39;2018 第一作者单位：Carnegie Mellon University，Facebook AI Research 本文提出的Non-Local是捕获长距离信息的，这篇文章主要在视频分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Non-local网络回顾">
+<meta property="og:url" content="https://ashun989.github.io/2022/09/21/Non-local/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="论文：Non-local Neural Networks 作者：Xiaolong Wang, Ross Girshick, Abhinav Gupta, Kaiming He 录用情况：CVPR&#39;2018 第一作者单位：Carnegie Mellon University，Facebook AI Research 本文提出的Non-Local是捕获长距离信息的，这篇文章主要在视频分">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2022/09/21/Non-local/image-20220921200450948.png">
+<meta property="article:published_time" content="2022-09-21T08:53:49.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.281Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="ashun, blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2022/09/21/Non-local/image-20220921200450948.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2022/09/21/Non-local/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/09/21/Non-local/","path":"2022/09/21/Non-local/","title":"Non-local网络回顾"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Non-local网络回顾 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">整体形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%8A%82%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">细节设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">3.</span> <span class="nav-text">实验</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/09/21/Non-local/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Non-local网络回顾 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Non-local网络回顾
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-09-21 16:53:49" itemprop="dateCreated datePublished" datetime="2022-09-21T16:53:49+08:00">2022-09-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <img src="/2022/09/21/Non-local/image-20220921200450948.png" class="">
+<p><strong>论文</strong>：Non-local Neural Networks</p>
+<p><strong>作者</strong>：<em>Xiaolong Wang, Ross Girshick, Abhinav
+Gupta, Kaiming He</em></p>
+<p><strong>录用情况</strong>：CVPR'2018</p>
+<p><strong>第一作者单位</strong>：Carnegie Mellon University，Facebook
+AI Research</p>
+<p>本文提出的Non-Local是捕获长距离信息的，这篇文章主要在视频分类任务上做实验（Kinetics,
+Charades），但在静态图像方面，也在COCO上进行了实例分割、检测和姿态估计的实验。</p>
+<p>笔者认为，Non-Local在计算attention的方法上有所扩展，并在计算attention之前使用池化方法减小计算量之外，与self-attention没有什么不同的。</p>
+<blockquote>
+<p>当然，在当时的情况下，Self-Attention还在NLP领域内玩，而且作者提出他们的insight来自于一种经典的图像去噪算法<a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Non-local_means">Non-local
+mean</a>。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="整体形式">整体形式</h2>
+<p>与Non-local mean一样的，作者希望将如下公式设计到网络结构中去： <span
+class="math display">\[
+\mathbf{y}_i=\frac{1}{\mathcal{C}(\mathbf x)}\sum_{\forall j}f(\mathbf
+x_i, \mathbf x_j)g(\mathbf x_j)
+\]</span> 其中，<span class="math inline">\(\mathbf
+x\)</span>是输入信号，<span class="math inline">\(\mathbf
+y\)</span>是与之形状相同的输出信号，<span
+class="math inline">\(i,j\)</span>是空间位置上的索引，<span
+class="math inline">\(f\)</span>是度量相似度的函数，<span
+class="math inline">\(g\)</span>是一种从源空间到度量空间的映射，<span
+class="math inline">\(\mathcal C(\mathbf
+x)\)</span>是归一化项。其含义可以理解为，对于每个位置上的输入信号，都与空间上其他位置的信号计算一个相似度，作为权值，计算在全局上的加权平均作为输出。</p>
+<p>相比之下，卷积操作，一个像素只能与其邻域范围内的像素直接相关；而全连接（即矩阵乘法）也是一种全局的加权，但是其权重是在训练集中学习到的，而非Non-local这样输入适应的，并且全连接层限制了输入的形状。</p>
+<h2 id="细节设计">细节设计</h2>
+<p>作者令<span class="math inline">\(g(x)=W_g\mathbf
+x_j\)</span>，没有做过多的讨论。对于<span
+class="math inline">\(f\)</span>和<span class="math inline">\(\mathcal
+C\)</span>，作者给出了四种形式：</p>
+<ul>
+<li><strong>Gaussian</strong>：<span class="math inline">\(f(\mathbf
+x_i, \mathbf x_j)=e^{\mathbf x_i^T \mathbf x_j}\)</span>，<span
+class="math inline">\(\mathcal C(\mathbf x)=\sum_{\forall j}f(\mathbf
+x_i, \mathbf
+x_j)\)</span>，在实现的时候，就是完成点积之后添加一个Softmax层；</li>
+<li><strong>Embedded Gaussian</strong>：<span
+class="math inline">\(f(\mathbf x_i, \mathbf x_j)=e^{\theta(\mathbf
+x_i)^T \phi(\mathbf x_j)}\)</span>，<span class="math inline">\(\mathcal
+C(\mathbf x)=\sum_{\forall j}f(\mathbf x_i, \mathbf
+x_j)\)</span>，其中<span class="math inline">\(\theta\)</span>和<span
+class="math inline">\(\phi\)</span>也都是线性映射；这种情况就是没有除以<span
+class="math inline">\(\sqrt d\)</span>的self attention了；</li>
+<li><strong>Dot product</strong>：<span class="math inline">\(f(\mathbf
+x_i, \mathbf x_j)=\theta(\mathbf x_i)^T \phi(\mathbf
+x_j)\)</span>，<span class="math inline">\(\mathcal
+C(x)=N\)</span>，其中<span
+class="math inline">\(N\)</span>是空间位置的数量，对于2D，就是HxW，对于3D，就是TxHxW，这里使用常数作为归一化是为了简单；</li>
+<li><strong>Concatenation</strong>：<span
+class="math inline">\(f(\mathbf x_i, \mathbf x_j)=\text{ReLu}(\mathbf
+w_f^T[\theta(\mathbf x_i), \phi(\mathbf x_j)])\)</span>，<span
+class="math inline">\(\mathcal C(x)=N\)</span>；</li>
+</ul>
+<p>同样的，作者引入了残差连接，即希望学习的<span
+class="math inline">\(\mathbf
+y\)</span>是一个残差，整个Non-local块表示为： <span
+class="math display">\[
+z_i=W_z\mathbf y_i+\mathbf x_i
+\]</span>
+按照bottleneck的设计，同样是为了减少参数量，度量时的通道数减少为输入输出的一半；此外，还可以引入池化操作进一步减少计算量，用Embedding
+Gaussian中的式子表示，为<span
+class="math inline">\(y_i=\frac{1}{\mathcal C(\hat{\mathbf x})}
+f(\mathbf x_i, \hat{\mathbf x}_j)g(\hat{\mathbf
+x}_j)\)</span>，其中<span
+class="math inline">\(\hat{\mathbf{x}}_j\)</span>是<span
+class="math inline">\(\mathbf x_j\)</span>下采样的结果。</p>
+<h2 id="实验">实验</h2>
+<p>原作的实验关注了视频理解任务，因为该论文现在不算新了，这里就不再赘述。在MMSegmentation里有一个把Non-local用在decoder
+head中的分割模型，可以<a
+target="_blank" rel="noopener" href="https://github.com/open-mmlab/mmsegmentation/blob/master/configs/_base_/models/nonlocal_r50-d8.py">参考</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/09/18/ConvNeXt/" rel="prev" title="ConvNeXt论文阅读">
+                  <i class="fa fa-chevron-left"></i> ConvNeXt论文阅读
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/09/30/ML-Class/" rel="next" title="机器学习课堂笔记">
+                  机器学习课堂笔记 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"466c125ef87c75ccdf08fcf1421ec8ea"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

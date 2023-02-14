@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本文是根据《线性代数及其应用》整理的复习笔记。之后又补充了部分《矩阵代数》第0章的内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线性代数要点总结">
+<meta property="og:url" content="https://ashun989.github.io/2022/08/10/linear-algebra/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="本文是根据《线性代数及其应用》整理的复习笔记。之后又补充了部分《矩阵代数》第0章的内容。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2022/08/10/linear-algebra/image-20220811123558336.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/08/10/linear-algebra/image-20220812125522496.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/08/10/linear-algebra/image-20220812134646106.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/08/10/linear-algebra/image-20220812181851605.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/08/10/linear-algebra/image-20220812182043366.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/08/10/linear-algebra/image-20220812190112177.png">
+<meta property="article:published_time" content="2022-08-10T05:20:31.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.313Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="线性代数">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2022/08/10/linear-algebra/image-20220811123558336.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2022/08/10/linear-algebra/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/08/10/linear-algebra/","path":"2022/08/10/linear-algebra/","title":"线性代数要点总结"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>线性代数要点总结 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E6%96%B9%E7%A8%8B%E7%BB%84"><span class="nav-number">1.</span> <span class="nav-text">1. 线性方程组</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E6%96%B9%E7%A8%8B%E7%BB%84-1"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 线性方程组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E6%96%B9%E7%A8%8B%E7%BB%84%E7%9A%84%E8%A7%A3%E9%9B%86"><span class="nav-number">1.2.</span> <span class="nav-text">1.3 线性方程组的解集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E6%97%A0%E5%85%B3"><span class="nav-number">1.3.</span> <span class="nav-text">1.4 线性无关</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E8%AF%86%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2"><span class="nav-number">1.4.</span> <span class="nav-text">1.5 初识线性变换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E4%BB%A3%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">2. 矩阵代数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 矩阵乘法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E7%9A%84%E9%80%86"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 矩阵的逆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%9D%97%E7%9F%A9%E9%98%B5"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 分块矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lu%E5%88%86%E8%A7%A3"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 LU分解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mathbbrn%E4%B8%AD%E7%9A%84%E5%AD%90%E7%A9%BA%E9%97%B4"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 \(\mathbb{R}^n\)中的子空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%A7%A9%E4%BF%AE%E6%AD%A3%E7%9F%A9%E9%98%B5%E7%9A%84%E9%80%86"><span class="nav-number">2.6.</span> <span class="nav-text">2.6 小秩修正矩阵的逆</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%8C%E5%88%97%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">3. 行列式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%8C%E5%88%97%E5%BC%8F%E7%9A%84%E8%AE%A1%E7%AE%97%E6%B3%95%E5%88%99"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 行列式的计算法则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%8B%89%E9%BB%98%E6%B3%95%E5%88%99"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 克拉默法则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%8C%E5%88%97%E5%BC%8F%E7%9A%84%E5%87%A0%E4%BD%95%E6%84%8F%E4%B9%89"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 行列式的几何意义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4"><span class="nav-number">4.</span> <span class="nav-text">4. 向量空间</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4%E7%9A%84%E5%85%AC%E7%90%86%E4%B8%8E%E5%AE%9A%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 向量空间的公理与定理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 线性变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%90%E6%A0%87%E4%B8%8E%E5%9D%90%E6%A0%87%E5%8F%98%E6%8D%A2"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 坐标与坐标变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%A9"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 秩</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E5%80%BC%E4%B8%8E%E7%89%B9%E5%BE%81%E5%90%91%E9%87%8F"><span class="nav-number">5.</span> <span class="nav-text">5. 特征值与特征向量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E5%80%BC%E5%90%91%E9%87%8F%E6%96%B9%E7%A8%8B"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 特征值、向量、方程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E8%A7%92%E5%8C%96"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 对角化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E5%90%91%E9%87%8F%E4%B8%8E%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 特征向量与线性变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 其他</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%80%A7%E4%B8%8E%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95"><span class="nav-number">6.</span> <span class="nav-text">6. 正交性与最小二乘法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E9%9B%86"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 正交集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 正交投影</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%BC%E6%8B%89%E5%A7%86-%E6%96%BD%E5%AF%86%E7%89%B9%E6%96%B9%E6%B3%95"><span class="nav-number">6.4.</span> <span class="nav-text">6.4 格拉姆-施密特方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5qr%E5%88%86%E8%A7%A3"><span class="nav-number">6.5.</span> <span class="nav-text">6.5 矩阵QR分解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95"><span class="nav-number">6.6.</span> <span class="nav-text">6.6 最小二乘法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5%E5%92%8C%E4%BA%8C%E6%AC%A1%E5%9E%8B"><span class="nav-number">7.</span> <span class="nav-text">7. 对称矩阵和二次型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 对称矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E5%9E%8B"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 二次型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E4%BC%98%E5%8C%96"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 条件优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A5%87%E5%BC%82%E5%80%BC%E5%88%86%E8%A7%A3"><span class="nav-number">7.4.</span> <span class="nav-text">7.4 奇异值分解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90"><span class="nav-number">7.5.</span> <span class="nav-text">7.5 主成分分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E5%A4%9A"><span class="nav-number">8.</span> <span class="nav-text">8. 更多</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#schur-complement"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 Schur complement</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#matrix-determinant-lemma"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 Matrix determinant lemma</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Etr%E7%9A%84%E4%B8%80%E4%BA%9B%E5%B0%8F%E6%8A%80%E5%B7%A7"><span class="nav-number">8.3.</span> <span class="nav-text">8.3 关于tr的一些小技巧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#derivative-of-logdet-x"><span class="nav-number">8.4.</span> <span class="nav-text">8.4 Derivative of \(\log\det X\)</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/08/10/linear-algebra/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="线性代数要点总结 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          线性代数要点总结
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-08-10 13:20:31" itemprop="dateCreated datePublished" datetime="2022-08-10T13:20:31+08:00">2022-08-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>本文是根据《线性代数及其应用》整理的复习笔记。之后又补充了部分《矩阵代数》第0章的内容。</p>
+<span id="more"></span>
+<blockquote>
+<p>一般的，表示向量应该加粗斜体小写，表示矩阵用大写，但是大多数时候我想偷个懒；</p>
+<p>教材中涉及到的很多应用我都没来得及细看，只是对“干货”做了一个简单的总结；</p>
+</blockquote>
+<h2 id="线性方程组">1. 线性方程组</h2>
+<h3 id="线性方程组-1">1.1 线性方程组</h3>
+<p>为什么要研究线性代数？解线性方程组是一个重要的理解线性代数的角度。<strong>一个</strong>线性方程有如下形式：
+<span class="math display">\[
+a_1x_1+a_2x_2+\dots+a_nx_n = b
+\]</span> 其中，<span class="math inline">\(a_i\)</span>和<span
+class="math inline">\(b\)</span>是该线性方程的系数，一般是常量，<span
+class="math inline">\(x_i\)</span>是未知数，一般是变量。<strong>线性方程组就是一组含有相同变量的线性方程</strong>，满足所有方程的解的集合称为解集，因此线性方程组可分为无解、有唯一解和有无穷多解三类。其中，有解（唯一解或者无穷解）又称为方程组是<strong>相容</strong>的，无解又称为<strong>不相容</strong>的。</p>
+<p>我们可以将<span class="math inline">\(m\)</span>个方程<span
+class="math inline">\(n\)</span>个未知数的线性方程组的参数写成一个的参数矩阵：
+<span class="math display">\[
+A=\left(
+\begin{array}{cccc}
+a_{11}&amp;\dots&amp;a_{1n}\\
+&amp;\vdots&amp;\\
+a_{m1}&amp;\dots&amp;a_{mn}\\
+\end{array}
+\right)
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{x}=(x_1,\dots,x_n)^T
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{b}=({b_1,\dots,b_m})^T
+\]</span></p>
+<p>方程组写成矩阵形式为 <span class="math display">\[
+A\mathbf{x}=\mathbf{b}
+\]</span></p>
+<blockquote>
+<p>对上式还可以从对向量进行线性变换的角度进行解释，见后文</p>
+</blockquote>
+<p>解线性方程组的一般方法是高斯消去法，基本思想是，通过对方程组的方程之间进行<em>一些操作</em>，保证得到的新方程组与原来的方程组有着相同的解集，并且<em>新的方程组的形式</em>是非常容易求解的。</p>
+<p>这种“操作”即在线性方程的增广矩阵<span
+class="math inline">\((A|\mathbf{b})\)</span>上进行如下三种行变换（这些行变换是可逆的）：</p>
+<ul>
+<li><p>倍加：把某一行乘以一个常数加到另一行上；</p></li>
+<li><p>倍乘：把某一行乘以一个常数；</p></li>
+<li><p>交换：交换某两行；</p></li>
+</ul>
+<blockquote>
+<p>这三种行变换能够保证得到一个解集相同的线性方程组，也就是说它能够保证增广矩阵的一些性质（列向量的线性相关关系），但是也会有一些改变（行向量的线性相关关系），这在后文会讲到。
+事实上我在初学线性代数的时候时常纠结“行”还是“列”，在后文中，提到“向量”，均指列向量，这只是一种数学上讨论问题的简化方式，与使用计算机实现时的存储无关，也可以都用行向量来讨论线性代数中的各种问题，把高斯消去改成列变换，等等。</p>
+</blockquote>
+<p>这种“新的形式”是<strong>阶梯型</strong>或者<strong>简化阶梯型</strong></p>
+<p>（行）阶梯型为：</p>
+<ul>
+<li>每一非零行在每一零行之上；</li>
+<li>每一行的第一个非零元素所在的列位于前一行第一个非零元素所在的列的右边；</li>
+<li>每一行的第一个非零元素下方都是0；</li>
+</ul>
+<p>在这基础上，简化（行）阶梯型还要满足下述条件：</p>
+<ul>
+<li>每一非零行的第一个非零元素是1，并且是该列所在列的唯一非零元素；</li>
+</ul>
+<p>同一个矩阵可能因为行变换序列的选择不同得到不同的阶梯型，但是最终的简化阶梯型是唯一的；</p>
+<p>在阶梯型中，每一非零行的第一个非零元素的位置称为<strong>主元位置</strong>，主元位置所在列为<strong>主元列</strong>；</p>
+<blockquote>
+<p>在计算机实现高斯消去时，选择某列中绝对值最大的元素作为主元，<a
+target="_blank" rel="noopener" href="https://www.zhihu.com/question/33862337">避免精度问题带来误差</a></p>
+</blockquote>
+<p>在经过上述“操作”，得到了想要的“形式”之后，解便可以给出，其中对应于主元列的变量称为<strong>基本变量</strong>，其他变量（阶梯型全0行）称为<strong>自由变量</strong>。对于阶梯型对应的线性方程组</p>
+<ul>
+<li>方程矛盾/最右列是主元列，比如出现0=4等，则无解；</li>
+<li>无自由变量，有唯一解；</li>
+<li>有自由变量，将基本变量用自由变量表示，还可以写成以自由变量为权重的一组基向量的加权和；</li>
+</ul>
+<p>### 1.2 向量方程</p>
+<p>在这一节中我们将从另一个角度理解<span
+class="math inline">\(A\mathbf{x}=\mathbf{b}\)</span>。在此之前，我们需要补充一些概念：</p>
+<p><strong>向量</strong>表示一组数，包含n个数的向量的集合记为<span
+class="math inline">\(\mathbb{R}^n\)</span>；</p>
+<p>给定<span class="math inline">\(\mathbb{R}^n\)</span>中向量<span
+class="math inline">\(v_1, \dots, v_p\)</span>和标量<span
+class="math inline">\(c_1, \dots, c_p\)</span>，向量 <span
+class="math display">\[
+y = c_1v_1+\dots +c_pv_p
+\]</span> 称为向量<span class="math inline">\(v_1, \dots,
+v_p\)</span>以<span class="math inline">\(c_1, \dots,
+c_p\)</span>为权的<strong>线性组合</strong>；</p>
+<p>将属于<span class="math inline">\(\mathbb{R}^n\)</span>中的向量<span
+class="math inline">\(v_1, \dots,
+v_p\)</span>所有的线性组合得到集合记为<span
+class="math inline">\(\text{Span}\{v_1,\dots,v_p\}\)</span>，称为<span
+class="math inline">\(v_1, \dots, v_p\)</span>所张成的<span
+class="math inline">\(\mathbb{R}^n\)</span>子集；</p>
+<p>现在再来重新解释<span
+class="math inline">\(A\mathbf{x}=\mathbf{b}\)</span>，将<span
+class="math inline">\(A\)</span>按列分块，可以将线性方程组表示为如下的向量方程：
+<span class="math display">\[
+x_1a_1+\dots+x_na_n=b
+\]</span> 对于”向量<span
+class="math inline">\(b\)</span>能否表示为向量<span
+class="math inline">\(a_1,\dots,a_n\)</span>的线性组合“的问题，等价于是判断<span
+class="math inline">\(A\mathbf{x}=\mathbf{b}\)</span>是否有解的问题。</p>
+<p>对于先前涉及到的定义，<span class="math inline">\(A\)</span>是<span
+class="math inline">\(m\times n\)</span>矩阵则下列四个命题等价：</p>
+<ul>
+<li>对于<span class="math inline">\(\mathbb{R}^m\)</span>中每个<span
+class="math inline">\(b\)</span>，<span
+class="math inline">\(AX=b\)</span>都有解；</li>
+<li><span class="math inline">\(\mathbb{R}^m\)</span>中的每个<span
+class="math inline">\(b\)</span>都是<span
+class="math inline">\(A\)</span>中列向量的线性组合；</li>
+<li><span class="math inline">\(A\)</span>的各列生成<span
+class="math inline">\(\mathbb{R}^{m}\)</span>；</li>
+<li><span
+class="math inline">\(A\)</span>在每一行都有一个主元位置；（这里<span
+class="math inline">\(A\)</span>是线性方程组的系数矩阵，而不是增广矩阵）</li>
+</ul>
+<h3 id="线性方程组的解集">1.3 线性方程组的解集</h3>
+<p>我们继续扩充一些与解集相关的定义。</p>
+<p>记录一类特殊的线性方程组，<span
+class="math inline">\(A\mathbf{x}=\mathbf{0}\)</span>，称为齐次线性方程组，必有一个<span
+class="math inline">\(\mathbf{x}=\mathbf{0}\)</span>的解，称为<strong>平凡解</strong>，通常我们更在乎其<strong>非平凡解</strong>，非平凡解不是一个确定的常数解，而是一个线性空间（可以想象成在某个直线或某个平面上的点都是解，后文会定义该空间），表示为参数向量形式；齐次线性方程组的解集总可以表示为<span
+class="math inline">\(\text{Span}\{v_1, \dots, v_p\}\)</span>，其中<span
+class="math inline">\(v_i\)</span>是解向量。</p>
+<p>齐次方程<span
+class="math inline">\(A\mathbf{x}=\mathbf{0}\)</span>有非平凡解当且仅当方程至少有一个自由变量；</p>
+<p><span class="math inline">\(A\mathbf{x}=\mathbf{0}\)</span>和<span
+class="math inline">\(A\mathbf{x}=\mathbf{b}\)</span>的解集有什么关系？若<span
+class="math inline">\(A\mathbf{x}=\mathbf{b}\)</span>至少有一个非令解<span
+class="math inline">\(p\)</span>，则<span
+class="math inline">\(A\mathbf{x}=\mathbf{b}\)</span>的解集是所有形如<span
+class="math inline">\(w=p+v_h\)</span>向量的集合，其中<span
+class="math inline">\(v_h\)</span>是齐次方程<span
+class="math inline">\(A\mathbf{x}=\mathbf{0}\)</span>的任意一个解；</p>
+<h3 id="线性无关">1.4 线性无关</h3>
+<p>我们需要研究一种向量集合的性质，从人脑可以想象的<span
+class="math inline">\(\mathbb{R}^3\)</span>中向量集合来讲，就是判断该集合中向量中任意一个向量是否位于其他向量张成的直线/平面上，均不满足则线性无关，一旦有一个满足则线性相关，下面是严格的定义：</p>
+<p><span class="math inline">\(\mathbb{R}^n\)</span>中的一组向量<span
+class="math inline">\(v_1, \dots,
+v_p\)</span>是<strong>线性无关</strong>的，当且仅当向量方程 <span
+class="math display">\[
+x_1v_1+\dots+x_pv_p=0
+\]</span> 仅有平凡解（即权重<span
+class="math inline">\(x_1,\dots,x_p\)</span>均为0），</p>
+<p>否则为<strong>线性相关</strong>的，在线性相关的集合中，至少有一个向量一定能够表示为其他向量的线性组合；</p>
+<p>特别地，对于包含单个向量的几个，当且仅当该向量是零向量时称该集合是线性相关的；</p>
+<p>在<span
+class="math inline">\(\mathbb{R}^3\)</span>中某个向量集合中，我们可以想象1个非零向量张成一个直线，2个不互为倍数的向量张成一个平面，3个线性无关的向量就可以张成<span
+class="math inline">\(\mathbb{R}^3\)</span>了，此时再加入任何向量都可以表示为之前3个的线性组合。事实上有如下定理：</p>
+<p>若一个向量组的向量个数超过向量元素个数（以列向量为例，即对应的矩阵行数小于列数），则向量组线性相关；</p>
+<h3 id="初识线性变换">1.5 初识线性变换</h3>
+<p>除了线性方程组和向量方程的形式，理解<span
+class="math inline">\(A\mathbf{x}=\mathbf{b}\)</span>的第三个角度是线性变换。尽管线性变换本身的定义要广泛得多，我仍然习惯于使用图形学中的入门案例来想象线性变换在干什么：对于3维世界中的一个物体，我们最终希望得到其在2维屏幕上的投影，就需要施加一个对于物体的坐标施加一个透视变换矩阵；</p>
+<p>线性变换<span class="math inline">\(T:\mathbb{R}^n\rightarrow
+\mathbb{R}^m\)</span>，是指它是一个将<span
+class="math inline">\(\mathbb{R}^n\)</span>中的向量<span
+class="math inline">\(x\)</span>映射到<span
+class="math inline">\(\mathbb{R}^m\)</span>中的向量<span
+class="math inline">\(T(x)\)</span>的变换，<span
+class="math inline">\(\mathbb{R}^n\)</span>是<span
+class="math inline">\(T\)</span>的<strong>定义域</strong>，<span
+class="math inline">\(\mathbb{R}^m\)</span>是<span
+class="math inline">\(T\)</span>的<strong>余定义域</strong>，<span
+class="math inline">\(T(x)\)</span>称为<strong>像</strong>，像的集合称为<strong>值域</strong>；</p>
+<p>用矩阵变换表示上述线性变换为<span class="math inline">\(x\mapsto
+Ax\)</span>，其中<span class="math inline">\(A\)</span>是<span
+class="math inline">\(m\times n\)</span>的矩阵；</p>
+<p>写出线性变换<span class="math inline">\(T:\mathbb{R}^n\rightarrow
+\mathbb{R}^m\)</span>的<strong>标准矩阵</strong><span
+class="math inline">\(A\)</span>：</p>
+<p><span class="math inline">\(A\)</span>的每一个列向量作用于<span
+class="math inline">\(n\)</span>维空间中的<span
+class="math inline">\(n\)</span>个单位向量，即 <span
+class="math display">\[
+A=[T(e_1),\dots, T(e_n)]
+\]</span> 线性变换是一种映射，我们也要讨论一下映射的存在与与唯一性：</p>
+<ul>
+<li>映射<span class="math inline">\(T:\mathbb{R}^n\mapsto
+\mathbb{R}^m\)</span>称为到<span
+class="math inline">\(\mathbb{R}^m\)</span>上的映射（即满射），若<span
+class="math inline">\(\mathbb{R}^m\)</span>中的任意向量<span
+class="math inline">\(b\)</span>都<strong>至少有一个</strong><span
+class="math inline">\(\mathbb{R}^n\)</span>中的<span
+class="math inline">\(x\)</span>与之对应；</li>
+<li>映射<span class="math inline">\(T:\mathbb{R}^n\mapsto
+\mathbb{R}^m\)</span>称为一对一映射（即单射），若<span
+class="math inline">\(\mathbb{R}^m\)</span>中的每个<span
+class="math inline">\(b\)</span>是<span
+class="math inline">\(\mathbb{R}^n\)</span>中<strong>至多一个</strong><span
+class="math inline">\(x\)</span>的像</li>
+</ul>
+<p>与之前的定义结合，我们可以得到满射/单射的等价条件，设<span
+class="math inline">\(T:\mathbb{R}^n\mapsto
+\mathbb{R}^m\)</span>的标准矩阵为<span
+class="math inline">\(A\)</span></p>
+<ul>
+<li><span class="math inline">\(T\)</span>是满射，当且仅当<span
+class="math inline">\(A\)</span>的列生成<span
+class="math inline">\(\mathbb{R}^m\)</span>；</li>
+<li><span class="math inline">\(T\)</span>是单射，当且仅当<span
+class="math inline">\(A\)</span>的列线性无关，也可以推出<span
+class="math inline">\(A\mathbf{x}={0}\)</span>仅有平凡解；</li>
+</ul>
+<h2 id="矩阵代数">2. 矩阵代数</h2>
+<p>上一章引入矩阵，是为了简明地表示一个线性方程组、一个向量方程、或者一个线性变换；那么矩阵本身作为一个变量，它有那些运算性质？</p>
+<h3 id="矩阵乘法">2.1 矩阵乘法</h3>
+<p>矩阵加、乘、数乘等运算方法，运算律等按下不表，矩阵乘法的多种计算方法需要了解一下，在不同的应用场景中有不同的解释方式，设<span
+class="math inline">\(A\)</span>是<span class="math inline">\(m\times
+n\)</span>矩阵，<span class="math inline">\(B\)</span>是<span
+class="math inline">\(n\times p\)</span>矩阵，<span
+class="math inline">\(C=AB\)</span>是<span class="math inline">\(m\times
+p\)</span>矩阵</p>
+<ul>
+<li><p><span class="math inline">\(AB\)</span>的列是<span
+class="math inline">\(A\)</span>与<span
+class="math inline">\(B\)</span>的对应列的乘积：<span
+class="math inline">\(AB\)</span>的每一列都是<span
+class="math inline">\(A\)</span>的各列的线性组合，以<span
+class="math inline">\(B\)</span>的对应列的元素为权（基本定义） <span
+class="math display">\[
+AB=[a_1,\dots,a_n][b_1,\dots,b_p]=[c_1,\dots,c_p]
+\]</span> 其中，<span class="math inline">\(C\)</span>的第<span
+class="math inline">\(j\)</span>列表示为： <span class="math display">\[
+c_j = b_{j1}a_1+\dots+b_{jn}a_n
+\]</span></p></li>
+<li><p><span class="math inline">\(AB\)</span>的行列计算法则（常见实现）
+<span class="math display">\[
+C_{ij}=\sum_{k}^{n}A_{ik}B_{kj}
+\]</span></p></li>
+<li><p><span class="math inline">\(AB\)</span>的行是<span
+class="math inline">\(A\)</span>的对应行与<span
+class="math inline">\(B\)</span>的乘积：。。。</p></li>
+<li><p><span class="math inline">\(A\)</span>的每一列与<span
+class="math inline">\(B\)</span>的行的乘积之和（矩阵分块乘法思想） <span
+class="math display">\[
+AB=[a_1,\dots,a_n][b_1,\dots,b_n]^T=a_1b_1+\dots+a_nb_n
+\]</span></p></li>
+<li></li>
+</ul>
+<blockquote>
+<p>左乘对角矩阵，<span class="math inline">\(DA\)</span>，相当于用<span
+class="math inline">\(D\)</span>的各个对角元素乘以<span
+class="math inline">\(A\)</span>的各行</p>
+<p>右乘对角矩阵，<span class="math inline">\(AD\)</span>，相当于用<span
+class="math inline">\(D\)</span>的各个对角元素乘以<span
+class="math inline">\(A\)</span>的各列</p>
+</blockquote>
+<h3 id="矩阵的逆">2.2 矩阵的逆</h3>
+<p>只有方阵才有逆矩阵的定义。方阵<span
+class="math inline">\(A\)</span>的逆的定义是存在一个矩阵<span
+class="math inline">\(C\)</span>使得<span
+class="math inline">\(AC=I\)</span>且<span
+class="math inline">\(CA=I\)</span>。不可逆矩阵又称为<strong>奇异矩阵</strong>，可逆矩阵又称为<strong>非奇异矩阵</strong>。</p>
+<p>那么对于先前一直讨论的<span
+class="math inline">\(A\mathbf{x}=\mathbf{b}\)</span>，若<span
+class="math inline">\(A\)</span>可逆，则有<span
+class="math inline">\(\mathbf{x}=A^{-1}\mathbf{b}\)</span>。事实上，<strong>可逆矩阵定理</strong>，将包含一大堆使得上市成立的定理，我们会在后文慢慢补充。</p>
+<blockquote>
+<p>标量代数中的习惯，让我们总想求出一个<span
+class="math inline">\(A^{-1}\)</span>使用矩阵乘法求解，事实上在实现时使用在高斯消去法求解，而求逆矩阵的方法也用高斯消去，不仅复杂度更小，精度更好，而且还能在过程中判断是否可逆</p>
+</blockquote>
+<p>在介绍行变换求逆之前，我们先回顾一下先前的三种行变换，并把行变换表示成左乘<strong>初等矩阵</strong>的形式，以<span
+class="math inline">\(3\times3\)</span>矩阵为例：</p>
+<ul>
+<li><p>倍加，第一行乘4加到第三行 <span class="math display">\[
+E_1=\left(
+\begin{array}{ccc}
+1&amp;0&amp;0\\
+0&amp;1&amp;0\\
+4&amp;0&amp;1
+\end{array}
+\right)
+\]</span></p></li>
+<li><p>交换，第一行与第二行交换 <span class="math display">\[
+E_2=\left(
+\begin{array}{ccc}
+0&amp;1&amp;0\\
+1&amp;0&amp;0\\
+0&amp;0&amp;1
+\end{array}
+\right)
+\]</span></p></li>
+<li><p>倍乘，第三行乘5 <span class="math display">\[
+E_3=\left(
+\begin{array}{ccc}
+1&amp;0&amp;0\\
+0&amp;1&amp;0\\
+0&amp;0&amp;5
+\end{array}
+\right)
+\]</span></p></li>
+</ul>
+<blockquote>
+<p>初等矩阵是单位矩阵经过一次初等行变换或者初等列变换得到的矩阵</p>
+</blockquote>
+<p>那么可以从行变换的角度理解矩阵的逆：行变换可以视为左乘一系列初等矩阵，初等矩阵是可逆的，其积<span
+class="math inline">\(C\)</span>也是可逆的；矩阵<span
+class="math inline">\(A\)</span>可逆，当且仅当<span
+class="math inline">\(A\)</span>行等价于<span
+class="math inline">\(I\)</span>，这时把<span
+class="math inline">\(A\)</span>变为<span
+class="math inline">\(I\)</span>的一系列初等变换同时把<span
+class="math inline">\(I\)</span>变成<span
+class="math inline">\(C=A^{-1}\)</span>；因此可以写一个增广矩阵<span
+class="math inline">\([A, I]\)</span>，如果能通过行变换变成<span
+class="math inline">\([I,C]\)</span>，则既证明了<span
+class="math inline">\(A\)</span>可逆，又得到<span
+class="math inline">\(A^{-1}=C\)</span>；也可以把该过程视为解<span
+class="math inline">\(n\)</span>个方程组，<span
+class="math inline">\(I\)</span>的<span
+class="math inline">\(n\)</span>列是增广列，统一都放在了右边，当我们只需要<span
+class="math inline">\(A^{-1}\)</span>的部分列时，可以使用这样的方法。</p>
+<p><strong>可逆矩阵定理（一）</strong>：</p>
+<img src="/2022/08/10/linear-algebra/image-20220811123558336.png" class="" title="可逆矩阵定理（一）">
+<h3 id="分块矩阵">2.3 分块矩阵</h3>
+<p>分块矩阵的乘法也可以用通常的行列法进行，只要<span
+class="math inline">\(A\)</span>的列的分法与<span
+class="math inline">\(B\)</span>的行的分法一致；使用如下记号来表示分块矩阵、子矩阵等：</p>
+<p>设<span class="math inline">\(A\in M_{m\times
+n}(F)\)</span>，对于指标集<span class="math inline">\(\alpha \subseteq
+\{1,\dots,m\}\)</span>，<span class="math inline">\(\beta \subseteq
+\{1,\dots,n\}\)</span>，把<span
+class="math inline">\(A\)</span>中位于<span
+class="math inline">\(\alpha\)</span>的各行与位于<span
+class="math inline">\(\beta\)</span>的各列组成的子矩阵记为<span
+class="math inline">\(A(\alpha, \beta)\)</span>；</p>
+<p><span class="math inline">\(m=n\)</span>时，<span
+class="math inline">\(A(\alpha,\alpha)\)</span>为主子矩阵，简记为<span
+class="math inline">\(A(\alpha)\)</span>；</p>
+<p><span
+class="math inline">\(A(\alpha&#39;,\beta&#39;)\)</span>是划去对应行列得到的子矩阵；</p>
+<p>设<span
+class="math inline">\(\alpha_1,\dotsm,\alpha_t\)</span>组成<span
+class="math inline">\(\{1,\dotsm,m\}\)</span>的一个划分，<span
+class="math inline">\(\beta_1,\dotsm,\beta_s\)</span>组成<span
+class="math inline">\(\{1,\dotsm,n\}\)</span>的一个划分，<span
+class="math inline">\(A\in M_{m\times n}(F)\)</span>，<span
+class="math inline">\(B\in M_{n\times
+p}(F)\)</span>，则分块矩阵乘法可以表示为 <span class="math display">\[
+[AB](\alpha_i,\gamma_j)=\sum_{k=1}^sA(\alpha_i,\beta_k)B(\beta_k,\gamma_j)
+\]</span></p>
+<h3 id="lu分解">2.4 LU分解</h3>
+<p>为了求解一系列系数相同的线性方程组：<span
+class="math inline">\(Ax=b_i\)</span>，在实际过程中通常是在求解第一个方程组时使用行变换，并得到<span
+class="math inline">\(A=LU\)</span>，之后的几个方程组使用<span
+class="math inline">\(Ly=b\)</span>,<span
+class="math inline">\(Ux=y\)</span>求解，由于<span
+class="math inline">\(L\)</span>是下三角矩阵，<span
+class="math inline">\(U\)</span>是与<span
+class="math inline">\(A\)</span>等价的阶梯型矩阵，这样的求解步骤要快得多。那么如何进行分解？注意到倍加行变换是单位下三角矩阵，他们的积仍然是单位下三角矩阵，逆矩阵也是下三角矩阵，则<span
+class="math inline">\(U\)</span>是<span
+class="math inline">\(A\)</span>的行变换结果，<span
+class="math inline">\(L=(E_p\dots
+E_1)^{-1}\)</span>（也不会真的求逆，而是找到<span
+class="math inline">\(L\)</span>，使得使用相同的行变换把<span
+class="math inline">\(L\)</span>变成<span
+class="math inline">\(I\)</span>）</p>
+<blockquote>
+<p>在上述条件下，要求只能使用倍加行变换来得到阶梯矩阵，实际上，行交换常常是不可避免的，<span
+class="math inline">\(L\)</span>可以为置换下三角矩阵</p>
+</blockquote>
+<h3 id="mathbbrn中的子空间">2.5 <span
+class="math inline">\(\mathbb{R}^n\)</span>中的子空间</h3>
+<p>这一小节提前定义一些概念，在后面正式讨论向量空间时很有用：</p>
+<p><strong>子空间</strong>是<span
+class="math inline">\(\mathbb{R}^n\)</span>中的向量子集<span
+class="math inline">\(H\)</span>，包含零向量，对向量加法和标量乘法是封闭的；</p>
+<p>矩阵的<strong>列空间</strong>是A的各列的线性组合的集合，记作 <span
+class="math inline">\(\text{Col} A\)</span>；</p>
+<p>矩阵的<strong>零空间</strong>是<span
+class="math inline">\(Ax=0\)</span>的所有解的集合，记作<span
+class="math inline">\(\text{Nul} A\)</span>；</p>
+<p>子空间是一个无限大的集合，希望通过研究生成该子空间的有限向量集合，即一组线性无关集，称为<span
+class="math inline">\(H\)</span>的一组<strong>基</strong>；</p>
+<p>判断一个向量<span class="math inline">\(b\)</span>是否属于<span
+class="math inline">\(\text{Col} A\)</span>，求解<span
+class="math inline">\(Ax=b\)</span>是否有解，即<span
+class="math inline">\(b\)</span>能否使用<span
+class="math inline">\(A\)</span>的各列线性组合得到，这是显式的；判断其是否属于<span
+class="math inline">\(\text{Nul}A\)</span>，则看<span
+class="math inline">\(Ab=0\)</span>是否成立即可，这是隐式的；</p>
+<p>如何得到矩阵零空间的基？求解齐次线性方程组<span
+class="math inline">\(Ax=0\)</span>的解，并表示为参数向量形式；</p>
+<p>如何得到矩阵列空间的基？将矩阵化为阶梯型，其中的主元列对应着基向量。（因为<span
+class="math inline">\(Ax=0\)</span>与<span
+class="math inline">\(Bx=0\)</span>有相同的解集，则<span
+class="math inline">\(A\)</span>与<span
+class="math inline">\(B\)</span>的列的线性相关关系时一致的，因此行变换不改变线性相关关系），但是注意，使用变换前的主元列作为基！</p>
+<p>非零子空间的<strong>维数</strong> <span
+class="math inline">\(\text{dim}H\)</span>,是<span
+class="math inline">\(H\)</span>的任意一个基的向量<strong>个数</strong>（注意不是向量的元素个数），零子空间的维数定义为0；</p>
+<p>矩阵<span class="math inline">\(A\)</span>的<strong>秩</strong><span
+class="math inline">\(\text{rank} A\)</span>是<span
+class="math inline">\(A\)</span>的列空间的维数；</p>
+<p>rank A = dim Col A = A的列空间的维数 = A的主元列个数；dim Nul A =
+Ax=0的自由变量个数；rank A + dim Nul A = n(A的列数)</p>
+<blockquote>
+<p>手工求秩看起来很简单，但是在计算机中由于浮点数的精度问题（0!=0），使用主元列个数作为秩会导致误差，通常使用后文介绍的奇异值分解求秩</p>
+</blockquote>
+<p><strong>可逆矩定理（二）</strong>：</p>
+<img src="/2022/08/10/linear-algebra/image-20220812125522496.png" class="" title="可逆矩阵定理(二)">
+<h3 id="小秩修正矩阵的逆">2.6 小秩修正矩阵的逆</h3>
+<p>如果已知一个矩阵的逆，当再加上一个小秩矩阵时，其逆如何变化？下面这种方法，比直接求逆要高效：</p>
+<p>已知<span class="math inline">\(X\)</span>是<span
+class="math inline">\(n\times r\)</span>矩阵，<span
+class="math inline">\(Y\)</span>是<span class="math inline">\(r\times
+n\)</span>矩阵，<span class="math inline">\(R\)</span>是<span
+class="math inline">\(r\times r\)</span>奇异矩阵，<span
+class="math inline">\(B\)</span>是非奇异的，非奇异矩阵<span
+class="math inline">\(A\)</span>是<span class="math inline">\(n\times
+n\)</span>的且已知其逆<span class="math inline">\(A^{-1}\)</span>，有:
+<span class="math display">\[
+B=A+XRY
+\]</span> 那么B <span class="math display">\[
+B^{-1}=A^{-1}-A^{-1}X(R^{-1}+YA^{-1}X)^{-1}YA^{-1}
+\]</span> 因为有： <span class="math display">\[
+\begin{aligned}
+BB^{-1}&amp;=I-X(R^{-1}+YA^{-1}X)^{-1}YA^{-1} +
+XRYA^{-1}-XRYA^{-1}X(R^{-1}+YA^{-1}X)^{-1}YA^{-1}\\
+&amp;=I - X\left(
+-(R^{-1}+YA^{-1}X)^{-1}+R-RYA^{-1}X(R^{-1}+YA^{-1}X)^{-1}
+\right)YA^{-1}\\
+&amp;=I-XR\left(
+-R^{-1}(R^{-1}+YA^{-1}X)^{-1}+I-YA^{-1}X(R^{-1}+YA^{-1}X)^{-1}
+\right)YA^{-1}\\
+&amp;=I-XR(-I+I)YA^{-1}
+&amp;=I
+\end{aligned}
+\]</span> 和<span class="math inline">\(B^{-1}B=I\)</span> (证明略)</p>
+<blockquote>
+<p>笔者不知道<span
+class="math inline">\(B^{-1}\)</span>是有什么神奇方法构造出来的，只能证明它是对的</p>
+</blockquote>
+<p>如果<span
+class="math inline">\(r&lt;&lt;n\)</span>，那么等式右边的运算比直接对<span
+class="math inline">\(B\)</span>求逆要简单得多；</p>
+<p>如果<span class="math inline">\(r=1\)</span>，<span
+class="math inline">\(R=[1]\)</span>，那么有： <span
+class="math display">\[
+B^{-1}=A^{-1} - \frac{1}{1+YA^{-1}X}A^{-1}XYA^{-1}
+\]</span></p>
+<h2 id="行列式">3. 行列式</h2>
+<p>在某本紫色的教材上，这是第一章的内容，常常让大一新生摸不着头脑，为什么要研究一堆数堆放成一个矩阵后，算出一个值？在实际问题中，通常不会求一个很大的矩阵的行列式，也不会使用行列式的值来判断矩阵可逆、求逆矩阵等（尽管在理论上是可以的），<span
+class="math inline">\(2\times2\)</span>行列式和<span
+class="math inline">\(3\times
+3\)</span>行列式还有些几何意义；下面对相关内容进行简单介绍。</p>
+<h3 id="行列式的计算法则">3.1 行列式的计算法则</h3>
+<p>只对方阵讨论行列式，行列式的定义是递归定义，使用<span
+class="math inline">\(A_{ij}\)</span>表示矩阵<span
+class="math inline">\(A\)</span>去除第<span
+class="math inline">\(i\)</span>行和第<span
+class="math inline">\(j\)</span>列后的结果，那么 <span
+class="math display">\[
+\det A = a_{11}\det A_{11} - a_{12}\det A_{12} + \dots +
+(-1)^{1+n}a_{1n}\det A_{1n}
+\]</span> 上式是按照第一行展开的，又称<span
+class="math inline">\(A\)</span>的第一行的余因子展开式，我们还可以按照任意一行或者一列展开，符号遵循一个棋盘形状（行+列为偶数则为1，否则为0，行列从1开始）</p>
+<blockquote>
+<p>这种算法，对于<span class="math inline">\(n\times
+n\)</span>行列式需要约<span class="math inline">\(n!\)</span>次乘法</p>
+</blockquote>
+<p>行列式的部分性质：</p>
+<ul>
+<li><span class="math inline">\(\det A^T = \det A\)</span></li>
+<li><span class="math inline">\(\det AB = (\det A)(\det B)\)</span></li>
+<li>设<span class="math inline">\(A\)</span>是<span
+class="math inline">\(n*n\)</span>矩阵，处理一列之外都是固定的向量，则<span
+class="math inline">\(\det A\)</span>是那个可变列向量的线性函数</li>
+</ul>
+<p>利用起之前的行变换，我们有一种快速的计算行列式的方法。在2.2节中，三种变换的行列式值分别为：<span
+class="math inline">\(\det E_1 = 1\)</span>， <span
+class="math inline">\(\det E_2 = -1\)</span>，<span
+class="math inline">\(\det E_3 =
+5\)</span>，事实上，倍加行变换不改变行列式的值，交换两行将行列式的值变为其相反数，倍乘一行将使得行列式的值按相同倍数变化，使用行变换将矩阵变为上三角/下三角矩阵后，求出对角线乘积，再乘以所有行变换矩阵的行列式的积即可；</p>
+<blockquote>
+<p>一个<span class="math inline">\(n\times
+n\)</span>矩阵使用行变换展开大约需要<span
+class="math inline">\(2n^3/3\)</span>次运算</p>
+</blockquote>
+<p>另一种直接展开行列式的方法是<strong>交错和</strong>： <span
+class="math display">\[
+\det A = \sum_{n}\text{sgn}(\sigma)\prod _{i=1}^na_{i\sigma(i)}
+\]</span> 其中<span class="math inline">\(\sigma\)</span>是从1到n的<span
+class="math inline">\(n!\)</span>种排列，<span
+class="math inline">\(\text{sgn}(\sigma)\)</span>是符号函数，对于<span
+class="math inline">\(\sigma\)</span>到顺序排列<span
+class="math inline">\(\{1,\dots,n\}\)</span>的最小对换，是偶数时，<span
+class="math inline">\(\text{sgn}(\sigma)=1\)</span>，是奇数时<span
+class="math inline">\(\text{sgn}(\sigma)=-1\)</span>；</p>
+<p>对于<span
+class="math inline">\(A\)</span>的<strong>积和式</strong><span
+class="math inline">\(\text{per}
+A\)</span>，是另一种冠以矩阵函数，只要将上式中的<span
+class="math inline">\(\text{sgn}(\sigma)\)</span>换成常量<span
+class="math inline">\(1\)</span>即可；</p>
+<h3 id="克拉默法则">3.2 克拉默法则</h3>
+<p>下面一个法则解决的问题是，已知一个含有参数的增广矩阵（无法做高斯消去），我们能不能写出解的一般形式呢（用于研究解随着某个参数的变化如何变化），特殊地，能不能求出逆矩阵的一般形式呢？</p>
+<p><strong>克拉默法则</strong>：对于<span
+class="math inline">\(n*n\)</span>的矩阵<span
+class="math inline">\(A\)</span>和任意的<span
+class="math inline">\(\mathbb{R}^n\)</span>中的向量<span
+class="math inline">\(b\)</span>，<span
+class="math inline">\(A_i(b)\)</span>表示用b替代A的第i列得到的矩阵，设<span
+class="math inline">\(A\)</span>是可逆的，则方程<span
+class="math inline">\(Ax=b\)</span>的解可以由下式给出： <span
+class="math display">\[
+x_i = \frac{\det A_i(b)}{\det A}
+\]</span> 该法则可以直接由行列式的乘法性质推出，方程组<span
+class="math inline">\(Ax=b\)</span>改写成如下形式： <span
+class="math display">\[
+AI_i(x)=A_i(b)
+\]</span> 两边同时取行列式，注意有<span class="math inline">\(\det
+I_i(x)=x_i\)</span> <span class="math display">\[
+\det A \det I_i(x)=\det A_i(b)
+\]</span></p>
+<p>利用克拉默法则，由<span
+class="math inline">\(AA^{-1}=E\)</span>，可以得到逆矩阵的一般形式，<span
+class="math inline">\(A^{-1}=\frac{1}{\det A} \text{adj}
+A\)</span>，其中<strong>伴随矩阵</strong>是由一系列余因子<span
+class="math inline">\(C_{ij}\)</span>组成的矩阵的转置；</p>
+<h3 id="行列式的几何意义">3.3 行列式的几何意义</h3>
+<ul>
+<li>若<span class="math inline">\(A\)</span>是<span
+class="math inline">\(2*2\)</span>矩阵，则其以其列向量确定的<strong>平行四边形面积</strong>是<span
+class="math inline">\(\det A\)</span>；若<span
+class="math inline">\(A\)</span>是<span
+class="math inline">\(3*3\)</span>矩阵，则其以其列向量确定的<strong>平行六面体体积</strong>是<span
+class="math inline">\(\det A\)</span></li>
+<li><span class="math inline">\(\det A\)</span>还可以描述在<span
+class="math inline">\(\mathbb{R}^2\)</span>中的面或在<span
+class="math inline">\(\mathbb{R}^3\)</span>中的体经过<span
+class="math inline">\(A\)</span>对应的变换后，面积/体积的变化倍数</li>
+</ul>
+<h2 id="向量空间">4. 向量空间</h2>
+<p>一些民科的视频常常以”人类无法想象超过3维的空间“为噱头开始胡编乱造，什么“第4维度是时间”啊，“9维空间是宇宙”啊，令人啼笑皆非；本章研究向量空间，在满足同样的公理上，会发现高维空间，无非就是空间中的每个向量由更多数组成（长了一点），从几何上无法想象罢了，但是不影响用来解决实际问题。</p>
+<h3 id="向量空间的公理与定理">4.1 向量空间的公理与定理</h3>
+<img src="/2022/08/10/linear-algebra/image-20220812134646106.png" class="" title="向量空间公理">
+<blockquote>
+<p>向量空间可以是实的，也可以是虚的，可以是连续的，也可以是离散的</p>
+</blockquote>
+<p>除了<span
+class="math inline">\(\mathbb{R}^n\)</span>之外，一些也是向量空间例子：</p>
+<ul>
+<li>对于<span class="math inline">\(n\ge 0\)</span>，次数最高位<span
+class="math inline">\(n\)</span>的多项式集合<span
+class="math inline">\(\mathbb{P}_n\)</span></li>
+<li>三维空间中所有有向线段的集合</li>
+<li>数的双向无穷序列空间<span
+class="math inline">\(\{y_k\}=(\dots,y_{-1}, y_0, y_1, \dots
+)\)</span></li>
+<li>定义在集合<span
+class="math inline">\(\mathbb{D}\)</span>（实数集）上的全体实函数的集合</li>
+</ul>
+<p>判断向量空间<span class="math inline">\(H\)</span>的一个子集<span
+class="math inline">\(V\)</span>是其一个子空间，只需要验证：</p>
+<ul>
+<li><span class="math inline">\(V\)</span>的零向量在<span
+class="math inline">\(H\)</span>中</li>
+<li><span
+class="math inline">\(H\)</span>的向量加法与标量乘法对自己封闭</li>
+</ul>
+<blockquote>
+<p>对于<span
+class="math inline">\(\mathbb{R}^3\)</span>，其（真）子空间只有两种情况，过原点的直线或者过原点的平面</p>
+</blockquote>
+<h3 id="线性变换">4.2 线性变换</h3>
+<p>在第一章中初始过线性变换，这里给出一个严格的定义：</p>
+<p>由向量空间<span class="math inline">\(V\)</span>映射到向量空间<span
+class="math inline">\(W\)</span>的线性变换<span
+class="math inline">\(T\)</span>是一个规则，它将<span
+class="math inline">\(V\)</span>中的每个向量<span
+class="math inline">\(x\)</span>映射成<span
+class="math inline">\(W\)</span>中的唯一向量<span
+class="math inline">\(T(x)\)</span>，且满足对加法与数乘的封闭性；</p>
+<p>线性变换<span class="math inline">\(T\)</span>（从向量空间<span
+class="math inline">\(V\)</span>映射到向量空间<span
+class="math inline">\(W\)</span>）的<strong>核</strong>（或零空间）是<span
+class="math inline">\(V\)</span>中所有满足<span
+class="math inline">\(T(u)=0\)</span>的向量的集合，<span
+class="math inline">\(T\)</span>的<strong>值域</strong>是<span
+class="math inline">\(W\)</span>中所有具有形式<span
+class="math inline">\(T(x)\)</span>的向量的集合；</p>
+<p>定义在一般向量空间中的线性相关与<span
+class="math inline">\(\mathbb{R}^n\)</span>中的线性相关类似，都是判断一个齐次方程有无非平凡解，但是后者的齐次方程还能写成一个齐次方程组（矩阵），但前者的定义比较广泛，不一定能写成矩阵/线性方程组形式；</p>
+<blockquote>
+<p>例如，<span class="math inline">\(\{\sin t, \cos t\}\)</span>在<span
+class="math inline">\(C[0,1]\)</span>上是线性无关的</p>
+</blockquote>
+<p>对于一个向量空间<span
+class="math inline">\(H\)</span>，我们研究其“最小生成集”，即向量空间的<strong>基</strong>，基是生成的子空间是<span
+class="math inline">\(H\)</span>并且线性无关的一组向量集合；</p>
+<h3 id="坐标与坐标变换">4.3 坐标与坐标变换</h3>
+<p>我们可以向量空间中的基想象成一组坐标轴（可能不标准，不正交，但是一定两两不平行/重合），使用基的线性组合表示向量空间中的任意向量时，组合的权重就是该向量在该基下的坐标；确定基后，坐标是唯一的；</p>
+<p><span class="math inline">\(B=(b_1,\dots,b_n)\)</span>是<span
+class="math inline">\(V\)</span>的一个基，<span
+class="math inline">\(x\)</span>相对于基<span
+class="math inline">\(B\)</span>的坐标是那组权重<span
+class="math inline">\((c_1,
+\dots,c_n)=[x]_B\)</span>，称为x的B-坐标向量，从<span
+class="math inline">\(x\)</span>到<span
+class="math inline">\([x]_B\)</span>是由<span
+class="math inline">\(B\)</span>确定的坐标映射，<span
+class="math inline">\(B\)</span>都对应了到标准基的<strong>坐标变换矩阵</strong><span
+class="math inline">\(P_B=[b_1,\dots,b_n]\)</span>，该矩阵一定是可逆的；
+<span class="math display">\[
+x=P_B[x]_B
+\]</span> 一个向量空间<span class="math inline">\(V\)</span>的基<span
+class="math inline">\(B\)</span>若含有<span
+class="math inline">\(n\)</span>个向量(维数是n)，则<span
+class="math inline">\(V\)</span>与<span
+class="math inline">\(\mathbb{R}^n\)</span><strong>同构</strong>，<span
+class="math inline">\(n\)</span>是<span
+class="math inline">\(V\)</span>的一个内在性质，不依赖于基的选择；</p>
+<p>如果是从一个非标准基变换到另一个非标准基，那么坐标变换矩阵如何写出呢？设<span
+class="math inline">\(B\)</span>和<span
+class="math inline">\(C\)</span>是向量空间<span
+class="math inline">\(V\)</span>的基(<span
+class="math inline">\(n\)</span>列)，则存在一个<span
+class="math inline">\(n\times n\)</span>坐标矩阵<span
+class="math inline">\(P_{C\leftarrow B}\)</span>，使得 <span
+class="math display">\[
+[x]_C = P_{C\leftarrow B}[x]_B
+\]</span> 由于在标准坐标变换中，有 <span class="math display">\[
+P_B[x]_B=P_C[x]_C
+\]</span> 则 <span class="math display">\[
+P_{C\leftarrow B} = P_{C}^{-1}P_{B}
+\]</span> 有时根据情景我们可以直接写出：<span
+class="math inline">\(P_{C\leftarrow
+B}\)</span>的列是基B中向量的C-坐标向量，（<span
+class="math inline">\(P_{C\leftarrow B}\)</span>的列也是C-坐标向量）</p>
+<h3 id="秩">4.4 秩</h3>
+<p>在2.5节中，我们定义秩是列空间的维数，也就是线性无关列的最大个数。那与线性无关行的最大个数有关系吗？事实上，他们都是相等的；</p>
+<p>首先，若两个矩阵<span class="math inline">\(A\)</span>与<span
+class="math inline">\(B\)</span>行等价，则他们的行空间相同，若<span
+class="math inline">\(B\)</span>是阶梯型矩阵，则<strong><span
+class="math inline">\(B\)</span>的非零行</strong>构成<span
+class="math inline">\(A\)</span>的行空间的一个基，同时也是B的行空间的一个基（因为对于阶梯型矩阵，非零行是线性无关的，任何一个非零行不能是它下面的非零行的线性组合），那么同样可以使用行变换来求解<strong>行空间</strong>的基，只不过在求列的基时，使用行变换后主元列的列号到原矩阵中索引原始列；而在求行的基是时，直接使用行变换后的非零行；</p>
+<blockquote>
+<p>注意，与列不同，行变换不保持行的线性相关关系，但是新行是旧行的线性组合，因此B的非零行对应A的行不一定线性无关</p>
+</blockquote>
+<p>有如下关系：矩阵的列空间的维数=行空间的维数=主元列的个数=阶梯型非零行的个数=矩阵的秩；</p>
+<p><strong>关于秩的不等式</strong></p>
+<ul>
+<li>对于<span class="math inline">\(A \in M_{m\times
+n}(F)\)</span>，<span class="math inline">\(\text{rank}A\le
+\min\{m,n\}\)</span></li>
+<li>一个矩阵划去若干行或列后，得到的矩阵的秩不大于原来的矩阵的秩；</li>
+<li>如果<span class="math inline">\(A\in M_{m\times
+k}(F)\)</span>，<span class="math inline">\(B\in M_{k\times
+n}(F)\)</span>，则<span class="math inline">\(\text{rank}A +\text{rank}B
+- k \le \text{rank}AB \le \min\{\text{rank}A,
+\text{rank}B\}\)</span></li>
+<li>如果<span class="math inline">\(A,B\in M_{m\times
+n}(F)\)</span>，则<span class="math inline">\(\text{rank}(A+B)\le
+\text{rank}A + \text{rank} B\)</span></li>
+<li>如果<span class="math inline">\(A\in M_{m\times
+k}(F)\)</span>，<span class="math inline">\(B\in M_{k\times
+p}(F)\)</span>，<span class="math inline">\(C\in M_{p\times
+n}(F)\)</span>，则<span class="math inline">\(\text{rank}AB
++\text{rank}BC \le \text{rank}B + \text{rank}ABC\)</span></li>
+</ul>
+<p><strong>关于秩的等式</strong>：</p>
+<ul>
+<li><p>左乘或者右乘非奇异矩阵，秩不变；</p></li>
+<li><p>如果<span class="math inline">\(A,B\in M_{m\times
+n}(F)\)</span>，则<span
+class="math inline">\(\text{rank}A=\text{rank}B\)</span>，当且仅当存在非奇异矩阵<span
+class="math inline">\(X\in M_{m}(F), Y\in M_n(F)\)</span>，使得<span
+class="math inline">\(B=XAY\)</span>；</p></li>
+<li><p>如果矩阵<span class="math inline">\(A\in M_{m\times
+n}(F)\)</span>有秩<span
+class="math inline">\(k\)</span>，那么存在非奇异矩阵<span
+class="math inline">\(X\in M_{m\times k}(F), Y\in M_{k\times n}(F), B\in
+M_{k}(F)\)</span>，那么 <span class="math display">\[
+A=XBY
+\]</span> 特殊地，对于任何秩为1的矩阵，都可以写成<span
+class="math inline">\(A=xy^T\)</span>，其中<span
+class="math inline">\(x\in F^m, y\in F^m\)</span>是两个列向量；</p></li>
+</ul>
+<h2 id="特征值与特征向量">5. 特征值与特征向量</h2>
+<p>特征值/特征向量，对于一个矩阵而言，究竟意味着什么？可能是找到一个向量，使得它在应用了该矩阵后，没有改变方向？可能是对于一个主特征值严格大于其他特征值的<span
+class="math inline">\(A^k\)</span>，当<span
+class="math inline">\(k\rightarrow
++\infty\)</span>时，都会把任意非零向量”撇“到其主特征向量方向上去？我也需要在更多应用中慢慢理解；</p>
+<h3 id="特征值向量方程">5.1 特征值、向量、方程</h3>
+<p>定义如下：</p>
+<p><span class="math inline">\(A\)</span>为<span
+class="math inline">\(n\times n\)</span>矩阵，<span
+class="math inline">\(x\)</span>为非零向量，若存在数<span
+class="math inline">\(\lambda\)</span>使得<span
+class="math inline">\(Ax=\lambda x\)</span>成立，则<span
+class="math inline">\(\lambda\)</span>为<span
+class="math inline">\(A\)</span>的<strong>特征值</strong>，<span
+class="math inline">\(x\)</span>称为对于<span
+class="math inline">\(\lambda\)</span>的<strong>特征向量</strong>；</p>
+<p><strong>特征方程</strong>： <span
+class="math inline">\(\det(A-\lambda I) = 0\)</span>，<span
+class="math inline">\(\lambda\)</span>作为方程根的重数，称为<span
+class="math inline">\(\lambda\)</span>的（代数）重数</p>
+<p>我们又可以补充<strong>可逆矩阵定理（三）：</strong></p>
+<p><span class="math inline">\(A\)</span>是<span
+class="math inline">\(n\times n\)</span>矩阵，则<span
+class="math inline">\(A\)</span>是可逆的当且仅当</p>
+<ul>
+<li>0不是A的特征值</li>
+<li>A的行列式不等于0</li>
+</ul>
+<p>特征向量之间的线性相关性：</p>
+<p><span class="math inline">\(\lambda_1, \dots,
+\lambda_r\)</span>是<span class="math inline">\(n\times
+n\)</span>矩阵<span class="math inline">\(A\)</span>相异的特征值，<span
+class="math inline">\(v_1,\dots, v_r\)</span>是对应的特征向量，则<span
+class="math inline">\(\{v_1,\dots, v_r\}\)</span>线性无关；</p>
+<p>与一阶差分方程的关系：</p>
+<p>一阶差分方程<span
+class="math inline">\(x_{k+1}=Ax_{k}\)</span>的解，可以通过找到<span
+class="math inline">\(A\)</span>的一个特征值，得到<span
+class="math inline">\(x_{k+1}=\lambda^kx_0\)</span>；</p>
+<h3 id="对角化">5.2 对角化</h3>
+<p>将矩阵<span
+class="math inline">\(A\)</span>的所有特征值写入对角矩阵<span
+class="math inline">\(D\)</span>，对应的特征向量按列写入矩阵<span
+class="math inline">\(P\)</span>，则有<span
+class="math inline">\(AP=PD\)</span>，如果<span
+class="math inline">\(P\)</span>可逆，那么有<span
+class="math inline">\(A=PDP^{-1}\)</span>，这种形式有“好处”，我们可以专门定义一种<strong>相似性</strong>：</p>
+<p>A和B是<span
+class="math inline">\(n*n\)</span>矩阵，如果存在可逆矩阵<span
+class="math inline">\(P\)</span>，使得<span
+class="math inline">\(P^{-1}AP =
+B\)</span>，则称A相似于B，把A变成B的变换称为相似变换；</p>
+<p>相似性的特点/好处是：</p>
+<ul>
+<li><p>若矩阵A,B是相似的，则他们有相同的特征多项式核相同的特征值（重数也相同）</p>
+<blockquote>
+<p>行变换通常会改变特征值</p>
+</blockquote></li>
+<li><p>将A写成<span
+class="math inline">\(A=PDP^{-1}\)</span>的形式，其中<span
+class="math inline">\(P\)</span>为可逆矩阵，<span
+class="math inline">\(D\)</span>为对角矩阵，那么<span
+class="math inline">\(A^k = PD^kP^{-1}\)</span></p></li>
+</ul>
+<p>什么条件下，<span class="math inline">\(P\)</span>可逆呢？</p>
+<p><strong>对角化定理</strong>：设<span
+class="math inline">\(A\)</span>是<span
+class="math inline">\(n*n\)</span>矩阵，其特征向量为<span
+class="math inline">\(\lambda_1, \dots, \lambda_p\)</span>，当<span
+class="math inline">\(p=n\)</span>或者<span
+class="math inline">\(p&lt;n\)</span>但每个<span
+class="math inline">\(\lambda_k\)</span>对应的特征空间的维数等于特征方程在<span
+class="math inline">\(\lambda_k\)</span>的重数，当且仅当<span
+class="math inline">\(A\)</span>可以对角化；</p>
+<h3 id="特征向量与线性变换">5.3 特征向量与线性变换</h3>
+<p>先回顾一下坐标变换：</p>
+<p>线性变换的矩阵：在从<span
+class="math inline">\(n\)</span>维向量空间<span
+class="math inline">\(V\)</span>变换到<span
+class="math inline">\(m\)</span>维向量空间<span
+class="math inline">\(W\)</span>时，设<span
+class="math inline">\(B\)</span>和<span
+class="math inline">\(C\)</span>分别是<span
+class="math inline">\(V\)</span>和<span
+class="math inline">\(W\)</span>的基，我们知道可以写出标准矩阵<span
+class="math inline">\(A\)</span>(<span class="math inline">\(m\times
+n\)</span>)直接对向量进行变换, 即<span
+class="math inline">\(T(x)=Ax\)</span>，现在介绍一种直接对向量坐标变换的矩阵<span
+class="math inline">\(M\)</span>，使得<span
+class="math inline">\([T(x)]_C = M[x]_B\)</span>：</p>
+<p>其中 <span class="math display">\[
+M=[T(b_1)_C \dots T(b_n)_C]
+\]</span> <span class="math inline">\(T(b_1)_C\)</span>是类似于<span
+class="math inline">\(b_1=t_1c_1 + t_2c_2 +
+t_3c_3\)</span>中的参数向量<span class="math inline">\((t_1, t_2,
+t_3)^T\)</span></p>
+<p>当<span class="math inline">\(B\)</span>与<span
+class="math inline">\(C\)</span>是同一线性空间的基时，矩阵<span
+class="math inline">\(M\)</span>即为先前介绍的坐标变换矩阵；</p>
+<p>当<span class="math inline">\(W=V\)</span>,<span
+class="math inline">\(C=B\)</span>时，<span
+class="math inline">\(M\)</span>称为为变换<span
+class="math inline">\(T\)</span>相对于<span
+class="math inline">\(B\)</span>的矩阵，或者<span
+class="math inline">\(B-\)</span>矩阵；</p>
+<p>下面的证明，旨在从对角化出发，推广到相似矩阵可以充当该矩阵对应线性变换的<span
+class="math inline">\(B-\)</span>矩阵：</p>
+<p>对于<span
+class="math inline">\(\mathbb{R}^n\)</span>上的线性变换<span
+class="math inline">\(x\mapsto Ax\)</span>，假设<span
+class="math inline">\(A\)</span>是可对角化的，那么存在由<span
+class="math inline">\(A\)</span>的特征向量组成的<span
+class="math inline">\(\mathbb{R}^n\)</span>的基，<span
+class="math inline">\(A=PDP^{-1}\)</span>，则对角矩阵<span
+class="math inline">\(D\)</span>是变换<span
+class="math inline">\(x\mapsto Ax\)</span>的<span
+class="math inline">\(B-\)</span>矩阵；<span
+class="math inline">\(P\)</span>也是（到标准坐标的）坐标变换矩阵，有<span
+class="math inline">\([x]_B=P^{-1}x\)</span> <span
+class="math display">\[
+\begin{aligned}\\
+[T]_B &amp;= [[T(b_1)]_B\dots[T(b_n)]_B]\\
+&amp;= [[Ab_1]_B\dots[Ab_n]_B]\\
+&amp;= [P^{-1}Ab_1\dots P^{-1}Ab_n]\\
+&amp;= P^{-1}A[b_1\dotsb_n]\\
+&amp;= P^{-1}AP\\
+&amp;= D
+\end{aligned}
+\]</span> 推广上述结论，只要矩阵<span
+class="math inline">\(A\)</span>与<span
+class="math inline">\(C\)</span>相似，有<span
+class="math inline">\(A=PCP^{-1}\)</span>，在<span
+class="math inline">\(P\)</span>的列向量组成的基<span
+class="math inline">\(B\)</span>下，有变换<span
+class="math inline">\(x\rightarrow Ax\)</span>的<span
+class="math inline">\(B-\)</span>矩阵<span
+class="math inline">\(C\)</span>；反之也成立，任意的基<span
+class="math inline">\(B\)</span>，变换<span
+class="math inline">\(x\rightarrow Ax\)</span>的<span
+class="math inline">\(B-\)</span>矩阵相似于<span
+class="math inline">\(A\)</span>；</p>
+<h3 id="其他">5.4 其他</h3>
+<p>方阵<span
+class="math inline">\(A\)</span>没有足够的特征向量组成可逆的<span
+class="math inline">\(P\)</span>，但是仍可以通过找到一组基构造一个可逆的<span
+class="math inline">\(P\)</span>,并得到的<span
+class="math inline">\(PAP^{-1}\)</span>是三角矩阵，称之为<span
+class="math inline">\(A\)</span>的<strong>约当形</strong>；</p>
+<h2 id="正交性与最小二乘法">6. 正交性与最小二乘法</h2>
+<p>在实际问题中，<span
+class="math inline">\(Ax=b\)</span>通常无解（方程数大于未知数个数），希望找到一个<span
+class="math inline">\(\hat{x}\)</span>使得<span
+class="math inline">\(A\hat{x}\)</span>尽可能接近<span
+class="math inline">\(b\)</span>，这是我们讨论这一章的一个目的。</p>
+<h3 id="基本概念">6.1 基本概念</h3>
+<p>向量的内积、长度、距离、正交的概念按下不表；</p>
+<p>如果向量<span class="math inline">\(z\)</span>与在<span
+class="math inline">\(\mathbb{R}^n\)</span>的子空间<span
+class="math inline">\(W\)</span>中的任意向量都正交，则<span
+class="math inline">\(z\)</span>正交于<span
+class="math inline">\(W\)</span>，与<span
+class="math inline">\(W\)</span>正交的<span
+class="math inline">\(z\)</span>的全体的集合称为<span
+class="math inline">\(W\)</span>的<strong>正交补</strong>，即<span
+class="math inline">\(W^{\perp}\)</span>；</p>
+<p>设<span class="math inline">\(A\)</span>是<span
+class="math inline">\(m\times n\)</span>矩阵，则<span
+class="math inline">\((\text{Row} A)^{\perp} = \text{Nul}
+A\)</span>，且<span class="math inline">\((\text{Col} A)^{\perp} =
+\text{Nul} A^T\)</span>；</p>
+<blockquote>
+<p><span class="math inline">\(x\)</span>是<span
+class="math inline">\(\text{Nul} A\)</span>中的向量，则<span
+class="math inline">\(Ax=0\)</span>，即<span
+class="math inline">\(x\)</span>与<span
+class="math inline">\(A\)</span>的每一行都正交</p>
+</blockquote>
+<h3 id="正交集">6.2 正交集</h3>
+<p><strong>正交集</strong>，是一个集合中的向量两两正交；<strong>单位正交集</strong>，要求是单位向量；</p>
+<p>如果<span class="math inline">\(S\)</span>是<span
+class="math inline">\(\mathbb{R}^n\)</span>中由非零向量组成的正交集，则<span
+class="math inline">\(S\)</span>是线性无关集，是一组基；</p>
+<p>正交基比其他基优越，因为正交基线性组合的权值比较容易计算，<span
+class="math inline">\(c_j = \frac{y\cdot u_j}{u_j\cdot
+u_j}\)</span>，对于标准正交基（单位正交基）该权重的分母为1；</p>
+<p>一个<span class="math inline">\(m\times n\)</span>矩阵<span
+class="math inline">\(U\)</span>具有单位正交列向量的充要条件是<span
+class="math inline">\(U^TU=I\)</span>，<span
+class="math inline">\(U^TUx=x\)</span>对于所有<span
+class="math inline">\(\mathbb{R}^n\)</span>中的<span
+class="math inline">\(x\)</span>都成立；</p>
+<blockquote>
+<p>因而当<span class="math inline">\(U\)</span>是方阵时，有<span
+class="math inline">\(U^T=U^{-1}\)</span></p>
+</blockquote>
+<p>设<span class="math inline">\(U\)</span>是一个具有单位正交列的<span
+class="math inline">\(m\times n\)</span>矩阵，且<span
+class="math inline">\(x\)</span>和<span
+class="math inline">\(y\)</span>是<span
+class="math inline">\(\mathbb{R}^n\)</span>的向量，则：</p>
+<ul>
+<li><span class="math inline">\(\norm{Ux}=\norm{x}\)</span></li>
+<li><span class="math inline">\((Ux)\cdot(Uy)=x\cdot y\)</span></li>
+<li><span
+class="math inline">\((Ux)\cdot(Uy)=0\)</span>的充分必要条件是<span
+class="math inline">\(x\cdot y = 0\)</span></li>
+</ul>
+<h3 id="正交投影">6.3 正交投影</h3>
+<p>如果<span class="math inline">\(\{u_1,\dots,u_p\}\)</span>是<span
+class="math inline">\(\mathbb{R}^n\)</span>中子空间<span
+class="math inline">\(W\)</span>的单位正交基，那么<span
+class="math inline">\(y\)</span>在<span
+class="math inline">\(W\)</span>上的投影向量为 <span
+class="math display">\[
+\text{proj}_W y = (y\cdot u_1)u_1 + \dots + (y\cdot u_p)u_p
+\]</span> 如果<span
+class="math inline">\(U=[u_1,\dots,u_p]\)</span>，则对于所有的<span
+class="math inline">\(y\in\mathbb{R}^n\)</span> <span
+class="math display">\[
+\text{proj}_Wy=UU^Ty
+\]</span></p>
+<h3 id="格拉姆-施密特方法">6.4 格拉姆-施密特方法</h3>
+<p>对于<span
+class="math inline">\(\mathbb{R}^n\)</span>中任何非0子空间，构造正交基或者标准正交基的算法，基本思想是，从1维子空间开始，不断纳入新的向量，是当前向量减去其在已知正交基的子空间中的投影得到的；</p>
+<p>详细过程暂略；</p>
+<h3 id="矩阵qr分解">6.5 矩阵QR分解</h3>
+<p>如果<span class="math inline">\(m\times n\)</span>的矩阵<span
+class="math inline">\(A\)</span>的列线性无关，则<span
+class="math inline">\(A=QR\)</span>,其中<span
+class="math inline">\(Q\)</span>的列是<span
+class="math inline">\(\text{Col}
+A\)</span>的一个标准正交基，施密特方法保证了<span
+class="math inline">\(R\)</span>是上三角矩阵，并且是可逆的，对角线元素为正；
+<span class="math display">\[
+Q^TA=Q^T(QR)=IR=R
+\]</span></p>
+<h3 id="最小二乘法">6.6 最小二乘法</h3>
+<p>最小二乘问题又可以理解为，在<span
+class="math inline">\(\text{Col}A\)</span>中寻找与<span
+class="math inline">\(b\)</span>最接近的向量，<span
+class="math inline">\(\hat{b}=\text{proj}_{\text{Col}A}b\)</span>，求解<span
+class="math inline">\(A\hat{x}=\hat{b}\)</span>，由向量与投影向量的差垂直于投影平面的性质，有<span
+class="math inline">\(b-A\hat{x}\)</span>正交于<span
+class="math inline">\(A\)</span>的每一列，即<span
+class="math inline">\(A^T(b-A\hat{x})=0\)</span>，进而得到最小二乘解的法方程
+<span class="math display">\[
+A^TAx=A^Tb
+\]</span> <span
+class="math inline">\(A^TA\)</span>可逆的充要条件是，<span
+class="math inline">\(A\)</span>的列是线性无关的；</p>
+<p>使用法方程求解最小二乘解可能因为<span
+class="math inline">\(A^TA\)</span>的病态造成较大误差，<span
+class="math inline">\(QR\)</span>分解也可以用来求解最小二乘解：设<span
+class="math inline">\(m\times n\)</span>矩阵<span
+class="math inline">\(A\)</span>具有线性无关的列，则<span
+class="math inline">\(A=QR\)</span>，<span
+class="math inline">\(Ax=b\)</span>的最小二乘解是<span
+class="math inline">\(x=R^{-1}Q^Tb\)</span>，可以验证，<span
+class="math inline">\(Ax=QQ^Tb\)</span>，正是<span
+class="math inline">\(b\)</span>在<span
+class="math inline">\(\text{Col}A\)</span>上的投影；</p>
+<h2 id="对称矩阵和二次型">7. 对称矩阵和二次型</h2>
+<h3 id="对称矩阵">7.1 对称矩阵</h3>
+<p>对称矩阵比其他类型的矩阵更常出现在应用中，结合前几章的知识，我们会得到许多对称矩阵非常好的性质：</p>
+<p>如果<span
+class="math inline">\(A\)</span>是对称矩阵，那么不同特征空间的任意两个特征向量是正交的，且<span
+class="math inline">\(A\)</span>能满足对角化条件，则<span
+class="math inline">\(A=PDP^{T}\)</span> (<span
+class="math inline">\(P^T=P^{-1}\)</span>)： <span
+class="math inline">\(n\times n\)</span>的矩阵<span
+class="math inline">\(A\)</span>可以<strong>正交对角化</strong>的充要条件就是<span
+class="math inline">\(A\)</span>是对称矩阵;</p>
+<blockquote>
+<p>对于一个特征值得到的多个特征向量，却不一定是正交的，需要使用格拉姆施密特方法化为该特征空间的单位正交基</p>
+</blockquote>
+<p>矩阵<span class="math inline">\(A\)</span>的特征值的集合称为<span
+class="math inline">\(A\)</span>的<strong>谱</strong>，有如下<strong>谱定理</strong>：</p>
+<img src="/2022/08/10/linear-algebra/image-20220812181851605.png" class="" title="谱定理">
+<p>对称矩阵<strong>谱分解</strong>，即把正交对角化的结果展开</p>
+<img src="/2022/08/10/linear-algebra/image-20220812182043366.png" class="" title="谱分解">
+<h3 id="二次型">7.2 二次型</h3>
+<p><span
+class="math inline">\(\mathbb{R}^n\)</span>上的二次型是一个定义在<span
+class="math inline">\(\mathbb{R}^n\)</span>上的函数，在向量<span
+class="math inline">\(x\)</span>处的值为<span
+class="math inline">\(Q(x)=x^TAx\)</span>，<span
+class="math inline">\(A\)</span>是<span
+class="math inline">\(n*n\)</span>对称矩阵，称为关于二次型的矩阵；</p>
+<p>我们期望得到一个没有交叉项的二次型，便于求极值等，对应的是对角矩阵，因此我们引入二次型的变量代换：</p>
+<p><span class="math inline">\(x\)</span>是<span
+class="math inline">\(\mathbb{R}^n\)</span>中的一个向量变量，<span
+class="math inline">\(P\)</span>的列是<span
+class="math inline">\(\mathbb{R}^n\)</span>的一个基，<span
+class="math inline">\(x=Py\)</span>，<span
+class="math inline">\(y\)</span>是<span
+class="math inline">\(\mathbb{R}^n\)</span>中的一个新变量： <span
+class="math display">\[
+x^TAx=(Py)^TA(Py)=y^T(P^TAP)y
+\]</span> 新的二次型矩阵是<span
+class="math inline">\(P^TAP\)</span>，如果<span
+class="math inline">\(A\)</span>能够正交对角化，则<span
+class="math inline">\(P^TAP=p{-1}AP=D\)</span>，<span
+class="math inline">\(D\)</span>是<span
+class="math inline">\(A\)</span>的特征值组成的对角矩阵；</p>
+<p><span
+class="math inline">\(P\)</span>称为二次型的主轴，这个变量代换的过程，在<span
+class="math inline">\(\mathbb{R}^2\)</span>空间中想象，就是将以原点为中心的二次曲线（已经是关于原点对称的，没有一次项或者常数项）的主轴旋转到<span
+class="math inline">\(x\)</span>轴和<span
+class="math inline">\(y\)</span>轴方向；</p>
+<p>二次型<span class="math inline">\(Q(x)=x^TAx\)</span>有以下分类：</p>
+<ol type="1">
+<li>正定的，如果对于所有<span
+class="math inline">\(x\ne0\)</span>有<span
+class="math inline">\(Q(x)&gt;0\)</span>，当且仅当<span
+class="math inline">\(A\)</span>的所有特征值全正；</li>
+<li>负定的，如果对于所有<span
+class="math inline">\(x\ne0\)</span>有<span
+class="math inline">\(Q(x)&lt; 0\)</span>，当且仅当<span
+class="math inline">\(A\)</span>的所有特征值全负；</li>
+<li>不定的，有正有负</li>
+</ol>
+<h3 id="条件优化">7.3 条件优化</h3>
+<p>设<span class="math inline">\(A\)</span>是对称矩阵，<span
+class="math inline">\(m\)</span>是<span
+class="math inline">\(A\)</span>的最小特征值，<span
+class="math inline">\(M\)</span>是<span
+class="math inline">\(A\)</span>的最大特征值，如果<span
+class="math inline">\(x\)</span>是对应<span
+class="math inline">\(M\)</span>的单位特征向量，那么<span
+class="math inline">\(x^TAx=M\)</span>，如果<span
+class="math inline">\(x\)</span>是对应<span
+class="math inline">\(m\)</span>的单位特征向量，则<span
+class="math inline">\(x^TAx=m\)</span>；</p>
+<p>在<span class="math inline">\(||x||=1\)</span>的条件下，<span
+class="math inline">\(m\)</span>和<span
+class="math inline">\(M\)</span>分别是该二次型的最小值和最大值；</p>
+<img src="/2022/08/10/linear-algebra/image-20220812190112177.png" class="" title="条件优化">
+<h3 id="奇异值分解">7.4 奇异值分解</h3>
+<p>不是所有矩阵都有分解式子<span
+class="math inline">\(A=PDP^{-1}\)</span>且使得<span
+class="math inline">\(D\)</span>是对角的，但是分解<span
+class="math inline">\(A=QDP^{-1}\)</span>对任意的<span
+class="math inline">\(m\times n\)</span>矩阵<span
+class="math inline">\(A\)</span>都有可能；</p>
+<p>回顾之前的特征值的定义，如果<span
+class="math inline">\(||x||=1\)</span>，则 <span class="math display">\[
+||Ax||=\lambda
+\]</span> 对于最大特征值对应的特征空间中的向量，均能使得<span
+class="math inline">\(||Ax||\)</span>最大化；在<span
+class="math inline">\(||Ax||\)</span>最大时，也能保证<span
+class="math inline">\(||Ax||^2=x^T(A^TA)x\)</span>取得最大值，这是个二次型，其中<span
+class="math inline">\(A^TA\)</span>是对称矩阵，在<span
+class="math inline">\(||x||=1\)</span>的条件下，问题转化为了上一小节中讨论的条件优化问题。以下，我们引出奇异值的定义：</p>
+<p>令<span class="math inline">\(A\)</span>是<span
+class="math inline">\(m\times n\)</span>矩阵，那么<span
+class="math inline">\(A^TA\)</span>是对称矩阵且可以正交对角化，让<span
+class="math inline">\(\{v_1,\dots,v_n\}\)</span>是<span
+class="math inline">\(\mathbb{R}^n\)</span>额单位正交基且构成<span
+class="math inline">\(A^TA\)</span>的特征向量，<span
+class="math inline">\(\lambda_1,\dots,\lambda_n\)</span>是对应的特征值，那么对于<span
+class="math inline">\(1 \le i \le n\)</span>有： <span
+class="math display">\[
+||Av_i||^2=v_i^TA^TAv_i=v_i^T(\lambda_iv_i)=\lambda_i
+\]</span> 所以，<strong><span
+class="math inline">\(A^TA\)</span>所有特征值都非负</strong>（半正定的），按照从大到小排序，并开根号，即为<span
+class="math inline">\(A\)</span>的<strong>奇异值</strong><span
+class="math inline">\(\sigma_1,\dots,\sigma_n\)</span>，奇异值是向量<span
+class="math inline">\(Av_1,\dots,Av_n\)</span>的长度；</p>
+<p>在对<span
+class="math inline">\(A^TA\)</span>的特征值排序后，设有<span
+class="math inline">\(r\)</span>个非零特征值，即对应<span
+class="math inline">\(r\)</span>个非零奇异值，那么<span
+class="math inline">\(Av_1,\dots,Av_r\)</span>是<span
+class="math inline">\(\text{Col} A\)</span>的一个正交基，<span
+class="math inline">\(\text{rank} A = r\)</span></p>
+<blockquote>
+<p>这就是计算机计算矩阵的秩的方法——非零奇异值的个数</p>
+</blockquote>
+<p>矩阵<span class="math inline">\(A\)</span>（<span
+class="math inline">\(m\times n\)</span>）的奇异值分解，涉及一个<span
+class="math inline">\(m\times n\)</span>的矩阵<span
+class="math inline">\(\Sigma\)</span>，左上角是<span
+class="math inline">\(r\times r\)</span>的对角矩阵<span
+class="math inline">\(D\)</span>，对角线元素是<span
+class="math inline">\(A\)</span>的奇异值从大到小排列，另外还有一个<span
+class="math inline">\(m\times m\)</span>的正交矩阵<span
+class="math inline">\(U\)</span>和<span class="math inline">\(n\times
+n\)</span>的正交矩阵<span class="math inline">\(V\)</span>，使得<span
+class="math inline">\(A=U\Sigma V^T\)</span></p>
+<p><span class="math inline">\(V\)</span>的前<span
+class="math inline">\(r\)</span>列正是<span
+class="math inline">\(A^TA\)</span>中对应的<span
+class="math inline">\(r\)</span>个特征向量标准化的结果；而<span
+class="math inline">\(U\)</span>的前<span
+class="math inline">\(r\)</span>列构造为<span
+class="math inline">\(Av_i\)</span>标准化的结果 <span
+class="math display">\[
+u_i=\frac{1}{\sigma_i}Av_i
+\]</span></p>
+<p><span class="math display">\[
+U\Sigma = AV
+\]</span></p>
+<p>我们将<span
+class="math inline">\(U\)</span>的列称为左奇异向量，将<span
+class="math inline">\(V\)</span>的列称为右奇异向量；当<span
+class="math inline">\(r&lt;m\)</span>或者<span class="math inline">\(r
+&lt; n\)</span>时，<span class="math inline">\(U\)</span>与<span
+class="math inline">\(V\)</span>的剩余列怎么填？</p>
+<p>可以先利用正交性算出一组基并且使用施密特方法与先前的基进行正交化，不过，抛弃那几列，让<span
+class="math inline">\(U_r\)</span>是<span class="math inline">\(m\times
+r\)</span>，<span class="math inline">\(V_r\)</span>是<span
+class="math inline">\(n\times r\)</span>，仍有<span
+class="math inline">\(U\Sigma V^T=U_rD
+V_r^T\)</span>，即简化的<strong>奇异值分解</strong>；</p>
+<p>一些结合先前定义的结论:</p>
+<ul>
+<li><span class="math inline">\(\{u_1,\dots,u_r\}\)</span>是<span
+class="math inline">\(\text{Col}A\)</span>的标准正交基</li>
+<li><span class="math inline">\(\{u_{r+1},\dots,u_{m}\}\)</span>是<span
+class="math inline">\(\text{Nul}A^T\)</span>的标准正交基</li>
+<li><span class="math inline">\(\{v_{r+1},\dots,v_{n}\}\)</span>是<span
+class="math inline">\(\text{Nul} A\)</span>的标准正交基</li>
+<li><span class="math inline">\(\{v_1,\dots,v_r\}\)</span>是<span
+class="math inline">\(\text{Row}A\)</span>的标准正交基</li>
+</ul>
+<p><strong>伪逆</strong>（穆尔-彭罗斯逆）<span
+class="math inline">\(A^+=V_rD^{-1}U_r^T\)</span></p>
+<p>伪逆的另一种定义是： <span class="math display">\[
+A^+ = \lim_{\epsilon\rightarrow 0}(A^TA+\epsilon I)^{-1}A^T =
+\lim_{\epsilon\rightarrow 0}A^T(AA^T+\epsilon I)^{-1}
+\]</span></p>
+<p>设 <span class="math inline">\(A\in \mathbb{R}^{m\times
+n}\)</span>，若 <span class="math inline">\(\operatorname{rank} A =
+m\)</span>，则 <span class="math inline">\(A^{+} =
+A^T(AA^T)^{-1}\)</span>，若 <span
+class="math inline">\(\operatorname{rank} A = n\)</span>，则 <span
+class="math inline">\(A^{+} = (A^TA)^{-1}A^T\)</span>;</p>
+<p>使用伪逆也可以表示最小二乘解 <span class="math display">\[
+\hat{x}=A^+b=V_rD^{-1}U_r^T
+\]</span> 因为 <span class="math display">\[
+Ax=(U_rDV_r^T)(V_rD^{-1}U_r^T)b=U_rU_r^Tb
+\]</span> 仍然推出了在<span class="math inline">\(\text{Col}
+A\)</span>上的正交投影；</p>
+<p><strong>可逆矩阵定理（四）</strong>：</p>
+<p>设<span class="math inline">\(A\)</span>为<span
+class="math inline">\(n\times n\)</span>矩阵，则下列命题与<span
+class="math inline">\(A\)</span>可逆等价：</p>
+<ul>
+<li><span class="math inline">\((\text{Col} A)^{\perp} =
+\{0\}\)</span>；</li>
+<li><span class="math inline">\((\text{Nul} A)^{\perp}=
+\mathbb{R}^n\)</span>；</li>
+<li><span class="math inline">\(\text{Row}A=\mathbb{R}^n\)</span>；</li>
+<li><span class="math inline">\(A\)</span>有<span
+class="math inline">\(n\)</span>个非零的奇异值；</li>
+</ul>
+<h3 id="主成分分析">7.5 主成分分析</h3>
+<p><strong>观测矩阵</strong>：一个由<span
+class="math inline">\(N\)</span>次采样<span
+class="math inline">\(p\)</span>维数据得到的<span
+class="math inline">\(p\times N\)</span>矩阵；</p>
+<p><strong>样本均值</strong>：<span
+class="math inline">\(M=\frac{1}{N}(X_1+\dots+X_N)\)</span></p>
+<p>使用样本的平均偏差表示<span class="math inline">\(B=X-M\)</span></p>
+<p><strong>协方差矩阵</strong>：<span
+class="math inline">\(S=\frac{1}{N-1}BB^T\)</span></p>
+<p>协方差矩阵是对称的，是半正定的，其中 <span class="math display">\[
+S_{ij}=\sum_{k}^{N}(X_{ik}-M_i)(X_{jk}-M_j)
+\]</span> 总方差为协方差对角线元素之和，即<span
+class="math inline">\(\text{tr}(S)\)</span>；</p>
+<p>如果<span class="math inline">\(S_{ij}=0\)</span>，我们认为第<span
+class="math inline">\(i\)</span>个变量与第<span
+class="math inline">\(j\)</span>个变量是无关的；</p>
+<p>之后我们假设<span
+class="math inline">\(X_1,\dots,X_N\)</span>已经是平均偏差形式，<strong>主成分分析</strong>的目标就是确定一个变量代换<span
+class="math inline">\(X=PY\)</span>，其中<span
+class="math inline">\(P=[u_1,\dots,
+u_p]\)</span>是正交矩阵，使得代换后的新变量<span
+class="math inline">\(y_1,\dots,
+y_p\)</span>是两两无关的，并且方差递减；</p>
+<p>我们可以求出<span class="math inline">\(Y\)</span>的协方差 <span
+class="math display">\[
+\begin{aligned}
+\frac{1}{N-1}YY^T &amp;= \frac{1}{N-1}P^TXX^TP \\
+&amp;= P^TSP
+\end{aligned}
+\]</span> 期望<span
+class="math inline">\(P^TSP\)</span>为对角型，设<span
+class="math inline">\(D\)</span>是<span
+class="math inline">\(S\)</span>的特征值由大到小排序的对角矩阵，一定有<span
+class="math inline">\(S=PDP^T\)</span>其中<span
+class="math inline">\(P\)</span>是单位正交矩阵，那么不妨就让我们期望的<span
+class="math inline">\(P^TSP=D\)</span>；</p>
+<p>协方差矩阵<span class="math inline">\(S\)</span>的单位特征向量<span
+class="math inline">\(u_1,\dots, u_p\)</span>就是<span
+class="math inline">\(X\)</span>的主成分，第一主成分是最大的特征值对应的特征向量；</p>
+<p>单位正交变换不改变矩阵的迹（不改变向量的长度和夹角），即上述变量代换不改变总方差，因此<span
+class="math inline">\(\lambda_j/\text{tr}(D)\)</span>反映了成分<span
+class="math inline">\(j\)</span>占总体的比例；</p>
+<p>在实际应用中，基于奇异值分解的主成分分析比基于特征值分解的主成分分析更常用（算得更快更准）：<span
+class="math inline">\(B\)</span>是具有平均偏差形式的<span
+class="math inline">\(p\times N\)</span>的观测矩阵，<span
+class="math inline">\(A=\frac{1}{\sqrt{N-1}}B^T\)</span>，则<span
+class="math inline">\(A^TA\)</span>是协方差矩阵<span
+class="math inline">\(S\)</span>，对<span
+class="math inline">\(A\)</span>进行奇异值分解，<span
+class="math inline">\(A\)</span>的奇异值的平方就是<span
+class="math inline">\(S\)</span>的特征值，<span
+class="math inline">\(A\)</span>的右奇异向量就是主成分。</p>
+<h2 id="更多">8. 更多</h2>
+<h3 id="schur-complement">8.1 Schur complement</h3>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Schur_complement">wiki - Schur
+complement</a> 这里比较详细的给出了schur complement的由来已经应用；</p>
+<h3 id="matrix-determinant-lemma">8.2 Matrix determinant lemma</h3>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Matrix_determinant_lemma">wiki
+- Matrix determinant lemma</a></p>
+<h3 id="关于tr的一些小技巧">8.3 关于tr的一些小技巧</h3>
+<ul>
+<li>矩阵内积：<span class="math inline">\(\operatorname{tr}(YX) =
+\sum_{i,j} Y_{i,j}X_{i, j}\)</span></li>
+<li><span class="math inline">\(\operatorname{tr}(vv^T) =
+v^Tv\)</span></li>
+<li><span class="math inline">\(\nabla_X \operatorname{tr}(YX) =
+Y\)</span></li>
+<li><span class="math inline">\(\dots\)</span></li>
+</ul>
+<h3 id="derivative-of-logdet-x">8.4 Derivative of <span
+class="math inline">\(\log\det X\)</span></h3>
+<p><a
+target="_blank" rel="noopener" href="https://statisticaloddsandends.wordpress.com/2018/05/24/derivative-of-log-det-x/">blog</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/" rel="tag"><i class="fa fa-tag"></i> 线性代数</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/02/06/%E3%80%8A%E7%81%B5%E4%B8%8E%E8%82%89%E3%80%8B%E8%A7%82%E5%90%8E%E6%84%9F/" rel="prev" title="《灵与肉》观后感">
+                  <i class="fa fa-chevron-left"></i> 《灵与肉》观后感
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/08/13/probability/" rel="next" title="概率论与数理统计要点总结">
+                  概率论与数理统计要点总结 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"4140cd3a1f86c9f4888376e295834d6e"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

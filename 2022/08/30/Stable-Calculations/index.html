@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本文将介绍在实现softmax和交叉熵损失计算时需要注意的一些数学问题，并且回顾相关函数的定义与性质；代码来源于极市平台 - 编写高效的Pytorch代码技巧；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="稳定的数值计算">
+<meta property="og:url" content="https://ashun989.github.io/2022/08/30/Stable-Calculations/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="本文将介绍在实现softmax和交叉熵损失计算时需要注意的一些数学问题，并且回顾相关函数的定义与性质；代码来源于极市平台 - 编写高效的Pytorch代码技巧；">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-08-30T09:10:09.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.297Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="ashun, blog">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2022/08/30/Stable-Calculations/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/08/30/Stable-Calculations/","path":"2022/08/30/Stable-Calculations/","title":"稳定的数值计算"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>稳定的数值计算 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E5%88%86%E6%8A%80%E5%B7%A7"><span class="nav-number">1.</span> <span class="nav-text">部分技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#softmax"><span class="nav-number">1.1.</span> <span class="nav-text">softmax</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cross-entropy"><span class="nav-number">1.2.</span> <span class="nav-text">cross entropy</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%E7%9A%84%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">补充的数学知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#softmax-1"><span class="nav-number">2.1.</span> <span class="nav-text">softmax</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cross-entropy%E7%9A%84%E6%A2%AF%E5%BA%A6%E6%8E%A8%E5%AF%BC"><span class="nav-number">2.2.</span> <span class="nav-text">cross entropy的梯度推导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#logsoftexp"><span class="nav-number">2.3.</span> <span class="nav-text">LogSoftExp</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/08/30/Stable-Calculations/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="稳定的数值计算 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          稳定的数值计算
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-08-30 17:10:09" itemprop="dateCreated datePublished" datetime="2022-08-30T17:10:09+08:00">2022-08-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>本文将介绍在实现softmax和交叉熵损失计算时需要注意的一些数学问题，并且回顾相关函数的定义与性质；代码来源于<a
+target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/5qYbxSe6X5KZo1ISOE4r8A">极市平台 -
+编写高效的Pytorch代码技巧</a>；</p>
+<span id="more"></span>
+<h2 id="部分技巧">部分技巧</h2>
+<p>计算机中的浮点数运算通常存在两个问题：精度损失和算术溢出，本质上都是浮点计算单元的位数有限导致的。在训练模型过程中令人讨厌的问题之一就是梯度/loss出现<code>Nan</code>或者<code>Inf</code>，当算法本身在数学上没有错误时，就要考虑是不是出现了不稳定的数值计算，尤其警惕那些特别小或者特别大的数值；下面记录两个避免数值问题的技巧：</p>
+<h3 id="softmax">softmax</h3>
+<p>不稳定的写法如下，<span
+class="math inline">\(e^x\)</span>很容易发生上溢：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">unstable_softmax</span>(<span class="params">logits</span>):</span><br><span class="line">    exp = torch.exp(logits)</span><br><span class="line">    <span class="keyword">return</span> exp / torch.<span class="built_in">sum</span>(exp)</span><br></pre></td></tr></table></figure>
+<p>可以将分子分母同时除以一个常数，相当于对输入数据减去一个常量，经验上，这个常量取输入的最大值即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">softmax</span>(<span class="params">logits</span>):</span><br><span class="line">    exp = torch.exp(logits - torch.<span class="built_in">max</span>(logits))</span><br><span class="line">    <span class="keyword">return</span> exp / torch.<span class="built_in">sum</span>(exp)</span><br></pre></td></tr></table></figure>
+<h3 id="cross-entropy">cross entropy</h3>
+<blockquote>
+<p>计算交叉熵损失通常在对预测得分完成softmax之后，但这并不意味着它的实现与softmax解耦了，事实上，下面的改进正是利用了这种耦合性</p>
+</blockquote>
+<p>不稳定的写法如下，<span class="math inline">\(\log
+x\)</span>很容易发生下溢：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">unstable_softmax_cross_entropy</span>(<span class="params">labels, logits</span>):</span><br><span class="line">    logits = torch.log(softmax(logits))</span><br><span class="line">    <span class="keyword">return</span> -torch.<span class="built_in">sum</span>(labels * logits)</span><br></pre></td></tr></table></figure>
+<p>可以这样重写： <span class="math display">\[
+\log p_i =
+\log(\frac{e^{x_i}}{\sum_je^{x_j}})=\log(\frac{e^{x_i-m}}{\sum_je^{x_j-m}})=(x_i-m)
+- \text{LSE}(\mathbf{x}-\mathbf{1}m)
+\]</span> 其中<span class="math inline">\(m=\max_jx_j\)</span>；<span
+class="math inline">\(\text{LSE}\)</span>是LogSoftMax；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">softmax_cross_entropy</span>(<span class="params">labels, logits, dim=-<span class="number">1</span></span>):</span><br><span class="line">    scaled_logits = logits - torch.<span class="built_in">max</span>(logits)</span><br><span class="line">    normalized_logits = scaled_logits - torch.logsumexp(scaled_logits, dim)</span><br><span class="line">    <span class="keyword">return</span> -torch.<span class="built_in">sum</span>(labels * normalized_logits)</span><br></pre></td></tr></table></figure>
+<h2 id="补充的数学知识">补充的数学知识</h2>
+<h3 id="softmax-1">softmax</h3>
+<p>通常使用这个函数将输出转化为一组在<span
+class="math inline">\((0,1)\)</span>范围内的，和为1的输出，有着概率意义；</p>
+<p>softmax是这样的函数：<span
+class="math inline">\(\sigma:\mathbb{R}^K\rightarrow
+(0,1)^K\)</span>，其中<span class="math inline">\(K&gt;1\)</span> <span
+class="math display">\[
+\sigma(\mathbf{z})_i=\frac{e^{z_i}}{\sum_{j=1}^Ke^{z_j}}
+\]</span> 除了以<span
+class="math inline">\(e\)</span>为底，任何一个<span
+class="math inline">\(b&gt;0\)</span>可以作为底，如果<span
+class="math inline">\(0&lt;b&lt;1\)</span>，则原来更小的值将获得更大的输出；如果<span
+class="math inline">\(b&gt;1\)</span>，则原来更大的值将获得更小的输出；令<span
+class="math inline">\(b=e^\beta\)</span>，其中<span
+class="math inline">\(\beta\)</span>是实数，则还有： <span
+class="math display">\[
+\sigma(\mathbf{z})_i=\frac{e^{\beta z_i}}{\sum_{j=1}^Ke^{\beta z_j}}
+\]</span> softmax是平滑版的argmax，当<span
+class="math inline">\(\beta\rightarrow
+\infty\)</span>时，softmax收敛到argmax；一般地，平滑即连续可导，这样的性质在神经网络中非常重要；如果<span
+class="math inline">\(z_1,\dots,z_n\)</span>两两不相等，有： <span
+class="math display">\[
+\arg\max(z_1,\dots,z_n)=(y_1,\dots,y_n)=(0,\dots,0,1,0,\dots,0)
+\]</span> 其中<span
+class="math inline">\(\mathbf{z}\)</span>的一个微小的改变都可能让argmax的输出发生跳变；</p>
+<blockquote>
+<p>argmax不可导，但是max(x1,x2)在x1!=x2时是可导的，后文也会介绍max的平滑近似——LSE</p>
+</blockquote>
+<p>类似的，当<span class="math inline">\(\beta\rightarrow
+-\infty\)</span>时，argmax收敛到argmin；</p>
+<h3 id="cross-entropy的梯度推导">cross entropy的梯度推导</h3>
+<p>softmax+交叉熵耦合在一起的另一个原因是，其导数的形式非常简洁：</p>
+<p>假设真值为第<span class="math inline">\(i\)</span>个类别，<span
+class="math inline">\(\mathbf{q}\)</span>是真实分布，<span
+class="math inline">\(\mathbf{p}=\text{softmax}(\mathbf{s})\)</span>是估计分布，则损失函数<span
+class="math inline">\(L=-\sum_jq_j\log p_j=-\log p_i\)</span>，其中<span
+class="math inline">\(p_i =
+\frac{\exp(s_i)}{\sum_j\exp(s_j)}\)</span>；要求出<span
+class="math inline">\(\frac{\partial L}{\partial
+\mathbf{s}}\)</span>，其中<span
+class="math inline">\(\mathbf{s}=(1,\dots,j,\dots,d)\)</span>，分为两种情况：</p>
+<p>下面用<span class="math inline">\(\sum\)</span>代替<span
+class="math inline">\(s\)</span>，注意<span
+class="math inline">\(\frac{\partial L}{\partial
+p_i}=-\frac{1}{p_i}=-\frac{\sum{}}{\exp(s_i)}\)</span></p>
+<ol type="1">
+<li><p><span class="math inline">\(j = i\)</span>，此时<span
+class="math inline">\(p_i\)</span>的分子也是<span
+class="math inline">\(s_j\)</span>的函数： <span class="math display">\[
+\frac{\partial
+{p_i}}{\partial{s_j}}=\frac{\exp(s_i)\sum{}-\exp(2s_i)}{\sum{}^2}
+\]</span> 则 <span class="math display">\[
+\begin{aligned}
+\frac{\partial L}{\partial s_j} &amp;=
+-\frac{\sum{}}{\exp(s_i)}\frac{\exp(s_i)\sum{}-\exp(2s_i)}{\sum{}^2}\\
+&amp;=p_i-1\\
+&amp;=p_j-q_j
+\end{aligned}
+\]</span></p></li>
+<li><p><span class="math inline">\(j\ne i\)</span>，此时<span
+class="math inline">\(p_i\)</span>的分子与<span
+class="math inline">\(s_j\)</span>无关： <span class="math display">\[
+\frac{\partial {p_i}}{\partial{s_j}}=\frac{-\exp(s_i+s_j)}{\sum{}^2}
+\]</span> 则 <span class="math display">\[
+\begin{aligned}
+\frac{\partial L}{\partial s_j} &amp;=
+-\frac{\sum{}}{\exp(s_i)}\frac{-\exp(s_i+s_j)}{\sum{}^2}\\
+&amp;=p_j\\
+&amp;=p_j-q_j
+\end{aligned}
+\]</span></p></li>
+</ol>
+<p>综上所述，<span class="math inline">\(\frac{\partial L}{\partial
+\mathbf{s}}=\mathbf{p}-\mathbf{q}\)</span></p>
+<h3 id="logsoftexp">LogSoftExp</h3>
+<p>函数的形式为： <span class="math display">\[
+\text{LSE}(\mathbf{x})=\log(\sum_je^{x_j})
+\]</span> 该函数是max函数的平滑版本，是凸函数，假设<span
+class="math inline">\(\mathbf{x}\in\mathbb{R}^n\)</span>，<span
+class="math inline">\(m=\max_j x_j\)</span>，则 <span
+class="math display">\[
+e^m\le \sum_j^ne^{x_j}\le ne^m
+\]</span> 两边同时取对数，则有： <span class="math display">\[
+m\le \text{LSE}(\mathbf{x}) \le \log(n) + m
+\]</span>
+在使用计算机计算LSE时同样也有数值问题，而解决方法同样是，对于等式右边，减去再加上<span
+class="math inline">\(m = \log e^m\)</span></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/08/29/SA-inductive-bias/" rel="prev" title="《Attention is not all you need》阅读笔记">
+                  <i class="fa fa-chevron-left"></i> 《Attention is not all you need》阅读笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/09/01/Swin-Transformer/" rel="next" title="Swin Transformer 系列论文与代码阅读">
+                  Swin Transformer 系列论文与代码阅读 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"d84dc3c0bbaae6f90162f2a2b3fd1f8e"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

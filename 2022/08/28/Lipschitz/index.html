@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="前几日接触到一个新概念，Lipschitz Constant，本文是笔者在Wikipedia上递归搜索归纳的部分数学公里、定义、例子；抽象代数与拓扑几何的部分暂不在本文讨论；笔者不是数学专业，因此逻辑与表达多有不严谨之处，还请多多指正；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="度量空间与连续性">
+<meta property="og:url" content="https://ashun989.github.io/2022/08/28/Lipschitz/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="前几日接触到一个新概念，Lipschitz Constant，本文是笔者在Wikipedia上递归搜索归纳的部分数学公里、定义、例子；抽象代数与拓扑几何的部分暂不在本文讨论；笔者不是数学专业，因此逻辑与表达多有不严谨之处，还请多多指正；">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2022/08/28/Lipschitz/lipschitz.png">
+<meta property="article:published_time" content="2022-08-28T13:52:42.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.281Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="度量空间">
+<meta property="article:tag" content="李普希兹连续">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2022/08/28/Lipschitz/lipschitz.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2022/08/28/Lipschitz/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/08/28/Lipschitz/","path":"2022/08/28/Lipschitz/","title":"度量空间与连续性"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>度量空间与连续性 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%A6%E9%87%8F%E7%A9%BA%E9%97%B4-metric-space"><span class="nav-number">1.</span> <span class="nav-text">度量空间 (Metric space)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E7%A9%BA%E9%97%B4"><span class="nav-number">1.2.</span> <span class="nav-text">子空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%B6%E6%95%9B%E6%80%A7"><span class="nav-number">1.3.</span> <span class="nav-text">收敛性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E5%A4%87%E6%80%A7-completeness"><span class="nav-number">1.4.</span> <span class="nav-text">完备性 (completeness)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E7%95%8C%E6%80%A7-bounded"><span class="nav-number">1.5.</span> <span class="nav-text">有界性 (bounded)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A7%E5%87%91%E6%80%A7-compactness"><span class="nav-number">1.6.</span> <span class="nav-text">紧凑性 (compactness)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%A6%E9%87%8F%E7%A9%BA%E9%97%B4%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84"><span class="nav-number">1.7.</span> <span class="nav-text">度量空间之间的映射</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%89%E8%B7%9D%E6%98%A0%E5%B0%84-isometries"><span class="nav-number">1.7.1.</span> <span class="nav-text">等距映射 (Isometries)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E6%98%A0%E5%B0%84continuous-maps"><span class="nav-number">1.7.2.</span> <span class="nav-text">连续映射(continuous maps)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E8%87%B4%E8%BF%9E%E7%BB%AD%E6%98%A0%E5%B0%84uniformly-continuous-maps"><span class="nav-number">1.7.3.</span> <span class="nav-text">一致连续映射(uniformly
+continuous maps)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9D%8E%E6%99%AE%E5%B8%8C%E5%85%B9%E6%98%A0%E5%B0%84-lipschitz-maps"><span class="nav-number">1.7.4.</span> <span class="nav-text">李普希兹映射 (Lipschitz maps)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%86%E7%AD%89%E8%B7%9D%E6%98%A0%E5%B0%84quasi-isometries"><span class="nav-number">1.7.5.</span> <span class="nav-text">准等距映射(Quasi-isometries)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%8E%E6%99%AE%E5%B8%8C%E5%85%B9%E8%BF%9E%E7%BB%AD"><span class="nav-number">2.</span> <span class="nav-text">李普希兹连续</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/08/28/Lipschitz/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="度量空间与连续性 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          度量空间与连续性
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-08-28 21:52:42" itemprop="dateCreated datePublished" datetime="2022-08-28T21:52:42+08:00">2022-08-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>前几日接触到一个新概念，Lipschitz
+Constant，本文是笔者在Wikipedia上递归搜索归纳的部分数学公里、定义、例子；抽象代数与拓扑几何的部分暂不在本文讨论；笔者不是数学专业，因此逻辑与表达多有不严谨之处，还请多多指正；</p>
+<span id="more"></span>
+<h2 id="度量空间-metric-space">度量空间 (Metric space)</h2>
+<h3 id="定义">定义</h3>
+<p>对于一个集合<span
+class="math inline">\(M\)</span>中的两个元素，可以给出一种度量<span
+class="math inline">\(d\)</span>，称为度量空间，记作<span
+class="math inline">\((M,d)\)</span>，也是一个函数：<span
+class="math inline">\(d:M\times M \rightarrow \mathbb{R}\)</span>:</p>
+<blockquote>
+<p>跳出直观的欧几里得距离，度量是一种抽象的、隐喻的概念，又是也可以理解为从一个点到另一个点需要花费的成本；</p>
+</blockquote>
+<p>对于任意的<span class="math inline">\(x,y,z\in
+M\)</span>，度量空间满足下面4条公理，</p>
+<ol type="1">
+<li><span class="math inline">\(d(x,x)=0\)</span></li>
+<li>如果<span class="math inline">\(x\ne y\)</span>，则<span
+class="math inline">\(d(x,y)&gt;0\)</span></li>
+<li><span class="math inline">\(d(x,y)=d(y,x)\)</span></li>
+<li><span class="math inline">\(d(x,z)\le d(x,y) + d(y, z)\)</span></li>
+</ol>
+<p>常见的距离函数有：欧几里得距离<span
+class="math inline">\(d_2\)</span>，曼哈顿距离<span
+class="math inline">\(d_1\)</span>，切比雪夫距离<span
+class="math inline">\(d_{\infty}\)</span>，球面距离，汉明距离等等，并且有：
+<span class="math display">\[
+d_\infty(p,q)\le d_2(p,q) \le d_1(p,q) \le 2d_\infty(p,q)
+\]</span></p>
+<h3 id="子空间">子空间</h3>
+<p>度量空间<span class="math inline">\((M,d)\)</span>，有<span
+class="math inline">\(A\subseteq M\)</span>，则<span
+class="math inline">\(A\)</span>的诱导度量<span
+class="math inline">\(d_A:A\times A\rightarrow \mathbb{R}\)</span>定义为
+<span class="math display">\[
+d_A(x,y)=d(x,y)
+\]</span> 球面集合<span class="math inline">\(S^2\)</span>是<span
+class="math inline">\(\mathbb{R^3}\)</span>的子集，球面上的诱导度量是3维空间中的欧几里得距离；</p>
+<h3 id="收敛性">收敛性</h3>
+<p>这里先给出欧式空间上的表述，可以推广到度量空间：</p>
+<p>一个数列<span class="math inline">\((x_n)\)</span>收敛到<span
+class="math inline">\(x\)</span>，当且仅当对于任意的<span
+class="math inline">\(\epsilon&gt;0\)</span>，存在整数<span
+class="math inline">\(N\)</span>，对于所有的<span
+class="math inline">\(n&gt;N\)</span>都有<span
+class="math inline">\(d(x_n,x)&lt; \epsilon\)</span>；</p>
+<h3 id="完备性-completeness">完备性 (completeness)</h3>
+<p>直观地说，如果没有“缺失点”，即任何看起来收敛的序列（随着叙述的增加愈发靠近），确实都是收敛的，则称该度量空间是完备的；</p>
+<p>一个数列<span class="math inline">\((x_n)\)</span>是<span
+class="math inline">\((M,d)\)</span>中的柯西数列，当且仅当对于任意的<span
+class="math inline">\(\epsilon&gt;0\)</span>，存在整数<span
+class="math inline">\(N\)</span>，对于所有的<span
+class="math inline">\(m,n&gt;N\)</span>都有<span
+class="math inline">\(d(x_m,x_n)&lt;\epsilon\)</span>；</p>
+<p>收敛数列一定是柯西数列，(如果<span
+class="math inline">\(x_m\)</span>与<span
+class="math inline">\(x_n\)</span>与极限的距离都不超过<span
+class="math inline">\(\epsilon\)</span>，则通过三角不等式推出相同条件（<span
+class="math inline">\(N\)</span>）下<span
+class="math inline">\(x_m\)</span>与<span
+class="math inline">\(x_n\)</span>的距离不超过<span
+class="math inline">\(2\epsilon\)</span>；</p>
+<p>如果度量空间中所有的柯西数列都是收敛的，则度量空间是完备的；</p>
+<p>例如，区间<span class="math inline">\((0,1)\)</span>不完备而<span
+class="math inline">\([0,1]\)</span>完备，有理数集不完备而实数集完备；</p>
+<h3 id="有界性-bounded">有界性 (bounded)</h3>
+<p>在<span class="math inline">\(M\)</span>中存在一个距离上届，称为<span
+class="math inline">\(M\)</span>的直径；</p>
+<p>完全有界(or precompact)，定义涉及拓扑；</p>
+<h3 id="紧凑性-compactness">紧凑性 (compactness)</h3>
+<p>有几个紧凑性的等价定义，这里忽略涉及到拓扑概念的：</p>
+<ol type="1">
+<li>每一个数列都有一个收敛的子数列；</li>
+<li>完备的且完全有界的；</li>
+</ol>
+<h3 id="度量空间之间的映射">度量空间之间的映射</h3>
+<blockquote>
+<p>从度量空间到度量空间，有时称映射(maps)、有时称函数(functions)</p>
+</blockquote>
+<h4 id="等距映射-isometries">等距映射 (Isometries)</h4>
+<p>一个函数<span class="math inline">\(f:M_1\rightarrow
+M_2\)</span>是等距的，如果对于<span
+class="math inline">\(M_1\)</span>中任意的点都有： <span
+class="math display">\[
+d_2(f(x),f(y))=d_1(x,y)
+\]</span></p>
+<blockquote>
+<p><span
+class="math inline">\(f\)</span>应该是二元组到二元组的函数，上述<span
+class="math inline">\(f(x)\)</span>理解为<span
+class="math inline">\(f(x,y)\)</span>的第一项，<span
+class="math inline">\(f(y)\)</span>是第二项</p>
+</blockquote>
+<p>例如<span
+class="math inline">\(f:(\mathbb{R}^2,d_1)\rightarrow(\mathbb{R}^2,d_\infty)\)</span>有：
+<span class="math display">\[
+f(x,y)=(x+y,x-y)
+\]</span> 因为<span
+class="math inline">\(|x|+|y|=\max({|x+y|,|x-y|})\)</span></p>
+<h4 id="连续映射continuous-maps">连续映射(continuous maps)</h4>
+<p>存在多种等价的定义，其中<span
+class="math inline">\(\epsilon-\delta\)</span>定义为：</p>
+<p>一个函数<span class="math inline">\(f:M_1\rightarrow
+M_2\)</span>是连续的，如果对于<span
+class="math inline">\(M_1\)</span>中任意的点<span
+class="math inline">\(x\)</span>，和任意的<span
+class="math inline">\(\epsilon &gt; 0\)</span>，都有<span
+class="math inline">\(\delta &gt; 0\)</span>使得对于<span
+class="math inline">\(M_1\)</span>中任意的<span
+class="math inline">\(y\)</span>有： <span class="math display">\[
+d_1(x,y)&lt;\delta \Rightarrow d_2(f(x),f(y))&lt;\epsilon
+\]</span></p>
+<h4 id="一致连续映射uniformly-continuous-maps">一致连续映射(uniformly
+continuous maps)</h4>
+<p>一个函数<span class="math inline">\(f:M_1\rightarrow
+M_2\)</span>是一致连续的，如果对于任意的实数<span
+class="math inline">\(\epsilon &gt; 0\)</span>，存在<span
+class="math inline">\(\delta &gt;0\)</span>使得对于<span
+class="math inline">\(M_1\)</span>中任意的点<span
+class="math inline">\(x,y\)</span>满足<span
+class="math inline">\(d(x,y)&lt;\delta\)</span>的，有 <span
+class="math display">\[
+d_2(f(x),f(y))&lt;\epsilon
+\]</span></p>
+<blockquote>
+<p>在连续的定义中，<span class="math inline">\(\epsilon\)</span>是<span
+class="math inline">\(x\)</span>和<span
+class="math inline">\(\delta\)</span>的函数；在一致连续的定义中，<span
+class="math inline">\(\epsilon\)</span>仅是<span
+class="math inline">\(\delta\)</span>的函数；后者的条件更强；</p>
+</blockquote>
+<h4 id="李普希兹映射-lipschitz-maps">李普希兹映射 (Lipschitz maps)</h4>
+<p>经过这种映射，距离的拉伸不会超过一个上界：给定一个实数<span
+class="math inline">\(K&gt;0\)</span>，函数<span
+class="math inline">\(f:M_1\rightarrow M_2\)</span>是K-Lipschitz映射当：
+<span class="math display">\[
+d_2(f(x),f(y))\le Kd_1(x,y)
+\]</span> 特殊地，当<span
+class="math inline">\(K&lt;1\)</span>时称为收缩(contraction)</p>
+<h4 id="准等距映射quasi-isometries">准等距映射(Quasi-isometries)</h4>
+<p>函数<span class="math inline">\(f:M_1\rightarrow
+M_2\)</span>是准等距映射当存在常数<span class="math inline">\(A\ge
+1\)</span>且<span class="math inline">\(B\ge 0\)</span>有： <span
+class="math display">\[
+\frac{1}{A}d_2(f(x),f(y))-B\le d_1(x,y) \le Ad_2(f(x),f(y))+B
+\]</span></p>
+<h2 id="李普希兹连续">李普希兹连续</h2>
+<p>上文中的李普希兹映射的定义也是李普希兹连续的定义，其中<span
+class="math inline">\(K\)</span>是李普希兹常量，最小的<span
+class="math inline">\(K\)</span>称为the best Lipschitz
+constant或者dilation。</p>
+<p>一种特殊情况是当<span
+class="math inline">\(f\)</span>是实函数时，上述定义相当于限制了函数在其定义域上任意两点的割的绝对值存在上限<span
+class="math inline">\(K\)</span>：</p>
+<p><span class="math inline">\(|f(x_1)-f(x_2)|\le
+K|x_1-x_2|\)</span></p>
+<img src="/2022/08/28/Lipschitz/lipschitz.png" class="" title="lipschitz">
+<blockquote>
+<p>如上图所示，无论怎么移动，两条斜率绝对值为<span
+class="math inline">\(K\)</span>的斜线割开的上下部分均不会有<span
+class="math inline">\((x,f(x))\)</span>，即满足李普希兹连续条件</p>
+</blockquote>
+<p>在神经网络中，我们假设模型函数具有一个小于1的李普希兹常量，通常是为了避免梯度传播过程中发生数值问题；</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Metric_space">Metric
+space</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%BA%A6%E9%87%8F%E7%A9%BA%E9%97%B4/" rel="tag"><i class="fa fa-tag"></i> 度量空间</a>
+              <a href="/tags/%E6%9D%8E%E6%99%AE%E5%B8%8C%E5%85%B9%E8%BF%9E%E7%BB%AD/" rel="tag"><i class="fa fa-tag"></i> 李普希兹连续</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/08/13/probability/" rel="prev" title="概率论与数理统计要点总结">
+                  <i class="fa fa-chevron-left"></i> 概率论与数理统计要点总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/08/29/SA-inductive-bias/" rel="next" title="《Attention is not all you need》阅读笔记">
+                  《Attention is not all you need》阅读笔记 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"115628265345cc1db3dee24d4b8cd5cb"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

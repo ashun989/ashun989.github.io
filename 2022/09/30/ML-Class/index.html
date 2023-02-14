@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本文记录在本学期《机器学习及其应用课》上一些印象比较深刻的知识点；大部分在课堂PPT或者相关书籍（周志华《机器学习》，李航《统计学习方法》）上很容易理解的点就不在此赘述了； 笔者水平有限，如果有错误清多多指正；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习课堂笔记">
+<meta property="og:url" content="https://ashun989.github.io/2022/09/30/ML-Class/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="本文记录在本学期《机器学习及其应用课》上一些印象比较深刻的知识点；大部分在课堂PPT或者相关书籍（周志华《机器学习》，李航《统计学习方法》）上很容易理解的点就不在此赘述了； 笔者水平有限，如果有错误清多多指正；">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2022/09/30/ML-Class/image-20221027141501670.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/09/30/ML-Class/image-20221027212853259.png">
+<meta property="og:image" content="https://ashun989.github.io/2022/09/30/ML-Class/image-20221027212912620.png">
+<meta property="article:published_time" content="2022-09-30T08:14:54.000Z">
+<meta property="article:modified_time" content="2023-02-12T12:24:32.281Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="ashun, blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2022/09/30/ML-Class/image-20221027141501670.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2022/09/30/ML-Class/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/09/30/ML-Class/","path":"2022/09/30/ML-Class/","title":"机器学习课堂笔记"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习课堂笔记 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%AF%84%E4%BC%B0%E4%B8%8E%E9%80%89%E6%8B%A9"><span class="nav-number">1.</span> <span class="nav-text">模型的评估与选择</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%9B%E5%8C%96%E8%AF%AF%E5%B7%AE%E7%9A%84%E5%88%86%E8%A7%A3"><span class="nav-number">1.1.</span> <span class="nav-text">泛化误差的分解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vc%E7%BB%B4"><span class="nav-number">1.2.</span> <span class="nav-text">VC维</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%9B%E5%8C%96%E8%AF%AF%E5%B7%AE%E4%B8%8A%E7%95%8C"><span class="nav-number">1.3.</span> <span class="nav-text">泛化误差上界</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E7%9F%A9%E9%98%B5%E5%BC%A0%E9%87%8F%E7%9A%84%E5%AF%BC%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">向量、矩阵、张量的导数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E5%AF%B9%E5%90%91%E9%87%8F%E6%B1%82%E5%AF%BC"><span class="nav-number">2.1.</span> <span class="nav-text">向量对向量求导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E5%AF%B9%E7%9F%A9%E9%98%B5%E6%B1%82%E5%AF%BC"><span class="nav-number">2.2.</span> <span class="nav-text">向量对矩阵求导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E5%AF%B9%E7%9F%A9%E9%98%B5%E6%B1%82%E5%AF%BC"><span class="nav-number">2.3.</span> <span class="nav-text">矩阵对矩阵求导</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">线性模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%88%A4%E5%88%AB%E5%88%86%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">线性判别分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%A1%A8%E7%A4%BA%E6%8A%95%E5%BD%B1"><span class="nav-number">3.1.1.</span> <span class="nav-text">如何表示投影</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.2.</span> <span class="nav-text">如何设计目标函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96"><span class="nav-number">3.1.3.</span> <span class="nav-text">如何优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%88%86%E7%B1%BB"><span class="nav-number">3.1.4.</span> <span class="nav-text">如何分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%89%A9%E5%B1%95%E5%88%B0%E5%A4%9A%E5%88%86%E7%B1%BB"><span class="nav-number">3.1.5.</span> <span class="nav-text">如何扩展到多分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E5%88%B0%E9%99%8D%E7%BB%B4"><span class="nav-number">3.1.6.</span> <span class="nav-text">扩展到降维</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E6%96%AF%E8%92%82%E5%9B%9E%E5%BD%92%E5%AF%B9%E6%95%B0%E5%87%A0%E7%8E%87%E5%9B%9E%E5%BD%92"><span class="nav-number">3.2.</span> <span class="nav-text">逻辑斯蒂回归&#x2F;对数几率回归</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E7%BB%9F%E8%AE%A1%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A"><span class="nav-number">3.2.1.</span> <span class="nav-text">从统计意义解释</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E5%88%B0%E5%A4%9A%E5%88%86%E7%B1%BB"><span class="nav-number">3.2.2.</span> <span class="nav-text">扩展到多分类</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/09/30/ML-Class/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习课堂笔记 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习课堂笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-09-30 16:14:54" itemprop="dateCreated datePublished" datetime="2022-09-30T16:14:54+08:00">2022-09-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>本文记录在本学期《机器学习及其应用课》上一些印象比较深刻的知识点；大部分在课堂PPT或者相关书籍（周志华《机器学习》，李航《统计学习方法》）上很容易理解的点就不在此赘述了；</p>
+<p>笔者水平有限，如果有错误清多多指正；</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="模型的评估与选择">模型的评估与选择</h2>
+<h3 id="泛化误差的分解">泛化误差的分解</h3>
+泛化误差是模型对位置数据预测的误差： $$
+<span class="math display">\[\begin{aligned}
+R_\text{exp}(\hat f)&amp;=E_P[L(Y, \hat f(X))]\\
+&amp;=\int_{\mathcal{X}\times\mathcal{Y}}L(y, \hat f(x))P(x, y)dxdy
+
+\end{aligned}\]</span>
+<p>$$</p>
+<p>首先要明确的一点是，泛化误差<span
+class="math inline">\(\ne\)</span>某个测试集误差，后者只是前者的一次估计，前者是后者所在分布的期望，测试集的选择、推理过程的随机性都会得到不同的结果。应当使用统计学中的假设检验方法比较两个模型的好坏。</p>
+<blockquote>
+<p>但是笔者目前看到几乎所有的论文都是，在测试集甚至验证集上，有更好的性能，就SOTA了？</p>
+</blockquote>
+<p>泛化误差是一个理论上的误差，如果能描述清楚其上下界，则对实验有一定的指导意义：泛化误差的下界决定了在一个任务上最理想能刷到多少点，是收到数据集的限制的；泛化误差的上界反映了模型本身是否容易学习，一般认为，泛化误差上界越小的模型越好，然而对于简单的线性模型，我们也许可以给出上界，但是对于现在的各种复杂的非线性的、深层的模型，给出泛化误差上界仍然是很难的问题。</p>
+<p>下面是对泛化误差的分解：</p>
+<p>记测试样本为<span class="math inline">\(x\)</span>，<span
+class="math inline">\(y_D\)</span>与<span
+class="math inline">\(y\)</span>分别为样本在数据集中的标记和样本真实标记，<span
+class="math inline">\(f(x;D)\)</span>为训练集<span
+class="math inline">\(D\)</span>上学习的模型对于<span
+class="math inline">\(x\)</span>的预测标签（以下简记为<span
+class="math inline">\(f\)</span>），定义对于测试样本中预测的<strong>方差</strong>为<span
+class="math inline">\(var(x)=E_D[(f(x;D)-\overline
+f(x))^2]\)</span>（以下简记为<span
+class="math inline">\(E[(f-Ef)^2]\)</span>），定义噪声为<span
+class="math inline">\(\epsilon^2=E_D[(y_D-y)^2]\)</span>，定义偏差为<span
+class="math inline">\(bias^2(x)=(\hat f(x)- y)^2\)</span>;</p>
+<blockquote>
+<p><span class="math inline">\(y_D\)</span>和<span
+class="math inline">\(y\)</span>的区别，是数据标注时引入的误差，由标注员本身认知的偏置和偶然的错误组成；<span
+class="math inline">\(f\)</span>和<span
+class="math inline">\(Ef\)</span>的区别，即由于训练集变动等原因，导致模型对同一个样本的预测不总是相同；</p>
+<p>下面的<span class="math inline">\(L\)</span>直接使用均方误差：</p>
+</blockquote>
+<p><span class="math display">\[
+\begin{aligned}
+E(f;D) &amp;= E[(f(x;D)-y_D)^2]\\
+&amp;= E[(f - Ef + Ef - y_D)^2]\\
+&amp;= E[(f-Ef)^2]+E[(Ef-y_D)^2]+2E[f\cdot Ef + y_DEf - y_Df - E_f^2]\\
+&amp;= E[(f-Ef)^2]+E[(E_f-y + y-y_D)^2]\\
+&amp;= E[(f-Ef)^2]+E[(E_f-y)^2]+E[(y-y_D)^2+E[(E_f-y)(y-y_D)]\\
+&amp;= var(x) + bias^2(x) + \epsilon^2
+\end{aligned}
+\]</span></p>
+<blockquote>
+<p>上述推导用到的知识有：</p>
+<ul>
+<li><p><span class="math inline">\(E(aX+bY)=aEX+bEY\)</span>，其中<span
+class="math inline">\(a, b\)</span>是常数，<span
+class="math inline">\(X,Y\)</span>是随机变量；特殊地<span
+class="math inline">\(E(a)=a\)</span>；</p></li>
+<li><p><span
+class="math inline">\(E(XY)=E(X)E(Y)\)</span>，当且仅当<span
+class="math inline">\(X,Y\)</span>是相互独立的随机变量；</p></li>
+</ul>
+<p>需要的假设有：</p>
+<ul>
+<li><p>噪声期望为0，即<span
+class="math inline">\(E(y_D-y)=0\)</span>，这是假设了数据集的标注没有系统误差而都是随机误差，比较合理；则可以推出<span
+class="math inline">\(\text{Var}[(y_D-y)]=E[(y_D-y)]^2=\epsilon^2\)</span>；</p></li>
+<li><p>偏差与噪声无关；</p></li>
+</ul>
+</blockquote>
+<h3 id="vc维">VC维</h3>
+<blockquote>
+<p>以下定义来自<a
+target="_blank" rel="noopener" href="https://www.jiqizhixin.com/graph/technologies/e766aa0d-af15-480a-9ce9-b6357442330e">机器之心
+- VC维度</a></p>
+</blockquote>
+<p>VC维是衡量可以通过统计<strong>分类</strong>算法学习的函数空间的容量的度量。定义为算法可以破碎(shatter)的最大点集的基数。shatter的含义为，对于一个假设空间<span
+class="math inline">\(\mathcal H\)</span>（函数的集合），如果存在<span
+class="math inline">\(m\)</span>个数据样本能够被假设空间中的函数按照所有可能的<span
+class="math inline">\(2^n\)</span>种方式分开（每个样本有两种类别可能），则称<span
+class="math inline">\(\mathcal H\)</span>能够把<span
+class="math inline">\(m\)</span>个数据样本破碎开。</p>
+<p>e.g.
+线性模型的VC维为3，因为3个点线性可分而4个点的xor情况线性不可分。</p>
+<h3 id="泛化误差上界">泛化误差上界</h3>
+<p>在推导特定问题的泛化误差上界之前，我们定性地描述泛化误差上界：</p>
+<ul>
+<li>样本容量越大，泛化误差上界趋于0；</li>
+<li>假设空间容量越大，泛化误差上界越大；</li>
+</ul>
+<p>考虑二分类问题，样本容量为<span
+class="math inline">\(N\)</span>，训练数据集<span
+class="math inline">\(T\)</span>是从联合概率分布<span
+class="math inline">\(P(X,Y)\)</span>独立同分布产生的，假设空间是函数的有限集合<span
+class="math inline">\(\mathcal F = \{f_1, \cdots,
+f_d\}\)</span>，损失函数为0-1损失，则期望风险（<span
+class="math inline">\(L(Y, F(X))\)</span>期望值）和经验风险（<span
+class="math inline">\(L(Y, F(X))\)</span>样本均值）分别为： <span
+class="math display">\[
+R(f)=E[L(Y,f(X))]
+\]</span></p>
+<p><span class="math display">\[
+\hat R(f) = \frac 1 N \sum_{i=1}^N L(y_i, f(x_i))
+\]</span></p>
+<p>经验风险最小化函数为 <span class="math display">\[
+f_N = \arg\min_{f\in\mathcal F}\hat R(f)
+\]</span> 我们关心<span class="math inline">\(f_N\)</span>的泛化能力：
+<span class="math display">\[
+R(f_N)=E[L(Y,f_N(X))]
+\]</span> 对于任意一个<span
+class="math inline">\(f\)</span>，至少以概率<span
+class="math inline">\(1-\delta, ~
+0&lt;\delta&lt;1\)</span>，以下不等式成立： <span
+class="math display">\[
+R(f) \le \hat R(f) + \sqrt{\frac {1}{2N} (\log d+\log\frac 1 \delta)}
+\]</span></p>
+<blockquote>
+<p>具体证明见： 李航《统计学习方法》。</p>
+</blockquote>
+<h2 id="向量矩阵张量的导数">向量、矩阵、张量的导数</h2>
+<p>理解矢量导数，最朴素的方式，就是把矢量计算拆成多个并行的标量计算；</p>
+<p>以下内容来自<a
+target="_blank" rel="noopener" href="http://cs231n.stanford.edu/vecDerivs.pdf">cs231n的参考资料</a>，用粗体字母表示向量，用大写字母表示矩阵，一般的小写字母表示标量；</p>
+<h3 id="向量对向量求导">向量对向量求导</h3>
+<p>设<span class="math inline">\(\mathbf{y}\)</span>是长度为<span
+class="math inline">\(C\)</span>列向量，<span
+class="math inline">\(W\)</span>是<span class="math inline">\(C\times
+D\)</span>矩阵，<span class="math inline">\(\mathbf
+x\)</span>是长度为<span class="math inline">\(D\)</span>列向量，有<span
+class="math inline">\(\mathbf y = W\mathbf
+x\)</span>，简单的排列组合知识告诉我们，<span
+class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
+x}\)</span>有<span class="math inline">\(C\times
+D\)</span>项（二维矩阵）；不妨以<span class="math inline">\(\mathbf
+y\)</span>的第3个元素对<span class="math inline">\(\mathbf
+x\)</span>的第7个元素为例： <span class="math display">\[
+\begin{aligned}
+\frac{\partial y_3}{\partial x_7} &amp;= \frac{\partial}{\partial
+x_7}(W_{3,1}x_1+\cdots+W_{3,7}x_7+\cdots+W_{3,D}x_D)\\
+&amp;=W_{3,7}
+\end{aligned}
+\]</span> 推广到其他位置，不难得出结论，<span
+class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
+x}\)</span>恰好就是<span class="math inline">\(W\)</span></p>
+<blockquote>
+<p>如果<span class="math inline">\(\mathbf y\)</span>与<span
+class="math inline">\(\mathbf x\)</span>都是行向量且<span
+class="math inline">\(\mathbf y = \mathbf x W\)</span>，同样有<span
+class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
+x}=W\)</span></p>
+</blockquote>
+<h3 id="向量对矩阵求导">向量对矩阵求导</h3>
+<p>与上一小节条件相同，直观地看，<span
+class="math inline">\(\frac{\partial\mathbf y}{\partial
+W}\)</span>应该是一个<span class="math inline">\(C\times C\times
+D\)</span>的张量，设<span class="math inline">\(W=[\mathbf w_1, \cdots,
+\mathbf w_D]\)</span>，<span class="math inline">\(\mathbf y = W\mathbf
+x\)</span>也可以理解为<span class="math inline">\(\mathbf
+y\)</span>是<span class="math inline">\(W\)</span>各列以<span
+class="math inline">\(\mathbf x\)</span>中对应元素为权重的加权和，即
+<span class="math display">\[
+\mathbf y = x_1\mathbf w_1 + \cdots + x_D \mathbf w_D
+\]</span> 特殊的，我们可以得到 <span class="math display">\[
+\frac{\partial y_3}{\partial W_{3,7}} = \frac{\partial}{\partial
+W_{3,7}}(x_1W_{3,1} +\cdots + x_7W_{3,7} + \cdots + x_DW_{3,D}) = x_7
+\]</span></p>
+<p><span class="math display">\[
+\frac{\partial y_3}{\partial W_{2,7}} = \frac{\partial}{\partial
+W_{2,7}}(x_1W_{3,1} +\cdots + x_7W_{3,7} + \cdots + x_DW_{3,D}) = 0
+\]</span></p>
+<p>推广后，我们发现，对于<span
+class="math inline">\(\frac{\partial\mathbf y_i}{\partial
+W_{j,k}}\)</span>，仅仅在<span
+class="math inline">\(i=j\)</span>时不为零，且<span
+class="math display">\[\frac{\partial\mathbf y_i}{\partial
+W_{i,k}}=x_k\]</span>，这样，我们可以将结果的3D张量表示成一个更紧凑的2D矩阵，形状为<span
+class="math inline">\(C\times D\)</span>，（<span
+class="math inline">\(C\)</span>个<span class="math inline">\(\mathbf
+x\)</span>拼接）： <span class="math display">\[
+\frac{\partial\mathbf y}{\partial W} = \mathbf x \mathbf 1^T
+\]</span></p>
+<blockquote>
+<p>当然，结果还可以继续“紧凑”成向量<span class="math inline">\(\mathbf
+x\)</span>，这里我们有意让<span
+class="math inline">\(\frac{\partial}{\partial W}\)</span>的形状与<span
+class="math inline">\(W\)</span>相同，是利于理解反向传播过程中参数的更新，当然，利用numpy/pytorch的广播机制，只需要保存一个向量即可；</p>
+</blockquote>
+<h3 id="矩阵对矩阵求导">矩阵对矩阵求导</h3>
+<p>将先前定义的<span class="math inline">\(\mathbf y\)</span>和<span
+class="math inline">\(\mathbf x\)</span>分别扩展成矩阵<span
+class="math inline">\(Y\in \mathbb R^{C\times N}\)</span>，<span
+class="math inline">\(X\in \mathbb R^{D\times N}\)</span>，<span
+class="math inline">\(Y=WX\)</span>；这种扩展，可以理解为使用了<span
+class="math inline">\(N\)</span>个数据，对于<span
+class="math inline">\(i = 1, \cdots, N\)</span>，有<span
+class="math inline">\(\mathbf y_i = W \mathbf x_i\)</span>；</p>
+<p>使用先前的结论，有 <span class="math display">\[
+\frac{\partial Y_{.,i}}{\partial X_{.,i}} = \frac{\partial \mathbf
+y_i}{\partial \mathbf x_i} = \frac{\partial}{\partial \mathbf
+x_i}W\mathbf x_i = W
+\]</span></p>
+<p><span class="math display">\[
+\frac{\partial Y_{.,i}}{\partial X_{.,j}} = \frac{\partial \mathbf
+y_i}{\partial \mathbf x_j} = \frac{\partial}{\partial \mathbf
+x_j}W\mathbf x_i = 0
+\]</span></p>
+<p>将矩阵乘法展开成标量乘积之和形式，还可以得到<span
+class="math inline">\(\frac{\partial Y_{a,b}}{\partial
+X_{c,d}}\)</span>在<span class="math inline">\(a\ne
+c\)</span>时也为0，因此紧凑地表示<span
+class="math inline">\(\frac{\partial Y}{\partial
+X}\)</span>，可以将4D张量缩减为2D矩阵，也就是<span
+class="math inline">\(W\)</span>；</p>
+<p>类似的，<span class="math inline">\(\frac{\partial Y}{\partial W} =
+X\)</span>；</p>
+<blockquote>
+<p>这个结果，在形式上，又与标量求导相同，只不过我们需要清楚，这些都是“紧凑”后的形式；</p>
+</blockquote>
+<h2 id="线性模型">线性模型</h2>
+<h3 id="线性判别分析">线性判别分析</h3>
+<p>核心思想：将高维空间的样本投影到一条直线上，使得同类样本尽可能近，异类样本尽可能远；</p>
+<h4 id="如何表示投影">如何表示投影</h4>
+<p>如何表示投影？在<a
+href="https://ashun989.github.io/2022/08/10/linear-algebra/">线性代数要点总结</a>的“正交投影”一节，给出了将<span
+class="math inline">\(\mathbb{R}^n\)</span>中的向量<span
+class="math inline">\(y\)</span>投影到子空间<span
+class="math inline">\(W\)</span>后的数学表示，设<span
+class="math inline">\(U=[u_1,\cdots,
+u_p]\)</span>为该子空间的单位正交基，则 <span class="math display">\[
+\text{proj}_Wy=UU^Ty
+\]</span> 在西瓜书上的图解是一个最简单的情况，原空间是<span
+class="math inline">\(\mathbb
+R^2\)</span>，投影子空间是其中的一条直线（1维子空间），其单位正交基应该只有一个向量，即该直线的单位向量<span
+class="math inline">\(\omega\)</span>，按照上述公式，投影后的点坐标应该是<span
+class="math inline">\(\omega\omega^Tx\)</span>，为什么后续却适用了<span
+class="math inline">\(\omega^Tx\)</span>这一表示呢？</p>
+<p><img src="image-20221027141501670.png" /></p>
+<p>直观地看，在上图中，<span
+class="math inline">\(\omega\omega^Tx\)</span>仍然保持了与<span
+class="math inline">\(x\)</span>相同的形状，而<span
+class="math inline">\(\omega^Tx\)</span>是一个标量；向量空间<span
+class="math inline">\(\mathbb R^n\)</span>的子空间<span
+class="math inline">\(W\)</span>有<span
+class="math inline">\(p\)</span>个线性无关的基，即子空间是<span
+class="math inline">\(p\)</span>维的，但每个基的元素个数为<span
+class="math inline">\(n\)</span>，即子空间的域仍然是<span
+class="math inline">\(p\)</span>，即在线代中介绍的投影运算，在投影前后不改变域，而在这里介绍的“投影”，希望得到的是与该子空间同构的<span
+class="math inline">\(\mathbb
+R^p\)</span>上的结果，而线性判别分析的限制更强，即<span
+class="math inline">\(p=1\)</span>；</p>
+<p>回想投影公式的推导过程，<span
+class="math inline">\(U^Ty\)</span>是<span
+class="math inline">\(p\)</span>个正交的单位向量与<span
+class="math inline">\(y\)</span>的点积结果，表示<span
+class="math inline">\(y\)</span>投影到子空间各个方向上的长度是多少，之后再左乘<span
+class="math inline">\(U\)</span>是为了得到投影点在<span
+class="math inline">\(\mathbb{R}^n\)</span>中的坐标；</p>
+<p>现在我们只需要知道在1维子空间的唯一基方向的长度<span
+class="math inline">\(y=\omega^Tx\)</span>，用于分类，更准确的说，我们只要得到不同的<span
+class="math inline">\(x\)</span>，投影后向相对长度，因此<span
+class="math inline">\(\omega\)</span>不必要是一个方向向量，不同的<span
+class="math inline">\(\omega\)</span>只会使得所有投影结果乘上不同的比例因子罢了；</p>
+<h4 id="如何设计目标函数">如何设计目标函数</h4>
+<p>首先定义一些接下来会用到的符号，总样本集合<span
+class="math inline">\(X\)</span>包含<span
+class="math inline">\(N\)</span>个<span
+class="math inline">\(d\)</span>维样本<span
+class="math inline">\(x\)</span>，即<span
+class="math inline">\(X\)</span>是<span class="math inline">\(d\times
+N\)</span>的矩阵，记类别数为<span
+class="math inline">\(K=2\)</span>，第<span
+class="math inline">\(i\)</span>类样本的集合为<span
+class="math inline">\(X_i\)</span>，基数为<span
+class="math inline">\(N_i\)</span>，均值为<span
+class="math inline">\(m_i\)</span>，协方差为<span
+class="math inline">\(\Sigma_i\)</span>；投影后的均值为<span
+class="math inline">\(\omega m_i\)</span>，协方差矩阵<span
+class="math inline">\(\omega^T\Sigma\omega\)</span>；（这里投影后的协方差矩阵是1x1的，因此可以视为一个标量）</p>
+<blockquote>
+<p>有关协方差和投影后协方差矩阵的形式，可见<a
+href="https://ashun989.github.io/2022/08/10/linear-algebra/">线性代数要点总结</a>的主成分分析一节；</p>
+</blockquote>
+<p>希望类间距离越大，可以写成样本中心距离越大；希望类内距离越小，可以写成协方差越小，则目标函数（最大化）为：
+<span class="math display">\[
+\begin{aligned}
+J &amp;= \frac{||\omega^Tm_0 - \omega^T
+m_1||_2^2}{\omega^T\Sigma_0\omega + \omega^T\Sigma_1\omega}\\
+&amp;= \frac{\omega^T(m_0 - m_1)(m_0 -
+m_1)^T\omega}{\omega^T(\Sigma_0+\Sigma_1)\omega}\\
+\end{aligned}
+\]</span> 把分子分母中做个变量代换，定义：</p>
+<p>类间散度矩阵为<span class="math inline">\(S_b\)</span>，<span
+class="math inline">\(d\times d\)</span> <span class="math display">\[
+S_b = (m_0-m_1)(m_0-m_1)^T
+\]</span> 分母上 <span class="math display">\[
+\begin{aligned}
+\Sigma_0 +\Sigma_1 &amp;= \frac{1}{N_0-1}(X_0-m_0\mathbf
+1)(X_0-m_0\mathbf 1)^T + \frac{1}{N_1-1}(X_1-m_1\mathbf
+1)(X_1-m_1\mathbf 1)^T\\
+&amp;= \frac{1}{N_0-1}\sum_{x\in X_0}(x-m_0)(x-m_0)^T +
+\frac{1}{N_1-1}\sum_{x\in X_1}(x-m_1)(x-m_1)^T
+\end{aligned}
+\]</span> 而在定义类内散度矩阵<span
+class="math inline">\(S_w\)</span>，<span class="math inline">\(d\times
+d\)</span>时， 抛去了归一化项： <span class="math display">\[
+S_w = \sum_{x\in X_0}(x-m_0)(x-m_0)^T + \sum_{x\in X_1}(x-m_1)(x-m_1)^T
+\]</span> 上述目标函数重写为： <span class="math display">\[
+J = \frac{\omega^TS_b\omega}{\omega^TS_w\omega}
+\]</span></p>
+<blockquote>
+<p>抛去了归一化项会有什么影响吗？直观地，正负样本的数量不同时，会有差距，不做归一化会使得<span
+class="math inline">\(S_w\)</span>偏向样本多得那一方。可是求平均同样会放大样本较少类别中离群点的影响。对于类别不均衡问题，LDA算法本身没有考虑，但是后续可以通过难样本挖掘等采样策略来训练等等；</p>
+</blockquote>
+<h4 id="如何优化">如何优化</h4>
+<p>如何求解使<span class="math inline">\(J\)</span>最大的<span
+class="math inline">\(\omega\)</span>？分子分母都是关于<span
+class="math inline">\(\omega\)</span>的二次型；由于我们只需要<span
+class="math inline">\(\omega\)</span>的方向，因此可以让分母为非零常数<span
+class="math inline">\(c\)</span>，分子最大化；</p>
+<blockquote>
+<p>为了便于理解，在上图中原始空间为<span class="math inline">\(\mathbb
+{R}^2\)</span>的情况下，记<span class="math inline">\(\omega =
+(\omega_1, \omega_2)\)</span>，<span
+class="math inline">\(J\)</span>也就是这样的一个目标函数： <span
+class="math display">\[
+J =
+\frac{a\omega_1^2+b\omega_2^2+c\omega_1\omega_2}{d\omega_1^2+e\omega_2^2+f\omega_1\omega_2}
+\]</span></p>
+</blockquote>
+<p><span class="math display">\[
+\begin{matrix}
+    \min_w &amp;-\omega S_b\omega\\
+\text{s.t.}&amp;\omega^TS_w\omega = c
+\end{matrix}
+\]</span></p>
+<p>对应的拉格朗日函数为： <span class="math display">\[
+L(\omega, \lambda) = \omega^T S_b\omega - \lambda(\omega^TS_w\omega - c)
+\]</span> 对<span
+class="math inline">\(\omega\)</span>求导并令导数为0，得到 <span
+class="math display">\[
+S_b\omega  = \lambda S_w\omega
+\]</span> LDA假设样本的协方差矩阵是满秩的，因此有<span
+class="math inline">\(S_w\)</span>非奇异，则 <span
+class="math display">\[
+S_w^{-1}S_b\omega = \lambda \omega
+\]</span></p>
+<blockquote>
+<p>在Fisher判别分析中，没有协方差矩阵满秩的假设，因此<span
+class="math inline">\(S_w^{-1}\)</span>可以使用求伪逆的方法；</p>
+</blockquote>
+<p>转化为求解<span
+class="math inline">\(S_\omega^{-1}S_b\)</span>的特征向量的问题；但是，又观察到<span
+class="math inline">\((m_0-m_1)^T\omega\)</span>是标量，则<span
+class="math inline">\(S_b\omega\)</span>始终与<span
+class="math inline">\((m_0-m_1)\)</span>同方向： <span
+class="math display">\[
+S_b\omega = (m_0-m_1)(m_0-m_1)^T\omega = \lambda&#39;(m_0-m_1)
+\]</span> 因此 <span class="math display">\[
+\omega = \frac{\lambda}{\lambda&#39;}S_w^{-1}(m_0-m_1)
+\]</span> 比例因子<span class="math inline">\(\lambda /
+\lambda&#39;\)</span>可以忽略，因为我们只在意方向；</p>
+<h4 id="如何分类">如何分类</h4>
+<p>对于二分类问题，在投影到1维直线上之后，我们需要确定一个阈值来在推理时区分正负类别，最简单的，可以使用投影后的样本中心的均值作为阈值；</p>
+<h4 id="如何扩展到多分类">如何扩展到多分类</h4>
+<p>观察上述过程，扩展到多分类，仍要满足类内距离小，那么<span
+class="math inline">\(S_w\)</span>的定义只要由两类协方差矩阵之和扩展成多类协方差矩阵之和即可；
+<span class="math display">\[
+S_w = \sum_{i=1}^{K}\sum_{x\in X_i}(x-m_i)(x-m_i)^T
+\]</span></p>
+<p>仍要满足类间距离大，那么<span
+class="math inline">\(S_b\)</span>的定义该如何扩展？</p>
+<p>先定义一个全局散度矩阵<span class="math inline">\(S_t\)</span>，<span
+class="math inline">\(m\)</span>表示所有样本的均值： <span
+class="math display">\[
+S_t = \sum_{i=1}^{K}\sum_{x\in X_i}(x-m)(x-m)^T
+\]</span> 令<span class="math inline">\(S_b = S_t -
+S_w\)</span>，则有类间样本均值：</p>
+<blockquote>
+<p><span class="math display">\[
+\begin{aligned}
+(x-m)(x-m)^T - (x-m_i)(x-m_i)^T
+&amp;=(x-m)(x^T-m^T) - (x-m_i)(x^T-m_i^T)\\
+&amp;=-mx^T-xm^T+mm^T+m_ix^T+xm_i^T-m_im_i^T\\
+\sum_{x\in X_i}(-mx^T-xm^T-mm^T+m_ix^T+xm_i^T-m_im_i^T) &amp;=
+N_i(mm^T-m_i^Tm_i^T)+(m_i-m)N_im_i^T + N_im_i(m_i^T-m^T)\\
+&amp;= N_i(mm^T + m_i^Tm_i^T - mm_i^T - m_im^T)\\
+&amp;= N_i(m_i - m)(m_i - m)^T
+\end{aligned}
+\]</span></p>
+</blockquote>
+<p><span class="math display">\[
+S_b = \sum_{i=1}^{K}N_i(m_i-m)(m_i-m)^T
+\]</span></p>
+<p>扩展到多分类的另一个问题在于，投影到1维直线上已经不太合适了，<span
+class="math inline">\(d\times 1\)</span>的投影向量<span
+class="math inline">\(\omega\)</span>扩展为<span
+class="math inline">\(d\times (K-1)\)</span>的投影矩阵<span
+class="math inline">\(W\)</span>，但是这样一来，目标函数的分子分母都不再是标量而是矩阵，可以改成求矩阵的迹</p>
+<blockquote>
+<p>协方差矩阵的迹是总方差</p>
+</blockquote>
+<p><span class="math display">\[
+\max_{W}\frac{\text{tr}(W^TS_bW)}{\text{tr}(W^tS_wW)}
+\]</span></p>
+<p>上述问题的解与之前有相同形式（笔者目前还不能给出推导过程）： <span
+class="math display">\[
+S_bW = \lambda S_w W
+\]</span> 问题同样转化为求<span
+class="math inline">\(S_w^{-1}S_b\)</span>的前<span
+class="math inline">\(d&#39;\)</span>个最大广义非零特征值对应的特征向量，<span
+class="math inline">\(d&#39; \le (K - 1)\)</span>；</p>
+<p>在推理时，设<span
+class="math inline">\(y=Wx\)</span>是测试样本在投影空间的表示，计算<span
+class="math inline">\(y\)</span>到哪个投影后的类别中心<span
+class="math inline">\(Wm_i\)</span>最近，决定了<span
+class="math inline">\(x\)</span>属于哪个类别；</p>
+<blockquote>
+<p>为什么<span class="math inline">\(K\)</span>分类投影到<span
+class="math inline">\(K-1\)</span>的超平面？还是别的维度也可以？</p>
+<p>不存在什么限制要求必须投影到$K-1维超平面</p>
+</blockquote>
+<h4 id="扩展到降维">扩展到降维</h4>
+<p>上面在多分类的扩展中，我们看到了LDA可以作为监督降维技术，并且这种投影过程使用了类别信息；</p>
+<h3 id="逻辑斯蒂回归对数几率回归">逻辑斯蒂回归/对数几率回归</h3>
+<p>一句话描述逻辑斯蒂回归，就是在线性回归层之后使用了sigmoid函数，并设置阈值完成二分类预测，相比于直接用线性模型+阈值做分类，能够一定程度减少离群点的影响；</p>
+<p>如何优化逻辑斯蒂回归模型的参数？我想起来在吴恩达老师的机器学习入门课中，给了一个新手友好的解释：</p>
+<blockquote>
+<p>线性回归模型 + MSE损失，和逻辑回归模型 +
+BCE损失，求导后损失函数对<span
+class="math inline">\(\theta\)</span>的梯度形式均为Error * Feature</p>
+</blockquote>
+<p>逻辑回归模型为什么引入CE？又为什么不用MSE？吴恩达老师只是简单提到了最大似然估计和非凸函数，没有给当时还是新手的我讲太多；下面笔者记录一下，是怎样得到BCE损失函数的？</p>
+<h4 id="从统计意义解释">从统计意义解释</h4>
+<p>决策边界：使得模型输出=分类阈值的所有输入的集合，设输入特征是<span
+class="math inline">\(\mathbb R^d\)</span>中的向量，则决策边界是<span
+class="math inline">\(d-1\)</span>维的超平面；对于逻辑回归，其决策边界是线性的；</p>
+<blockquote>
+<p>如果阈值为0.5，那么超平面即<span
+class="math inline">\(wx+b=0\)</span>，将偏置项"吸入"，也就是<span
+class="math inline">\(wx=0\)</span></p>
+</blockquote>
+<p>使用sigmoid激活之后，模型的输出可以视为一种后验概率： <span
+class="math display">\[
+\begin{aligned}
+P(Y=1|X) &amp;= \frac{e^{wx}}{1+e^{wx}} &amp;= p\\
+P(Y=0|X) &amp;= \frac{1}{1+e^{wx}} &amp;=  1 - p\\
+\end{aligned}
+\]</span>
+定义事件的几率为发生与不发生的比率，对数几率即几率取对数，那么逻辑斯蒂回归模型的对数几率，即为线性函数的输出：
+<span class="math display">\[
+\log\frac{P(Y=1|X)}{P(Y=0|X)} = wx
+\]</span>
+也就是说，虽然披着“分类”的外皮，但是我们还是在做一个回归任务，只不过，回归的目标是“对数几率”；</p>
+<p>设输入数据为<span class="math inline">\(\{x_i,
+y_i\}_{i=1}^m\)</span>，<span
+class="math inline">\(y_i\)</span>为0或1，则对数似然函数为 <span
+class="math display">\[
+l(w) = \sum_{i=1}^m\log p(y_i|x_i; w)
+\]</span> 按照似然函数的定义，其中： <span class="math display">\[
+p(y_i|x_i;w) = p_i^{y_i}(1-p_i)^{1-y_i}
+\]</span> 则 <span class="math display">\[
+\begin{aligned}
+l(w) &amp;= \sum_{i=1}^{m}[y_i\log p_i + (1-y_i)\log(1-p_i)]\\
+&amp;= \sum_{i=1}^{m}[y_i\log\frac{p_i}{1-p_i} + \log(1-p_i)]\\
+&amp;= \sum_{i=1}^{m}[y_i(wx_i)-\log(1+e^{wx})]
+\end{aligned}
+\]</span> 上式的第一行也就是常见的BCE损失的表现形式，求<span
+class="math inline">\(\frac{\partial l}{\partial
+w}\)</span>即我们熟悉的Error * Feature形式；</p>
+<h4 id="扩展到多分类">扩展到多分类</h4>
+<p>同样的，写出对数似然函数，仍然能够得到CE损失的形式：</p>
+<p><img src="image-20221027212853259.png" /></p>
+<p><img src="image-20221027212912620.png" /></p>
+<p><a
+href="https://ashun989.github.io/2022/08/30/Stable-Calculations/#more">这里</a>有一份softmax+CE
+loss的求导过程；</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/09/21/Non-local/" rel="prev" title="Non-local网络回顾">
+                  <i class="fa fa-chevron-left"></i> Non-local网络回顾
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/10/03/RepVGG/" rel="next" title="RepVGG论文与代码阅读">
+                  RepVGG论文与代码阅读 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"a6b2a6a5053af1e209531ee6f7db37d4"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>
