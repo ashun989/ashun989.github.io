@@ -27,7 +27,7 @@
 <meta property="og:description" content="内容主要来自MIT EE364a课程slides和book；穿插着网络资源和少量自己的理解（这些内容不保证准确）">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-11-14T02:37:10.000Z">
-<meta property="article:modified_time" content="2023-02-14T11:29:58.594Z">
+<meta property="article:modified_time" content="2023-02-17T09:58:29.359Z">
 <meta property="article:author" content="ashun">
 <meta property="article:tag" content="凸优化">
 <meta name="twitter:card" content="summary">
@@ -123,7 +123,9 @@ conditions)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" 
 function)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%80%A7%E8%B4%A8"><span class="nav-number">3.3.2.</span> <span class="nav-text">基本性质</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#fenchels-inequality"><span class="nav-number">3.3.2.1.</span> <span class="nav-text">Fenchel&#39;s inequality</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%B1%E8%BD%AD%E7%9A%84%E5%85%B1%E8%BD%AD"><span class="nav-number">3.3.2.2.</span> <span class="nav-text">共轭的共轭</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%AF%E5%AF%BC%E5%87%BD%E6%95%B0"><span class="nav-number">3.3.2.3.</span> <span class="nav-text">可导函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#quasiconvex-%E5%87%BD%E6%95%B0"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 Quasiconvex 函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89-2"><span class="nav-number">3.4.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%B1%9E%E6%80%A7"><span class="nav-number">3.4.2.</span> <span class="nav-text">基本属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E9%98%B6%E5%AF%BC%E6%9D%A1%E4%BB%B6"><span class="nav-number">3.4.3.</span> <span class="nav-text">一阶导条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E9%98%B6%E5%AF%BC%E6%9D%A1%E4%BB%B6"><span class="nav-number">3.4.4.</span> <span class="nav-text">二阶导条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%9D%E6%8C%81quasiconvexity%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="nav-number">3.4.5.</span> <span class="nav-text">保持quasiconvexity的操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9D%9E%E8%B4%9F%E6%9D%83%E9%87%8D%E9%80%90%E7%82%B9%E6%9C%80%E5%A4%A7"><span class="nav-number">3.4.5.1.</span> <span class="nav-text">非负权重逐点最大</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A4%8D%E5%90%88%E5%87%BD%E6%95%B0-1"><span class="nav-number">3.4.5.2.</span> <span class="nav-text">复合函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%83%A8%E5%88%86%E6%9C%80%E5%B0%8F%E5%8C%96-1"><span class="nav-number">3.4.5.3.</span> <span class="nav-text">部分最小化</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E5%87%B8%E5%87%BD%E6%95%B0%E6%97%8F%E6%9D%A5%E8%A1%A8%E7%A4%BAquasiconvex%E5%87%BD%E6%95%B0"><span class="nav-number">3.4.6.</span> <span class="nav-text">用凸函数族来表示quasiconvex函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#log-concave"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 Log concave</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BF%E4%B9%89%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8B%E7%9A%84%E5%87%B8%E6%80%A7"><span class="nav-number">3.6.</span> <span class="nav-text">3.6 广义不等式下的凸性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%BF%E4%B9%89%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8B%E7%9A%84%E5%8D%95%E8%B0%83%E6%80%A7"><span class="nav-number">3.6.1.</span> <span class="nav-text">广义不等式下的单调性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%BF%E4%B9%89%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8B%E7%9A%84%E5%87%B8%E6%80%A7-1"><span class="nav-number">3.6.2.</span> <span class="nav-text">广义不等式下的凸性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#matrix-convexity"><span class="nav-number">3.6.2.1.</span> <span class="nav-text">Matrix convexity</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC4%E7%AB%A0-%E5%87%B8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">第4章 凸优化问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 优化问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%9C%AF%E8%AF%AD"><span class="nav-number">4.1.1.</span> <span class="nav-text">基本术语</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E6%9C%80%E4%BC%98%E4%B8%8E%E5%85%A8%E5%B1%80%E6%9C%80%E4%BC%98"><span class="nav-number">4.1.1.1.</span> <span class="nav-text">局部最优与全局最优</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%AF%E8%A1%8C%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.1.2.</span> <span class="nav-text">可行问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%89%E4%BB%B7%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.2.</span> <span class="nav-text">等价问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%98%E9%87%8F%E4%BB%A3%E6%8D%A2"><span class="nav-number">4.1.2.1.</span> <span class="nav-text">变量代换</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%8F%98%E6%8D%A2"><span class="nav-number">4.1.2.2.</span> <span class="nav-text">函数变换</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9D%BE%E5%BC%9B%E5%8F%98%E9%87%8Fslack-variables"><span class="nav-number">4.1.2.3.</span> <span class="nav-text">松弛变量(slack variables)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E9%99%A4%E7%AD%89%E5%BC%8F%E9%99%90%E5%88%B6"><span class="nav-number">4.1.2.4.</span> <span class="nav-text">消除等式限制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A2%9E%E5%8A%A0%E7%AD%89%E5%BC%8F%E9%99%90%E5%88%B6"><span class="nav-number">4.1.2.5.</span> <span class="nav-text">增加等式限制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E9%83%A8%E5%88%86%E5%8F%98%E9%87%8F"><span class="nav-number">4.1.2.6.</span> <span class="nav-text">优化部分变量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#epigraph%E5%BD%A2%E5%BC%8F"><span class="nav-number">4.1.2.7.</span> <span class="nav-text">epigraph形式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%B8%E4%BC%98%E5%8C%96"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 凸优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E5%AF%BC%E5%87%BD%E6%95%B0f_0%E7%9A%84%E6%9C%80%E4%BC%98%E6%80%A7%E5%87%86%E5%88%99an-optimality-criterion"><span class="nav-number">4.2.1.</span> <span class="nav-text">可导函数\(f_0\)的最优性准则(An optimality
 criterion)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%97%A0%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.1.1.</span> <span class="nav-text">无限制问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BB%85%E5%8C%85%E5%90%AB%E7%AD%89%E5%BC%8F%E9%99%90%E5%88%B6"><span class="nav-number">4.2.1.2.</span> <span class="nav-text">仅包含等式限制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9C%A8%E9%9D%9E%E8%B4%9F%E8%B1%A1%E9%99%90%E4%B8%8A%E6%9C%80%E5%B0%8F%E5%8C%96"><span class="nav-number">4.2.1.3.</span> <span class="nav-text">在非负象限上最小化</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%89%E4%BB%B7%E7%9A%84%E5%87%B8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.2.</span> <span class="nav-text">等价的凸优化问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E9%99%A4%E5%BC%95%E5%85%A5%E7%AD%89%E5%BC%8F%E9%99%90%E5%88%B6"><span class="nav-number">4.2.2.1.</span> <span class="nav-text">消除&#x2F;引入等式限制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BC%95%E5%85%A5%E6%9D%BE%E5%BC%9B%E5%8F%98%E9%87%8F"><span class="nav-number">4.2.2.2.</span> <span class="nav-text">引入松弛变量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BD%AC%E5%8C%96%E4%B8%BAepigraph%E5%BD%A2%E5%BC%8F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.2.3.</span> <span class="nav-text">转化为epigraph形式的问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9C%A8%E9%83%A8%E5%88%86%E5%8F%98%E9%87%8F%E4%B8%8A%E6%9C%80%E5%B0%8F%E5%8C%96"><span class="nav-number">4.2.2.4.</span> <span class="nav-text">在部分变量上最小化</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#quasiconvex-%E4%BC%98%E5%8C%96"><span class="nav-number">4.2.3.</span> <span class="nav-text">Quasiconvex 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E6%9C%80%E4%BC%98%E8%A7%A3%E5%92%8C%E6%9C%80%E4%BC%98%E6%80%A7%E6%9D%A1%E4%BB%B6"><span class="nav-number">4.2.3.1.</span> <span class="nav-text">局部最优解和最优性条件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E5%87%B8%E5%8F%AF%E8%A1%8C%E6%80%A7%E9%97%AE%E9%A2%98%E6%B1%82%E8%A7%A3"><span class="nav-number">4.2.3.2.</span> <span class="nav-text">通过凸可行性问题求解</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 线性优化问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90"><span class="nav-number">4.3.1.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A4%9A%E9%9D%A2%E4%BD%93%E7%9A%84%E8%BD%A6%E6%AF%94%E9%9B%AA%E5%A4%AB%E4%B8%AD%E5%BF%83chebyshev-center"><span class="nav-number">4.3.1.1.</span> <span class="nav-text">多面体的车比雪夫中心(Chebyshev
 center)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BD%A6%E6%AF%94%E9%9B%AA%E5%A4%AB%E4%B8%8D%E7%AD%89%E5%BC%8F"><span class="nav-number">4.3.1.2.</span> <span class="nav-text">车比雪夫不等式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%88%86%E6%95%B0%E8%A7%84%E5%88%92"><span class="nav-number">4.3.2.</span> <span class="nav-text">线性分数规划</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E8%A7%84%E5%88%92%E9%97%AE%E9%A2%98"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 二次规划问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-1"><span class="nav-number">4.4.1.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E5%9B%9E%E5%BD%92"><span class="nav-number">4.4.1.1.</span> <span class="nav-text">最小二乘&#x2F;回归</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%96%B9%E5%B7%AE%E7%9A%84%E4%B8%8A%E7%95%8C"><span class="nav-number">4.4.1.2.</span> <span class="nav-text">方差的上界</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E4%BB%A3%E4%BB%B7%E7%9A%84%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="nav-number">4.4.1.3.</span> <span class="nav-text">随机代价的线性规划</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E9%94%A5%E8%A7%84%E5%88%92"><span class="nav-number">4.4.2.</span> <span class="nav-text">二次锥规划</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%B2%81%E6%A3%92%E7%9A%84%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="nav-number">4.4.2.1.</span> <span class="nav-text">鲁棒的线性规划</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E9%99%90%E5%88%B6%E7%9A%84%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="nav-number">4.4.2.2.</span> <span class="nav-text">随机限制的线性规划</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E8%A7%84%E5%88%92%E9%97%AE%E9%A2%98"><span class="nav-number">4.5.</span> <span class="nav-text">4.5 几何规划问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E9%A1%B9%E5%BC%8Fmonomials%E5%92%8C%E6%AD%A3%E5%90%91%E5%BC%8Fposynomials"><span class="nav-number">4.5.1.</span> <span class="nav-text">单项式(monomials)和正向式(posynomials)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E8%A7%84%E5%88%92"><span class="nav-number">4.5.2.</span> <span class="nav-text">几何规划</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AC%E5%8C%96%E4%B8%BA%E5%87%B8%E4%BC%98%E5%8C%96%E5%BD%A2%E5%BC%8F"><span class="nav-number">4.5.3.</span> <span class="nav-text">转化为凸优化形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-2"><span class="nav-number">4.5.4.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AF%B9%E8%A7%92%E7%BC%A9%E6%94%BE%E7%9A%84frobenius%E8%8C%83%E6%95%B0"><span class="nav-number">4.5.4.1.</span> <span class="nav-text">对角缩放的Frobenius范数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BF%E4%B9%89%E4%B8%8D%E7%AD%89%E5%BC%8F%E9%99%90%E5%88%B6"><span class="nav-number">4.6.</span> <span class="nav-text">4.6 广义不等式限制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%A5%E5%BD%A2%E5%BC%8F%E9%97%AE%E9%A2%98"><span class="nav-number">4.6.1.</span> <span class="nav-text">锥形式问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%8A%E5%AE%9A%E8%A7%84%E5%88%92"><span class="nav-number">4.6.2.</span> <span class="nav-text">半定规划</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-3"><span class="nav-number">4.6.3.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E9%94%A5%E8%A7%84%E5%88%92-1"><span class="nav-number">4.6.3.1.</span> <span class="nav-text">二次锥规划</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E8%8C%83%E6%95%B0%E6%9C%80%E5%B0%8F%E5%8C%96"><span class="nav-number">4.6.3.2.</span> <span class="nav-text">矩阵范数最小化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E4%BC%98%E5%8C%96"><span class="nav-number">4.7.</span> <span class="nav-text">4.7 向量优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%BD%A2%E5%BC%8F"><span class="nav-number">4.7.1.</span> <span class="nav-text">基本形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%80%BC%E4%B8%8E%E6%9C%80%E4%BC%98%E8%A7%A3"><span class="nav-number">4.7.2.</span> <span class="nav-text">最优值与最优解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pareto-%E6%9C%80%E4%BC%98"><span class="nav-number">4.7.3.</span> <span class="nav-text">Pareto 最优</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E9%87%8F%E5%8C%96scalaization"><span class="nav-number">4.7.4.</span> <span class="nav-text">标量化(Scalaization)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E7%9B%AE%E6%A0%87%E4%BC%98%E5%8C%96"><span class="nav-number">4.7.5.</span> <span class="nav-text">多目标优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#trade-off-%E5%88%86%E6%9E%90"><span class="nav-number">4.7.5.1.</span> <span class="nav-text">trade off 分析</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC5%E7%AB%A0-%E5%AF%B9%E5%81%B6%E6%80%A7"><span class="nav-number">5.</span> <span class="nav-text">第5章 对偶性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 拉格朗日对偶函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#the-lagrange"><span class="nav-number">5.1.1.</span> <span class="nav-text">The Lagrange</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0-1"><span class="nav-number">5.1.2.</span> <span class="nav-text">拉格朗日对偶函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%80%BC%E7%9A%84%E4%B8%8B%E7%95%8C"><span class="nav-number">5.1.3.</span> <span class="nav-text">最优值的下界</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E7%BA%BF%E6%80%A7%E4%BC%B0%E8%AE%A1%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.4.</span> <span class="nav-text">从线性估计角度理解拉格朗日对偶函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-4"><span class="nav-number">5.1.5.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E9%99%90%E5%88%B6%E7%9A%84%E6%9C%80%E5%B0%8F%E5%B9%B3%E6%96%B9"><span class="nav-number">5.1.5.1.</span> <span class="nav-text">线性限制的最小平方</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8C%E5%88%86two-way-partitioning%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.5.2.</span> <span class="nav-text">二分(Two-way
-partitioning)问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0%E4%B8%8E%E5%85%B1%E8%BD%AD%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.6.</span> <span class="nav-text">拉格朗日对偶函数与共轭函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 拉格朗日对偶问题</span></a></li></ol></li></ol></div>
+partitioning)问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0%E4%B8%8E%E5%85%B1%E8%BD%AD%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.6.</span> <span class="nav-text">拉格朗日对偶函数与共轭函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 拉格朗日对偶问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E5%81%B6%E9%99%90%E5%88%B6%E6%98%BE%E5%BC%8F%E8%A1%A8%E7%A4%BA"><span class="nav-number">5.2.1.</span> <span class="nav-text">对偶限制显式表示</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E5%BD%A2%E5%BC%8Flp%E7%9A%84%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6"><span class="nav-number">5.2.1.1.</span> <span class="nav-text">标准形式LP的拉格朗日对偶</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%BD%A2%E5%BC%8F%E7%9A%84lp%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.1.2.</span> <span class="nav-text">不等式形式的LP问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%B1%E5%AF%B9%E5%81%B6%E6%80%A7"><span class="nav-number">5.2.2.</span> <span class="nav-text">弱对偶性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%BA%E5%AF%B9%E5%81%B6%E6%80%A7%E4%B8%8E%E6%96%BD%E8%8E%B1%E7%89%B9%E7%BA%A6%E6%9D%9F%E8%A7%84%E8%8C%83-slaters-constraint-qualification"><span class="nav-number">5.2.3.</span> <span class="nav-text">强对偶性与施莱特约束规范
+(Slater&#39;s constraint qualification)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-5"><span class="nav-number">5.2.4.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mixed-strategies-for-matrix-games"><span class="nav-number">5.2.5.</span> <span class="nav-text">Mixed strategies for matrix
+games</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E8%A7%A3%E9%87%8A"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 几何解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9E%8D%E7%82%B9%E8%A7%A3%E9%87%8A"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 鞍点解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%8C%96%E6%9D%A1%E4%BB%B6"><span class="nav-number">5.5.</span> <span class="nav-text">最优化条件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AC%A1%E4%BC%98%E8%AF%81%E6%98%8E%E4%B8%8E%E5%81%9C%E6%AD%A2%E5%87%86%E5%88%99"><span class="nav-number">5.5.1.</span> <span class="nav-text">次优证明与停止准则</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -220,7 +222,7 @@ partitioning)问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-14 19:29:58" itemprop="dateModified" datetime="2023-02-14T19:29:58+08:00">2023-02-14</time>
+      <time title="修改时间：2023-02-17 17:58:29" itemprop="dateModified" datetime="2023-02-17T17:58:29+08:00">2023-02-17</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -431,7 +433,8 @@ R^2\)</span>平面，因此再加入任何点都将与它们仿射相关；</p>
 <h4 id="仿射维度和相对内部">仿射维度和相对内部</h4>
 <p>定义任意集合<span
 class="math inline">\(C\)</span>的仿射维度=C的仿射包的维度（可以由多少个线性无关向量张成）；仿射维度通常与其他“维度”不一致；</p>
-<p>相对内部：（略）</p>
+<p>相对内部 (<span
+class="math inline">\(\operatorname{relint}\)</span>)：（略）</p>
 <h4 id="凸集">凸集</h4>
 <p><span class="math inline">\(C\)</span>是<strong>凸集</strong>(convex
 set)，当且仅当集合<span
@@ -2594,6 +2597,122 @@ $$
 \succeq 0, g(\lambda, \nu) &gt; -\infty\}\)</span> ；最优解记为 <span
 class="math inline">\((\lambda^\star, \nu^\star)\)</span>；</p>
 <p>无论原问题怎样，拉格朗日对偶问题是个凸优化问题；</p>
+<h4 id="对偶限制显式表示">对偶限制显式表示</h4>
+<h5 id="标准形式lp的拉格朗日对偶">标准形式LP的拉格朗日对偶</h5>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{minimize} &amp; c^Tx \\
+  \text{subject to} &amp; Ax = b \\
+  &amp; x\succeq 0
+\end{array}
+\]</span></p>
+<p>其对偶函数为： <span class="math display">\[
+g(\lambda, \nu) = \left \{
+  \begin{matrix}
+    -b^T\nu &amp; A^T\nu -\lambda + c = 0\\
+    -\infty &amp; \text{otherwise}
+  \end{matrix}
+\right .
+\]</span></p>
+<p>严格地说，对应的拉格朗日对偶问题为：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{maximize} &amp; g(\lambda, \nu) = \left \{
+    \begin{matrix}
+      -b^T\nu &amp; A^T\nu -\lambda + c = 0\\
+      -\infty &amp; \text{otherwise}
+    \end{matrix} \right . \\
+  \text{subject to} &amp; \lambda \succeq 0 \\
+\end{array}
+\]</span></p>
+<p>显式拉格朗日函数的定义域限制，该问题可以等价于：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{maximize} &amp; -b^T\nu \\
+  \text{subject to} &amp; A^T\nu -\lambda + c = 0 \\
+  &amp; \lambda \succeq 0
+\end{array}
+\]</span></p>
+<p>进一步地，还可以精简为：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{maximize} &amp; -b^T\nu \\
+  \text{subject to} &amp; A^T\nu + c \succeq 0 \\
+\end{array}
+\]</span></p>
+<p>是一个不等式形式的LP问题；</p>
+<h5 id="不等式形式的lp问题">不等式形式的LP问题</h5>
+<p>类似的，我们可以得到，对于不等式形式的LP问题：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{minimize} &amp; c^Tx \\
+  \text{subject to} &amp; A^Tx+b \succeq 0 \\
+\end{array}
+\]</span></p>
+<p>其拉格朗日对偶问题可以等价表示为标准形式的LP问题：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{maximize} &amp; -b^T\lambda \\
+  \text{subject to} &amp; A^T\lambda + c \succeq 0 \\
+  &amp; \lambda \succeq 0
+\end{array}
+\]</span></p>
+<h4 id="弱对偶性">弱对偶性</h4>
+<p><span class="math inline">\(p^\star\)</span> 是原问题的最小值，<span
+class="math inline">\(d^\star\)</span>
+是其拉格朗日对偶问题的最大值，在他们都是有限的条件下，有： <span
+class="math display">\[
+d^\star \le p^\star
+\]</span></p>
+<p>将 <span class="math inline">\(p^\star - d^\star\)</span> 原问题的
+optimal duality gap；</p>
+<h4
+id="强对偶性与施莱特约束规范-slaters-constraint-qualification">强对偶性与施莱特约束规范
+(Slater's constraint qualification)</h4>
+<p>如果 <span class="math inline">\(p^\star =
+d^\star\)</span>，则称有强对偶性；对于优化问题的constraints，满足一定的条件可以使得拥有强对偶性，这样的条件就是
+constraint qualification；</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{minimize} &amp; f_0(x)\\
+  \text{subject to} &amp; f_i(x) \le 0, &amp; i = 1, \dots, m \\
+  &amp; Ax = b
+\end{array}
+\]</span></p>
+<p>Slater's condition 是一种简单的 constraint qualification：</p>
+<p>存在 <span class="math inline">\(x\in
+\operatorname{relint}\mathcal{D}\)</span>，满足 <span
+class="math display">\[
+f_i(x) &lt; 0,\quad i = 1, \dots, m,\quad Ax = b
+\]</span></p>
+<p>如果问题是凸的且Slaters' condition满足，则有强对偶性；</p>
+<p>如果不等式限制函数中有仿射函数，那么他们可以不必是严格不等；</p>
+<h4 id="例子-5">例子</h4>
+<p>P227-229，此处略；</p>
+<h4 id="mixed-strategies-for-matrix-games">Mixed strategies for matrix
+games</h4>
+<p>用强对偶性解释了知道对手的策略对赢得matrix
+games没有优势，很有意思；</p>
+<h3 id="几何解释">5.3 几何解释</h3>
+<h3 id="鞍点解释">5.4 鞍点解释</h3>
+<blockquote>
+<p>这两节笔者感觉读起来很吃力，并且都是对拉格朗日对偶的各种interpretation，包含
+constraint qualification 的证明等等，就先跳过了；</p>
+</blockquote>
+<h3 id="最优化条件">最优化条件</h3>
+<h4 id="次优证明与停止准则">次优证明与停止准则</h4>
+<p>对偶可行点 <span class="math inline">\((\lambda, \nu)\)</span> 提供了
+<span class="math inline">\(p^\star &gt; g(\lambda, \nu)\)</span> 的证明
+(proof or certificate)：不用求出 <span
+class="math inline">\(p^\star\)</span>，我们就可以知道当前的解距离最优解的程度，设
+<span class="math inline">\(x\)</span> 是原问题的可行解： <span
+class="math display">\[
+f_0(x) - p^\star \le f_0(x) - g(\lambda, \nu)
+\]</span></p>
+<p>我们将 <span class="math inline">\(f_0(x) - g(\lambda, \nu)\)</span>
+记作 duality gap；有 <span class="math inline">\(p^\star \in [g(\lambda,
+\nu), f_0(x)]\)</span>，<span class="math inline">\(d^\star \in
+[g(\lambda, \nu), f_0(x)]\)</span>；</p>
 
     </div>
 
