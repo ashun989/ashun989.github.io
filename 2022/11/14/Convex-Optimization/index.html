@@ -26,11 +26,13 @@
 <meta property="og:site_name" content="Ashun&#39;s Blog">
 <meta property="og:description" content="内容主要来自MIT EE364a课程slides和book；穿插着网络资源和少量自己的理解（这些内容不保证准确）">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2022/11/14/Convex-Optimization/fig-5-10.png">
 <meta property="article:published_time" content="2022-11-14T02:37:10.000Z">
-<meta property="article:modified_time" content="2023-02-19T02:23:10.415Z">
+<meta property="article:modified_time" content="2023-02-19T07:53:55.832Z">
 <meta property="article:author" content="ashun">
 <meta property="article:tag" content="凸优化">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2022/11/14/Convex-Optimization/fig-5-10.png">
 
 
 <link rel="canonical" href="https://ashun989.github.io/2022/11/14/Convex-Optimization/">
@@ -126,7 +128,7 @@ center)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href
 partitioning)问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0%E4%B8%8E%E5%85%B1%E8%BD%AD%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.6.</span> <span class="nav-text">拉格朗日对偶函数与共轭函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 拉格朗日对偶问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E5%81%B6%E9%99%90%E5%88%B6%E6%98%BE%E5%BC%8F%E8%A1%A8%E7%A4%BA"><span class="nav-number">5.2.1.</span> <span class="nav-text">对偶限制显式表示</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E5%BD%A2%E5%BC%8Flp%E7%9A%84%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6"><span class="nav-number">5.2.1.1.</span> <span class="nav-text">标准形式LP的拉格朗日对偶</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%BD%A2%E5%BC%8F%E7%9A%84lp%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.1.2.</span> <span class="nav-text">不等式形式的LP问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%B1%E5%AF%B9%E5%81%B6%E6%80%A7"><span class="nav-number">5.2.2.</span> <span class="nav-text">弱对偶性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%BA%E5%AF%B9%E5%81%B6%E6%80%A7%E4%B8%8E%E6%96%BD%E8%8E%B1%E7%89%B9%E7%BA%A6%E6%9D%9F%E8%A7%84%E8%8C%83-slaters-constraint-qualification"><span class="nav-number">5.2.3.</span> <span class="nav-text">强对偶性与施莱特约束规范
 (Slater&#39;s constraint qualification)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-5"><span class="nav-number">5.2.4.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mixed-strategies-for-matrix-games"><span class="nav-number">5.2.5.</span> <span class="nav-text">Mixed strategies for matrix
 games</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E8%A7%A3%E9%87%8A"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 几何解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9E%8D%E7%82%B9%E8%A7%A3%E9%87%8A"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 鞍点解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%8C%96%E6%9D%A1%E4%BB%B6"><span class="nav-number">5.5.</span> <span class="nav-text">5.5 最优化条件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AC%A1%E4%BC%98%E8%AF%81%E6%98%8E%E4%B8%8E%E5%81%9C%E6%AD%A2%E5%87%86%E5%88%99"><span class="nav-number">5.5.1.</span> <span class="nav-text">次优证明与停止准则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%92%E8%A1%A5%E6%9D%BE%E5%BC%9B-complementary-slackness"><span class="nav-number">5.5.2.</span> <span class="nav-text">互补松弛 (Complementary
-slackness)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#kkt-%E6%9C%80%E4%BC%98%E6%9D%A1%E4%BB%B6"><span class="nav-number">5.5.3.</span> <span class="nav-text">KKT 最优条件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E9%9D%9E%E5%87%B8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.3.1.</span> <span class="nav-text">对于非凸优化问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E5%87%B8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.3.2.</span> <span class="nav-text">对于凸优化问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E5%AF%B9%E5%81%B6%E9%97%AE%E9%A2%98%E6%B1%82%E8%A7%A3%E5%8E%9F%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.4.</span> <span class="nav-text">用对偶问题求解原问题</span></a></li></ol></li></ol></li></ol></div>
+slackness)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#kkt-%E6%9C%80%E4%BC%98%E6%9D%A1%E4%BB%B6"><span class="nav-number">5.5.3.</span> <span class="nav-text">KKT 最优条件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E9%9D%9E%E5%87%B8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.3.1.</span> <span class="nav-text">对于非凸优化问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E5%87%B8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.3.2.</span> <span class="nav-text">对于凸优化问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E5%AF%B9%E5%81%B6%E9%97%AE%E9%A2%98%E6%B1%82%E8%A7%A3%E5%8E%9F%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.4.</span> <span class="nav-text">用对偶问题求解原问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%B0%E5%8A%A8%E4%B8%8E%E6%95%8F%E6%84%9F%E6%80%A7%E5%88%86%E6%9E%90"><span class="nav-number">5.6.</span> <span class="nav-text">5.6 扰动与敏感性分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%97%E6%89%B0%E5%8A%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.6.1.</span> <span class="nav-text">受扰动的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E5%85%A8%E5%B1%80%E4%B8%8D%E7%AD%89%E5%BC%8F"><span class="nav-number">5.6.2.</span> <span class="nav-text">一个全局不等式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%8F%E6%84%9F%E6%80%A7%E8%A7%A3%E9%87%8A"><span class="nav-number">5.6.2.1.</span> <span class="nav-text">敏感性解释</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E6%95%8F%E6%84%9F%E6%80%A7%E5%88%86%E6%9E%90"><span class="nav-number">5.6.3.</span> <span class="nav-text">局部敏感性分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-6"><span class="nav-number">5.7.</span> <span class="nav-text">5.7 例子</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -223,7 +225,7 @@ slackness)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" h
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-19 10:23:10" itemprop="dateModified" datetime="2023-02-19T10:23:10+08:00">2023-02-19</time>
+      <time title="修改时间：2023-02-19 15:53:55" itemprop="dateModified" datetime="2023-02-19T15:53:55+08:00">2023-02-19</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -2792,7 +2794,7 @@ class="math inline">\(x\)</span> 的一个最优解，有：</p>
 \]</span></p>
 <p>综上，任何目标函数和限制函数可导的、强对偶的优化问题，其原问题和对偶问题的最优解对满足KKT条件；(KKT条件是这些点作为原问题和对偶问题最优解的必要条件)</p>
 <h5 id="对于凸优化问题">对于凸优化问题</h5>
-<p>对于满足上述条件(可导、强对偶)的凸优化问题，KKT条件还是这些点作为原问题和对偶问题的最优解的充分条件；</p>
+<p>对于满足上述条件(可导、强对偶)的凸优化问题，满足KKT条件是这些点作为原问题和对偶问题的最优解的充要条件；</p>
 <p>使用KKT条件，可以为一些凸优化问题求出解析解；很多算法本质上也都是在求解KKT条件；</p>
 <h4 id="用对偶问题求解原问题">用对偶问题求解原问题</h4>
 <p>由前文内容可知，如果满足强对偶，且对偶问题的最优解 <span
@@ -2902,6 +2904,99 @@ L(x, \lambda^\star, \nu^\star) = \sum_{i=1}^n x_i \log x_i +
 x^\star_i = 1/\exp{(a^T_i \lambda^\star + \nu^\star + 1)},\quad i = 1,
 \dots, n
 \]</span></p>
+<h3 id="扰动与敏感性分析">5.6 扰动与敏感性分析</h3>
+<h4 id="受扰动的问题">受扰动的问题</h4>
+<p><span class="math display">\[
+\begin{array}{lll}
+  \text{minimize} &amp; f_0(x)\\
+  \text{subject to} &amp; f_i(x) \le u_i, &amp; i = 1, \dots, m\\
+  &amp; h_i(x) = v_i, &amp; i = 1, \dots, p
+\end{array}
+\]</span></p>
+<p>当 <span class="math inline">\(u = 0, v=0\)</span>
+时，就是一般的优化问题；</p>
+<p>记扰动问题的最优值为 <span class="math inline">\(p^\star(u,
+v)\)</span>；当原问题是凸的时，<span
+class="math inline">\(p^\star\)</span> 也是关于 <span
+class="math inline">\((u, v)\)</span> 的凸函数；</p>
+<h4 id="一个全局不等式">一个全局不等式</h4>
+<p>假设有强对偶性，且对偶最优解 <span
+class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+可以求出（当原问题是凸的，且满足史莱特条件时），有：</p>
+<p><span class="math display">\[
+p^\star(u, v) \ge p^\star(0, 0) - \lambda^{\star T} u - \nu^{\star T}v
+\]</span></p>
+<p>证明很简单：</p>
+<p><span class="math display">\[
+\begin{aligned}
+   p^\star(0, 0) = g(\lambda^\star, \nu^\star) &amp; \le  f_0(x) +
+\sum_{i=1}^m \lambda^\star_i f_i(x) + \sum_{i=1}^p \nu^\star_i h_i(x)\\
+   &amp; \le f_0(x) + \lambda^{\star T} u +\nu^{\star T}v
+\end{aligned}
+\]</span></p>
+<p>因此对于任何可行的 <span class="math inline">\(x\)</span>，都有：
+<span class="math display">\[
+f_0(x) \ge p^\star(0, 0) - \lambda^{\star T} u - \nu^{\star T}v
+\]</span></p>
+<p>也就证得全局不等式；</p>
+<h5 id="敏感性解释">敏感性解释</h5>
+<p><img src="fig-5-10.png" /></p>
+<p>该全局不等式给出了扰动最优的一个仿射的下界；、</p>
+<h4 id="局部敏感性分析">局部敏感性分析</h4>
+<p>假设 <span class="math inline">\(p^\star(u, v)\)</span> 在 <span
+class="math inline">\(u=0, v=0\)</span> 可导，且有强对偶性，有：</p>
+<p><span class="math display">\[
+\lambda^\star_i = -\frac{\partial p^\star(0, 0)}{\partial u_i}, \quad
+\nu^\star_i = -\frac{\partial p^\star(0, 0)}{\partial v_i}
+\]</span></p>
+<ul>
+<li>微微缩紧(tighten)第 <span class="math inline">\(i\)</span>
+个不等式限制 （<span class="math inline">\(u_i\)</span>
+是一个很小的负数），<span class="math inline">\(p^\star\)</span>，<span
+class="math inline">\(p^\star\)</span> 大约增加 <span
+class="math inline">\(-\lambda_i^\star u_i\)</span>；</li>
+<li>微微放松(loosen)第 <span class="math inline">\(i\)</span>
+个不等式限制 （<span class="math inline">\(u_i\)</span>
+是一个很小的正数），<span class="math inline">\(p^\star\)</span>，<span
+class="math inline">\(p^\star\)</span> 大约减少 <span
+class="math inline">\(\lambda_i^\star u_i\)</span>；</li>
+</ul>
+<details>
+<summary>
+证明
+</summary>
+<p>假设 <span class="math inline">\(p^\star(u, v)\)</span> 在 <span
+class="math inline">\(u=0, v=0\)</span> 可导，且有强对偶性，设扰动 <span
+class="math inline">\(u = te_i, v = 0\)</span>，其中 <span
+class="math inline">\(e_i\)</span> 是仅第 <span
+class="math inline">\(i\)</span> 个元素不为0的单位向量，那么</p>
+<p><span class="math display">\[
+\lim_{t\rightarrow 0} \frac{p^\star(te_i, 0)-p^\star}{t} =
+\frac{\partial p^\star(0, 0)}{\partial u_i}
+\]</span></p>
+<p>其中，当 <span class="math inline">\(t &gt; 0\)</span>
+时，由全局不等式可得： <span class="math display">\[
+\frac{p^\star(te_i, 0)-p^\star}{t} \ge -\lambda_i
+\]</span> 当 <span class="math inline">\(t &lt; 0\)</span>
+时，上述不等式反号；</p>
+<p>综上，有： <span class="math display">\[
+-\lambda^\star_i = \frac{\partial p^\star(0, 0)}{\partial u_i}
+\]</span></p>
+同理可证关于 <span class="math inline">\(-\nu^\star_i\)</span> 的等式；
+</details>
+<p>局部敏感性结果让我们得以分析 how active a constraint is at the
+optimum <span class="math inline">\(x^\star\)</span>：</p>
+<p>如果 <span class="math inline">\(f_i(x^\star) &lt;
+0\)</span>，说明我们对第 <span class="math inline">\(i\)</span>
+个不等式限制进行微小的紧缩或者放宽都不会影响最优解；</p>
+<p>如果 <span class="math inline">\(f_i(x^\star) =
+0\)</span>，此时可以查看 <span
+class="math inline">\(\lambda_i^\star\)</span> 的值，如果很小，说明对第
+<span class="math inline">\(i\)</span>
+个不等式限制进行微小的紧缩或者放宽对最优解的影响很小；如果 <span
+class="math inline">\(\lambda_i^\star\)</span>
+很大，那么扰动对最优解的影响也很大；</p>
+<h3 id="例子-6">5.7 例子</h3>
 
     </div>
 

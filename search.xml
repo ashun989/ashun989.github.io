@@ -3702,7 +3702,7 @@ class="math inline">\(x\)</span> 的一个最优解，有：</p>
 \]</span></p>
 <p>综上，任何目标函数和限制函数可导的、强对偶的优化问题，其原问题和对偶问题的最优解对满足KKT条件；(KKT条件是这些点作为原问题和对偶问题最优解的必要条件)</p>
 <h5 id="对于凸优化问题">对于凸优化问题</h5>
-<p>对于满足上述条件(可导、强对偶)的凸优化问题，KKT条件还是这些点作为原问题和对偶问题的最优解的充分条件；</p>
+<p>对于满足上述条件(可导、强对偶)的凸优化问题，满足KKT条件是这些点作为原问题和对偶问题的最优解的充要条件；</p>
 <p>使用KKT条件，可以为一些凸优化问题求出解析解；很多算法本质上也都是在求解KKT条件；</p>
 <h4 id="用对偶问题求解原问题">用对偶问题求解原问题</h4>
 <p>由前文内容可知，如果满足强对偶，且对偶问题的最优解 <span
@@ -3812,6 +3812,99 @@ L(x, \lambda^\star, \nu^\star) = \sum_{i=1}^n x_i \log x_i +
 x^\star_i = 1/\exp{(a^T_i \lambda^\star + \nu^\star + 1)},\quad i = 1,
 \dots, n
 \]</span></p>
+<h3 id="扰动与敏感性分析">5.6 扰动与敏感性分析</h3>
+<h4 id="受扰动的问题">受扰动的问题</h4>
+<p><span class="math display">\[
+\begin{array}{lll}
+  \text{minimize} &amp; f_0(x)\\
+  \text{subject to} &amp; f_i(x) \le u_i, &amp; i = 1, \dots, m\\
+  &amp; h_i(x) = v_i, &amp; i = 1, \dots, p
+\end{array}
+\]</span></p>
+<p>当 <span class="math inline">\(u = 0, v=0\)</span>
+时，就是一般的优化问题；</p>
+<p>记扰动问题的最优值为 <span class="math inline">\(p^\star(u,
+v)\)</span>；当原问题是凸的时，<span
+class="math inline">\(p^\star\)</span> 也是关于 <span
+class="math inline">\((u, v)\)</span> 的凸函数；</p>
+<h4 id="一个全局不等式">一个全局不等式</h4>
+<p>假设有强对偶性，且对偶最优解 <span
+class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+可以求出（当原问题是凸的，且满足史莱特条件时），有：</p>
+<p><span class="math display">\[
+p^\star(u, v) \ge p^\star(0, 0) - \lambda^{\star T} u - \nu^{\star T}v
+\]</span></p>
+<p>证明很简单：</p>
+<p><span class="math display">\[
+\begin{aligned}
+   p^\star(0, 0) = g(\lambda^\star, \nu^\star) &amp; \le  f_0(x) +
+\sum_{i=1}^m \lambda^\star_i f_i(x) + \sum_{i=1}^p \nu^\star_i h_i(x)\\
+   &amp; \le f_0(x) + \lambda^{\star T} u +\nu^{\star T}v
+\end{aligned}
+\]</span></p>
+<p>因此对于任何可行的 <span class="math inline">\(x\)</span>，都有：
+<span class="math display">\[
+f_0(x) \ge p^\star(0, 0) - \lambda^{\star T} u - \nu^{\star T}v
+\]</span></p>
+<p>也就证得全局不等式；</p>
+<h5 id="敏感性解释">敏感性解释</h5>
+<p><img src="fig-5-10.png" /></p>
+<p>该全局不等式给出了扰动最优的一个仿射的下界；、</p>
+<h4 id="局部敏感性分析">局部敏感性分析</h4>
+<p>假设 <span class="math inline">\(p^\star(u, v)\)</span> 在 <span
+class="math inline">\(u=0, v=0\)</span> 可导，且有强对偶性，有：</p>
+<p><span class="math display">\[
+\lambda^\star_i = -\frac{\partial p^\star(0, 0)}{\partial u_i}, \quad
+\nu^\star_i = -\frac{\partial p^\star(0, 0)}{\partial v_i}
+\]</span></p>
+<ul>
+<li>微微缩紧(tighten)第 <span class="math inline">\(i\)</span>
+个不等式限制 （<span class="math inline">\(u_i\)</span>
+是一个很小的负数），<span class="math inline">\(p^\star\)</span>，<span
+class="math inline">\(p^\star\)</span> 大约增加 <span
+class="math inline">\(-\lambda_i^\star u_i\)</span>；</li>
+<li>微微放松(loosen)第 <span class="math inline">\(i\)</span>
+个不等式限制 （<span class="math inline">\(u_i\)</span>
+是一个很小的正数），<span class="math inline">\(p^\star\)</span>，<span
+class="math inline">\(p^\star\)</span> 大约减少 <span
+class="math inline">\(\lambda_i^\star u_i\)</span>；</li>
+</ul>
+<details>
+<summary>
+证明
+</summary>
+<p>假设 <span class="math inline">\(p^\star(u, v)\)</span> 在 <span
+class="math inline">\(u=0, v=0\)</span> 可导，且有强对偶性，设扰动 <span
+class="math inline">\(u = te_i, v = 0\)</span>，其中 <span
+class="math inline">\(e_i\)</span> 是仅第 <span
+class="math inline">\(i\)</span> 个元素不为0的单位向量，那么</p>
+<p><span class="math display">\[
+\lim_{t\rightarrow 0} \frac{p^\star(te_i, 0)-p^\star}{t} =
+\frac{\partial p^\star(0, 0)}{\partial u_i}
+\]</span></p>
+<p>其中，当 <span class="math inline">\(t &gt; 0\)</span>
+时，由全局不等式可得： <span class="math display">\[
+\frac{p^\star(te_i, 0)-p^\star}{t} \ge -\lambda_i
+\]</span> 当 <span class="math inline">\(t &lt; 0\)</span>
+时，上述不等式反号；</p>
+<p>综上，有： <span class="math display">\[
+-\lambda^\star_i = \frac{\partial p^\star(0, 0)}{\partial u_i}
+\]</span></p>
+同理可证关于 <span class="math inline">\(-\nu^\star_i\)</span> 的等式；
+</details>
+<p>局部敏感性结果让我们得以分析 how active a constraint is at the
+optimum <span class="math inline">\(x^\star\)</span>：</p>
+<p>如果 <span class="math inline">\(f_i(x^\star) &lt;
+0\)</span>，说明我们对第 <span class="math inline">\(i\)</span>
+个不等式限制进行微小的紧缩或者放宽都不会影响最优解；</p>
+<p>如果 <span class="math inline">\(f_i(x^\star) =
+0\)</span>，此时可以查看 <span
+class="math inline">\(\lambda_i^\star\)</span> 的值，如果很小，说明对第
+<span class="math inline">\(i\)</span>
+个不等式限制进行微小的紧缩或者放宽对最优解的影响很小；如果 <span
+class="math inline">\(\lambda_i^\star\)</span>
+很大，那么扰动对最优解的影响也很大；</p>
+<h3 id="例子-6">5.7 例子</h3>
 ]]></content>
       <categories>
         <category>基础知识</category>
