@@ -3597,7 +3597,8 @@ class="math display">\[
 f_i(x) &lt; 0,\quad i = 1, \dots, m,\quad Ax = b
 \]</span></p>
 <p>如果问题是凸的且Slaters' condition满足，则有强对偶性；</p>
-<p>如果不等式限制函数中有仿射函数，那么他们可以不必是严格不等；</p>
+<p>(weak form of Slater's condition):
+如果不等式限制函数中有仿射函数，那么他们可以不必是严格不等；</p>
 <h4 id="例子-5">例子</h4>
 <p>P227-229，此处略；</p>
 <h4 id="mixed-strategies-for-matrix-games">Mixed strategies for matrix
@@ -3610,7 +3611,7 @@ games没有优势，很有意思；</p>
 <p>这两节笔者感觉读起来很吃力，并且都是对拉格朗日对偶的各种interpretation，包含
 constraint qualification 的证明等等，就先跳过了；</p>
 </blockquote>
-<h3 id="最优化条件">最优化条件</h3>
+<h3 id="最优化条件">5.5 最优化条件</h3>
 <h4 id="次优证明与停止准则">次优证明与停止准则</h4>
 <p>对偶可行点 <span class="math inline">\((\lambda, \nu)\)</span> 提供了
 <span class="math inline">\(p^\star &gt; g(\lambda, \nu)\)</span> 的证明
@@ -3624,6 +3625,193 @@ f_0(x) - p^\star \le f_0(x) - g(\lambda, \nu)
 记作 duality gap；有 <span class="math inline">\(p^\star \in [g(\lambda,
 \nu), f_0(x)]\)</span>，<span class="math inline">\(d^\star \in
 [g(\lambda, \nu), f_0(x)]\)</span>；</p>
+<p>假设算法产生了一系列的 <span class="math inline">\(x^{(k)}\)</span>
+和 <span class="math inline">\((\lambda^{(k)},\nu^{(k)})\)</span>，<span
+class="math inline">\(k = 1, 2, \dots\)</span>，那么停止准则就是： <span
+class="math display">\[
+f_0(x^{(k)}) - g(\lambda^{(k)}, \nu^{(k)}) \le \epsilon_\mathrm{abs}
+\]</span></p>
+<p>也可以使用相对误差 <span
+class="math inline">\(\epsilon_\mathrm{rel}\)</span>： <span
+class="math display">\[
+g(\lambda^{(k)}, \nu^{(k)}) &gt; 0, \quad \frac{f_0(x^{(k)}) -
+g(\lambda^{(k)}, \nu^{(k)})}{g(\lambda^{(k)}, \nu^{(k)})} \le
+\epsilon_\mathrm{rel}
+\]</span> 或者 <span class="math display">\[
+f_0(x^{(k)}) &lt; 0, \quad \frac{f_0(x^{(k)}) - g(\lambda^{(k)},
+\nu^{(k)})}{-f_0(x^{(k)})} \le \epsilon_\mathrm{rel}
+\]</span></p>
+<p>上述条件保证了 <span class="math display">\[
+\frac{f_0(x^{(k)})-p^\star}{|p^\star|} \le \epsilon_\mathrm{rel}
+\]</span></p>
+<h4 id="互补松弛-complementary-slackness">互补松弛 (Complementary
+slackness)</h4>
+<p>假设有强对偶性，记 <span class="math inline">\(x^\star\)</span> 和
+<span class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+分别是原问题和对偶问题的最优解，则：</p>
+<p><span class="math display">\[
+\begin{split}
+  f_0(x^\star) &amp;= g(\lambda^\star, \nu^\star) \\
+  &amp;= \inf_{x}\left( f_0(x^\star) +
+\sum_{i=1}^m\lambda^\star_if_i(x^\star) +
+\sum_{i=1}^p\nu^\star_ih_i(x^\star)\right)\\
+  &amp;\le f_0(x^\star) + \sum_{i=1}^m\lambda^\star_if_i(x^\star) +
+\sum_{i=1}^p\nu^\star_ih_i(x^\star) \\
+  &amp;\le f_0(x^\star).
+\end{split}
+\]</span></p>
+<blockquote>
+<p>第四行不等式，由于 <span class="math inline">\(f_i(x^\star)\le
+0\)</span>，<span class="math inline">\(h_i(x^\star) = 0\)</span>，<span
+class="math inline">\(\lambda_i^\star \ge 0\)</span> 得到；</p>
+</blockquote>
+<p>由此，我们可以得到一些有趣的结论（在满足强对偶性条件下）：</p>
+<ol type="1">
+<li><span class="math inline">\(x^\star\)</span> 是 <span
+class="math inline">\(L(x, \lambda, \nu)\)</span> 关于 <span
+class="math inline">\(x\)</span> 的一个最优解；</li>
+<li>互补松弛条件：<span class="math inline">\(\lambda^\star f_i(x^\star)
+= 0, ~i = 1, \dots, m\)</span>，也就是说，要么第 <span
+class="math inline">\(i\)</span> 个最优的拉格朗日乘子是0，要么第 <span
+class="math inline">\(i\)</span> 个不等式限制是 active 的；</li>
+</ol>
+<h4 id="kkt-最优条件">KKT 最优条件</h4>
+<h5 id="对于非凸优化问题">对于非凸优化问题</h5>
+<p>假设 <span class="math inline">\(f_0, \dots, f_m, h_1, \dots,
+h_p\)</span> 是可导的，但并不假设其凸性；记 <span
+class="math inline">\(x^\star\)</span> 和 <span
+class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+分别是原问题和对偶问题的最优解，并且duality gap为0（强对偶性）；由于
+<span class="math inline">\(x^\star\)</span> 是 <span
+class="math inline">\(L(x, \lambda, \nu)\)</span> 关于 <span
+class="math inline">\(x\)</span> 的一个最优解，有：</p>
+<p><span class="math display">\[
+\nabla f_0(x^\star) + \sum_{i=1}^m\lambda^\star_i\nabla f_i(x^\star) +
+\sum_{i=1}^p\nu^\star_i\nabla h_i(x^\star) = 0
+\]</span></p>
+<p>由此，可以得到 <strong>Karush-Kuhn-Tucker (KKT) 条件</strong>：</p>
+<p><span class="math display">\[
+\begin{array}{rll}
+  f_i(x^\star) &amp;\le 0, &amp; i = 1, \dots, m\\
+  h_i(x^\star) &amp; = 0, &amp; i = 1, \dots, p\\
+  \lambda_i^\star &amp; \ge 0, &amp; i = 1, \dots, m\\
+  \lambda_i^\star f_i(x^\star) &amp; = 0, &amp; i = 1, \dots, m\\
+  \nabla f_0(x^\star) + \sum_{i=1}^m\lambda^\star_i\nabla f_i(x^\star) +
+\sum_{i=1}^p\nu^\star_i\nabla h_i(x^\star) &amp;= 0
+\end{array}
+\]</span></p>
+<p>综上，任何目标函数和限制函数可导的、强对偶的优化问题，其原问题和对偶问题的最优解对满足KKT条件；(KKT条件是这些点作为原问题和对偶问题最优解的必要条件)</p>
+<h5 id="对于凸优化问题">对于凸优化问题</h5>
+<p>对于满足上述条件(可导、强对偶)的凸优化问题，KKT条件还是这些点作为原问题和对偶问题的最优解的充分条件；</p>
+<p>使用KKT条件，可以为一些凸优化问题求出解析解；很多算法本质上也都是在求解KKT条件；</p>
+<h4 id="用对偶问题求解原问题">用对偶问题求解原问题</h4>
+<p>由前文内容可知，如果满足强对偶，且对偶问题的最优解 <span
+class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+存在，那么原问题的最优解同样也是 <span class="math inline">\(L(x,
+\lambda^\star, \nu^\star)\)</span> 关于 <span
+class="math inline">\(x\)</span> 最小化时的最优解；</p>
+<p>当原问题比较难，但是满足强队偶性，且容易求得其对偶问题的最优解时，我们就可以：</p>
+<p><span class="math display">\[
+\text{minimize} \quad f_0(x) + \sum_{i=1}^m \lambda_i^\star f_i(x) +
+\sum_{i = 1}^p \nu_i^\star h_i(x)
+\]</span></p>
+<p>该问题的解如果在原问题上是可行的，那么必然时原问题的最优解；</p>
+<p>例子：最大化交叉熵，问题形式如下：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{minimize} &amp; f_0(x) = \sum_{i=1}^n x_i\log x_i\\
+  \text{subject to} &amp; Ax \preceq b \\
+  &amp; \mathbf{1}^Tx = 1
+\end{array}
+\]</span></p>
+<p>首先，<span class="math inline">\(f(x) = x\log x， x\in
+\mathbb{R}_{++}\)</span> 的共轭函数如下，有 <span
+class="math inline">\(\operatorname{dom}f_0^* =
+\mathbb{R}\)</span>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+  f^*(y) &amp;= \sup_{x\in \mathbb{R}_{++}} \{yx - x\log x\} \\
+  &amp;= e^{y-1}
+\end{aligned}
+\]</span></p>
+对于 <span class="math inline">\(f_0(x) = \sum_{i=1}^n x_i\log x_i，
+x\in \mathbb{R}_{++}^n\)</span>： $$
+<span class="math display">\[\begin{aligned}
+f^*_0(y) &amp;= \sup_{x\in \mathbb{R}_{++}^n} \left\{y^Tx - \sum_{i=1}^n
+x_i\log x_i\right\} \\
+&amp;= \sup_{x\in \mathbb{R}_{++}^n} {\sum_{i=1}^n (y_ix_i - x_i \log
+x_i)}\\
+&amp;= \sum_{i=1}^n \sup_{x\in \mathbb{R}_{++}} \{y_ix_i - x_i\log x_i
+\}\\
+&amp;= \sum_{i=1}^n e^{y_i - 1}
+
+\end{aligned}\]</span>
+<p>$$</p>
+<blockquote>
+<p>在 <span class="math inline">\(a\)</span> 和 <span
+class="math inline">\(b\)</span> 无关（可以同时取到最大值）时 <span
+class="math inline">\(\max{a} + \max{b} = \max{(a + b)}\)</span></p>
+</blockquote>
+<p>使用共轭函数和拉格朗日函数的关系求出：</p>
+<p><span class="math display">\[
+\begin{aligned}
+  g(\lambda, \nu) &amp;= -f_0^*(-A^T\lambda-C^T\nu) - b^T\lambda -d^T\nu
+\\
+  &amp;= -f_0^*(-A^T\lambda-\nu) - b^T\lambda -\nu \\
+  &amp;= - b^T\lambda -\nu  - \sum_{i=1}^n e^{-a_i^T\lambda -\nu -1}\\
+  &amp;= - b^T\lambda -\nu - e^{-\nu-1}\sum_{i=1}^n e^{-a_i^T\lambda}
+\end{aligned}
+\]</span></p>
+<p>其中，<span class="math inline">\(a_i\)</span> 是 <span
+class="math inline">\(A\)</span> 的第 <span
+class="math inline">\(i\)</span> 列，<span class="math inline">\(\lambda
+\in \mathbb{R}^n\)</span>，<span class="math inline">\(\nu \in
+\mathbb{R}\)</span>；</p>
+<p>进而可以写出其拉格朗日对偶问题为：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{maximize} &amp; - b^T\lambda -\nu - e^{-\nu-1}\sum_{i=1}^n
+e^{-a_i^T\lambda} \\
+  \text{subject to} &amp; \lambda \succeq 0
+\end{array}
+\]</span></p>
+<p>拉格朗日对偶问题一定是凸优化问题，且假设其满足弱形式的史莱特条件（这里不等式限制函数全为仿射函数），即存在
+<span class="math inline">\(x\succ 0\)</span> 满足 <span
+class="math inline">\(Ax\preceq b\)</span> 且 <span
+class="math inline">\(\mathbf{1}^Tx =
+1\)</span>，那么就有了强对偶性；我们可以从上述凸优化问题中求出 <span
+class="math inline">\((\lambda^\star, \nu^\star)\)</span>；</p>
+<p>我们可以先固定 <span class="math inline">\(\lambda\)</span>
+进行最大化，让关于 <span class="math inline">\(\nu\)</span>
+的导数为0，得到：</p>
+<p><span class="math display">\[
+\nu = \log \sum_{i=1}^n e^{-a_i^T\lambda} - 1
+\]</span></p>
+<p>问题简化为：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{maximize} &amp; - b^T\lambda  - \log\sum_{i=1}^n
+e^{-a_i^T\lambda} \\
+  \text{subject to} &amp; \lambda \succeq 0
+\end{array}
+\]</span></p>
+<p>这是一个几何规划问题的凸优化形式；</p>
+<p>求得 <span class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+后，拉格朗日函数在 <span class="math inline">\((\lambda^\star,
+\nu^\star)\)</span> 是关于 <span class="math inline">\(x\)</span> 在
+<span class="math inline">\(\mathcal{D}\)</span>
+上的严格凸函数，可以令关于 <span class="math inline">\(x\)</span>
+的导数为0得到 <span class="math inline">\(x^\star\)</span>；如果 <span
+class="math inline">\(x^\star\)</span>
+是可行的，那么就是最优解；如果不可行，说明最优解不可达；</p>
+<p><span class="math display">\[
+L(x, \lambda^\star, \nu^\star) = \sum_{i=1}^n x_i \log x_i +
+\lambda^{\star T} (Ax-b) + \nu^\star (\mathbf{1}^Tx - 1)
+\]</span></p>
+<p><span class="math display">\[
+x^\star_i = 1/\exp{(a^T_i \lambda^\star + \nu^\star + 1)},\quad i = 1,
+\dots, n
+\]</span></p>
 ]]></content>
       <categories>
         <category>基础知识</category>

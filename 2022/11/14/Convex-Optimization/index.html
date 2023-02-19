@@ -27,7 +27,7 @@
 <meta property="og:description" content="内容主要来自MIT EE364a课程slides和book；穿插着网络资源和少量自己的理解（这些内容不保证准确）">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-11-14T02:37:10.000Z">
-<meta property="article:modified_time" content="2023-02-17T09:58:29.359Z">
+<meta property="article:modified_time" content="2023-02-19T02:23:10.415Z">
 <meta property="article:author" content="ashun">
 <meta property="article:tag" content="凸优化">
 <meta name="twitter:card" content="summary">
@@ -125,7 +125,8 @@ criterion)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a c
 center)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BD%A6%E6%AF%94%E9%9B%AA%E5%A4%AB%E4%B8%8D%E7%AD%89%E5%BC%8F"><span class="nav-number">4.3.1.2.</span> <span class="nav-text">车比雪夫不等式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%88%86%E6%95%B0%E8%A7%84%E5%88%92"><span class="nav-number">4.3.2.</span> <span class="nav-text">线性分数规划</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E8%A7%84%E5%88%92%E9%97%AE%E9%A2%98"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 二次规划问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-1"><span class="nav-number">4.4.1.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E5%9B%9E%E5%BD%92"><span class="nav-number">4.4.1.1.</span> <span class="nav-text">最小二乘&#x2F;回归</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%96%B9%E5%B7%AE%E7%9A%84%E4%B8%8A%E7%95%8C"><span class="nav-number">4.4.1.2.</span> <span class="nav-text">方差的上界</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E4%BB%A3%E4%BB%B7%E7%9A%84%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="nav-number">4.4.1.3.</span> <span class="nav-text">随机代价的线性规划</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E9%94%A5%E8%A7%84%E5%88%92"><span class="nav-number">4.4.2.</span> <span class="nav-text">二次锥规划</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%B2%81%E6%A3%92%E7%9A%84%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="nav-number">4.4.2.1.</span> <span class="nav-text">鲁棒的线性规划</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E9%99%90%E5%88%B6%E7%9A%84%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="nav-number">4.4.2.2.</span> <span class="nav-text">随机限制的线性规划</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E8%A7%84%E5%88%92%E9%97%AE%E9%A2%98"><span class="nav-number">4.5.</span> <span class="nav-text">4.5 几何规划问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E9%A1%B9%E5%BC%8Fmonomials%E5%92%8C%E6%AD%A3%E5%90%91%E5%BC%8Fposynomials"><span class="nav-number">4.5.1.</span> <span class="nav-text">单项式(monomials)和正向式(posynomials)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E8%A7%84%E5%88%92"><span class="nav-number">4.5.2.</span> <span class="nav-text">几何规划</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AC%E5%8C%96%E4%B8%BA%E5%87%B8%E4%BC%98%E5%8C%96%E5%BD%A2%E5%BC%8F"><span class="nav-number">4.5.3.</span> <span class="nav-text">转化为凸优化形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-2"><span class="nav-number">4.5.4.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AF%B9%E8%A7%92%E7%BC%A9%E6%94%BE%E7%9A%84frobenius%E8%8C%83%E6%95%B0"><span class="nav-number">4.5.4.1.</span> <span class="nav-text">对角缩放的Frobenius范数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BF%E4%B9%89%E4%B8%8D%E7%AD%89%E5%BC%8F%E9%99%90%E5%88%B6"><span class="nav-number">4.6.</span> <span class="nav-text">4.6 广义不等式限制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%A5%E5%BD%A2%E5%BC%8F%E9%97%AE%E9%A2%98"><span class="nav-number">4.6.1.</span> <span class="nav-text">锥形式问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%8A%E5%AE%9A%E8%A7%84%E5%88%92"><span class="nav-number">4.6.2.</span> <span class="nav-text">半定规划</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-3"><span class="nav-number">4.6.3.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E9%94%A5%E8%A7%84%E5%88%92-1"><span class="nav-number">4.6.3.1.</span> <span class="nav-text">二次锥规划</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E8%8C%83%E6%95%B0%E6%9C%80%E5%B0%8F%E5%8C%96"><span class="nav-number">4.6.3.2.</span> <span class="nav-text">矩阵范数最小化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E4%BC%98%E5%8C%96"><span class="nav-number">4.7.</span> <span class="nav-text">4.7 向量优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%BD%A2%E5%BC%8F"><span class="nav-number">4.7.1.</span> <span class="nav-text">基本形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%80%BC%E4%B8%8E%E6%9C%80%E4%BC%98%E8%A7%A3"><span class="nav-number">4.7.2.</span> <span class="nav-text">最优值与最优解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pareto-%E6%9C%80%E4%BC%98"><span class="nav-number">4.7.3.</span> <span class="nav-text">Pareto 最优</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E9%87%8F%E5%8C%96scalaization"><span class="nav-number">4.7.4.</span> <span class="nav-text">标量化(Scalaization)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E7%9B%AE%E6%A0%87%E4%BC%98%E5%8C%96"><span class="nav-number">4.7.5.</span> <span class="nav-text">多目标优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#trade-off-%E5%88%86%E6%9E%90"><span class="nav-number">4.7.5.1.</span> <span class="nav-text">trade off 分析</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC5%E7%AB%A0-%E5%AF%B9%E5%81%B6%E6%80%A7"><span class="nav-number">5.</span> <span class="nav-text">第5章 对偶性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 拉格朗日对偶函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#the-lagrange"><span class="nav-number">5.1.1.</span> <span class="nav-text">The Lagrange</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0-1"><span class="nav-number">5.1.2.</span> <span class="nav-text">拉格朗日对偶函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%80%BC%E7%9A%84%E4%B8%8B%E7%95%8C"><span class="nav-number">5.1.3.</span> <span class="nav-text">最优值的下界</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E7%BA%BF%E6%80%A7%E4%BC%B0%E8%AE%A1%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.4.</span> <span class="nav-text">从线性估计角度理解拉格朗日对偶函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-4"><span class="nav-number">5.1.5.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E9%99%90%E5%88%B6%E7%9A%84%E6%9C%80%E5%B0%8F%E5%B9%B3%E6%96%B9"><span class="nav-number">5.1.5.1.</span> <span class="nav-text">线性限制的最小平方</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8C%E5%88%86two-way-partitioning%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.5.2.</span> <span class="nav-text">二分(Two-way
 partitioning)问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E5%87%BD%E6%95%B0%E4%B8%8E%E5%85%B1%E8%BD%AD%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.6.</span> <span class="nav-text">拉格朗日对偶函数与共轭函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 拉格朗日对偶问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E5%81%B6%E9%99%90%E5%88%B6%E6%98%BE%E5%BC%8F%E8%A1%A8%E7%A4%BA"><span class="nav-number">5.2.1.</span> <span class="nav-text">对偶限制显式表示</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E5%BD%A2%E5%BC%8Flp%E7%9A%84%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6"><span class="nav-number">5.2.1.1.</span> <span class="nav-text">标准形式LP的拉格朗日对偶</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%BD%A2%E5%BC%8F%E7%9A%84lp%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.1.2.</span> <span class="nav-text">不等式形式的LP问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%B1%E5%AF%B9%E5%81%B6%E6%80%A7"><span class="nav-number">5.2.2.</span> <span class="nav-text">弱对偶性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%BA%E5%AF%B9%E5%81%B6%E6%80%A7%E4%B8%8E%E6%96%BD%E8%8E%B1%E7%89%B9%E7%BA%A6%E6%9D%9F%E8%A7%84%E8%8C%83-slaters-constraint-qualification"><span class="nav-number">5.2.3.</span> <span class="nav-text">强对偶性与施莱特约束规范
 (Slater&#39;s constraint qualification)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90-5"><span class="nav-number">5.2.4.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mixed-strategies-for-matrix-games"><span class="nav-number">5.2.5.</span> <span class="nav-text">Mixed strategies for matrix
-games</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E8%A7%A3%E9%87%8A"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 几何解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9E%8D%E7%82%B9%E8%A7%A3%E9%87%8A"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 鞍点解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%8C%96%E6%9D%A1%E4%BB%B6"><span class="nav-number">5.5.</span> <span class="nav-text">最优化条件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AC%A1%E4%BC%98%E8%AF%81%E6%98%8E%E4%B8%8E%E5%81%9C%E6%AD%A2%E5%87%86%E5%88%99"><span class="nav-number">5.5.1.</span> <span class="nav-text">次优证明与停止准则</span></a></li></ol></li></ol></li></ol></div>
+games</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E8%A7%A3%E9%87%8A"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 几何解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9E%8D%E7%82%B9%E8%A7%A3%E9%87%8A"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 鞍点解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%8C%96%E6%9D%A1%E4%BB%B6"><span class="nav-number">5.5.</span> <span class="nav-text">5.5 最优化条件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AC%A1%E4%BC%98%E8%AF%81%E6%98%8E%E4%B8%8E%E5%81%9C%E6%AD%A2%E5%87%86%E5%88%99"><span class="nav-number">5.5.1.</span> <span class="nav-text">次优证明与停止准则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%92%E8%A1%A5%E6%9D%BE%E5%BC%9B-complementary-slackness"><span class="nav-number">5.5.2.</span> <span class="nav-text">互补松弛 (Complementary
+slackness)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#kkt-%E6%9C%80%E4%BC%98%E6%9D%A1%E4%BB%B6"><span class="nav-number">5.5.3.</span> <span class="nav-text">KKT 最优条件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E9%9D%9E%E5%87%B8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.3.1.</span> <span class="nav-text">对于非凸优化问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E5%87%B8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.3.2.</span> <span class="nav-text">对于凸优化问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E5%AF%B9%E5%81%B6%E9%97%AE%E9%A2%98%E6%B1%82%E8%A7%A3%E5%8E%9F%E9%97%AE%E9%A2%98"><span class="nav-number">5.5.4.</span> <span class="nav-text">用对偶问题求解原问题</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -222,7 +223,7 @@ games</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-li
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-17 17:58:29" itemprop="dateModified" datetime="2023-02-17T17:58:29+08:00">2023-02-17</time>
+      <time title="修改时间：2023-02-19 10:23:10" itemprop="dateModified" datetime="2023-02-19T10:23:10+08:00">2023-02-19</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -2686,7 +2687,8 @@ class="math display">\[
 f_i(x) &lt; 0,\quad i = 1, \dots, m,\quad Ax = b
 \]</span></p>
 <p>如果问题是凸的且Slaters' condition满足，则有强对偶性；</p>
-<p>如果不等式限制函数中有仿射函数，那么他们可以不必是严格不等；</p>
+<p>(weak form of Slater's condition):
+如果不等式限制函数中有仿射函数，那么他们可以不必是严格不等；</p>
 <h4 id="例子-5">例子</h4>
 <p>P227-229，此处略；</p>
 <h4 id="mixed-strategies-for-matrix-games">Mixed strategies for matrix
@@ -2699,7 +2701,7 @@ games没有优势，很有意思；</p>
 <p>这两节笔者感觉读起来很吃力，并且都是对拉格朗日对偶的各种interpretation，包含
 constraint qualification 的证明等等，就先跳过了；</p>
 </blockquote>
-<h3 id="最优化条件">最优化条件</h3>
+<h3 id="最优化条件">5.5 最优化条件</h3>
 <h4 id="次优证明与停止准则">次优证明与停止准则</h4>
 <p>对偶可行点 <span class="math inline">\((\lambda, \nu)\)</span> 提供了
 <span class="math inline">\(p^\star &gt; g(\lambda, \nu)\)</span> 的证明
@@ -2713,6 +2715,193 @@ f_0(x) - p^\star \le f_0(x) - g(\lambda, \nu)
 记作 duality gap；有 <span class="math inline">\(p^\star \in [g(\lambda,
 \nu), f_0(x)]\)</span>，<span class="math inline">\(d^\star \in
 [g(\lambda, \nu), f_0(x)]\)</span>；</p>
+<p>假设算法产生了一系列的 <span class="math inline">\(x^{(k)}\)</span>
+和 <span class="math inline">\((\lambda^{(k)},\nu^{(k)})\)</span>，<span
+class="math inline">\(k = 1, 2, \dots\)</span>，那么停止准则就是： <span
+class="math display">\[
+f_0(x^{(k)}) - g(\lambda^{(k)}, \nu^{(k)}) \le \epsilon_\mathrm{abs}
+\]</span></p>
+<p>也可以使用相对误差 <span
+class="math inline">\(\epsilon_\mathrm{rel}\)</span>： <span
+class="math display">\[
+g(\lambda^{(k)}, \nu^{(k)}) &gt; 0, \quad \frac{f_0(x^{(k)}) -
+g(\lambda^{(k)}, \nu^{(k)})}{g(\lambda^{(k)}, \nu^{(k)})} \le
+\epsilon_\mathrm{rel}
+\]</span> 或者 <span class="math display">\[
+f_0(x^{(k)}) &lt; 0, \quad \frac{f_0(x^{(k)}) - g(\lambda^{(k)},
+\nu^{(k)})}{-f_0(x^{(k)})} \le \epsilon_\mathrm{rel}
+\]</span></p>
+<p>上述条件保证了 <span class="math display">\[
+\frac{f_0(x^{(k)})-p^\star}{|p^\star|} \le \epsilon_\mathrm{rel}
+\]</span></p>
+<h4 id="互补松弛-complementary-slackness">互补松弛 (Complementary
+slackness)</h4>
+<p>假设有强对偶性，记 <span class="math inline">\(x^\star\)</span> 和
+<span class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+分别是原问题和对偶问题的最优解，则：</p>
+<p><span class="math display">\[
+\begin{split}
+  f_0(x^\star) &amp;= g(\lambda^\star, \nu^\star) \\
+  &amp;= \inf_{x}\left( f_0(x^\star) +
+\sum_{i=1}^m\lambda^\star_if_i(x^\star) +
+\sum_{i=1}^p\nu^\star_ih_i(x^\star)\right)\\
+  &amp;\le f_0(x^\star) + \sum_{i=1}^m\lambda^\star_if_i(x^\star) +
+\sum_{i=1}^p\nu^\star_ih_i(x^\star) \\
+  &amp;\le f_0(x^\star).
+\end{split}
+\]</span></p>
+<blockquote>
+<p>第四行不等式，由于 <span class="math inline">\(f_i(x^\star)\le
+0\)</span>，<span class="math inline">\(h_i(x^\star) = 0\)</span>，<span
+class="math inline">\(\lambda_i^\star \ge 0\)</span> 得到；</p>
+</blockquote>
+<p>由此，我们可以得到一些有趣的结论（在满足强对偶性条件下）：</p>
+<ol type="1">
+<li><span class="math inline">\(x^\star\)</span> 是 <span
+class="math inline">\(L(x, \lambda, \nu)\)</span> 关于 <span
+class="math inline">\(x\)</span> 的一个最优解；</li>
+<li>互补松弛条件：<span class="math inline">\(\lambda^\star f_i(x^\star)
+= 0, ~i = 1, \dots, m\)</span>，也就是说，要么第 <span
+class="math inline">\(i\)</span> 个最优的拉格朗日乘子是0，要么第 <span
+class="math inline">\(i\)</span> 个不等式限制是 active 的；</li>
+</ol>
+<h4 id="kkt-最优条件">KKT 最优条件</h4>
+<h5 id="对于非凸优化问题">对于非凸优化问题</h5>
+<p>假设 <span class="math inline">\(f_0, \dots, f_m, h_1, \dots,
+h_p\)</span> 是可导的，但并不假设其凸性；记 <span
+class="math inline">\(x^\star\)</span> 和 <span
+class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+分别是原问题和对偶问题的最优解，并且duality gap为0（强对偶性）；由于
+<span class="math inline">\(x^\star\)</span> 是 <span
+class="math inline">\(L(x, \lambda, \nu)\)</span> 关于 <span
+class="math inline">\(x\)</span> 的一个最优解，有：</p>
+<p><span class="math display">\[
+\nabla f_0(x^\star) + \sum_{i=1}^m\lambda^\star_i\nabla f_i(x^\star) +
+\sum_{i=1}^p\nu^\star_i\nabla h_i(x^\star) = 0
+\]</span></p>
+<p>由此，可以得到 <strong>Karush-Kuhn-Tucker (KKT) 条件</strong>：</p>
+<p><span class="math display">\[
+\begin{array}{rll}
+  f_i(x^\star) &amp;\le 0, &amp; i = 1, \dots, m\\
+  h_i(x^\star) &amp; = 0, &amp; i = 1, \dots, p\\
+  \lambda_i^\star &amp; \ge 0, &amp; i = 1, \dots, m\\
+  \lambda_i^\star f_i(x^\star) &amp; = 0, &amp; i = 1, \dots, m\\
+  \nabla f_0(x^\star) + \sum_{i=1}^m\lambda^\star_i\nabla f_i(x^\star) +
+\sum_{i=1}^p\nu^\star_i\nabla h_i(x^\star) &amp;= 0
+\end{array}
+\]</span></p>
+<p>综上，任何目标函数和限制函数可导的、强对偶的优化问题，其原问题和对偶问题的最优解对满足KKT条件；(KKT条件是这些点作为原问题和对偶问题最优解的必要条件)</p>
+<h5 id="对于凸优化问题">对于凸优化问题</h5>
+<p>对于满足上述条件(可导、强对偶)的凸优化问题，KKT条件还是这些点作为原问题和对偶问题的最优解的充分条件；</p>
+<p>使用KKT条件，可以为一些凸优化问题求出解析解；很多算法本质上也都是在求解KKT条件；</p>
+<h4 id="用对偶问题求解原问题">用对偶问题求解原问题</h4>
+<p>由前文内容可知，如果满足强对偶，且对偶问题的最优解 <span
+class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+存在，那么原问题的最优解同样也是 <span class="math inline">\(L(x,
+\lambda^\star, \nu^\star)\)</span> 关于 <span
+class="math inline">\(x\)</span> 最小化时的最优解；</p>
+<p>当原问题比较难，但是满足强队偶性，且容易求得其对偶问题的最优解时，我们就可以：</p>
+<p><span class="math display">\[
+\text{minimize} \quad f_0(x) + \sum_{i=1}^m \lambda_i^\star f_i(x) +
+\sum_{i = 1}^p \nu_i^\star h_i(x)
+\]</span></p>
+<p>该问题的解如果在原问题上是可行的，那么必然时原问题的最优解；</p>
+<p>例子：最大化交叉熵，问题形式如下：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{minimize} &amp; f_0(x) = \sum_{i=1}^n x_i\log x_i\\
+  \text{subject to} &amp; Ax \preceq b \\
+  &amp; \mathbf{1}^Tx = 1
+\end{array}
+\]</span></p>
+<p>首先，<span class="math inline">\(f(x) = x\log x， x\in
+\mathbb{R}_{++}\)</span> 的共轭函数如下，有 <span
+class="math inline">\(\operatorname{dom}f_0^* =
+\mathbb{R}\)</span>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+  f^*(y) &amp;= \sup_{x\in \mathbb{R}_{++}} \{yx - x\log x\} \\
+  &amp;= e^{y-1}
+\end{aligned}
+\]</span></p>
+对于 <span class="math inline">\(f_0(x) = \sum_{i=1}^n x_i\log x_i，
+x\in \mathbb{R}_{++}^n\)</span>： $$
+<span class="math display">\[\begin{aligned}
+f^*_0(y) &amp;= \sup_{x\in \mathbb{R}_{++}^n} \left\{y^Tx - \sum_{i=1}^n
+x_i\log x_i\right\} \\
+&amp;= \sup_{x\in \mathbb{R}_{++}^n} {\sum_{i=1}^n (y_ix_i - x_i \log
+x_i)}\\
+&amp;= \sum_{i=1}^n \sup_{x\in \mathbb{R}_{++}} \{y_ix_i - x_i\log x_i
+\}\\
+&amp;= \sum_{i=1}^n e^{y_i - 1}
+
+\end{aligned}\]</span>
+<p>$$</p>
+<blockquote>
+<p>在 <span class="math inline">\(a\)</span> 和 <span
+class="math inline">\(b\)</span> 无关（可以同时取到最大值）时 <span
+class="math inline">\(\max{a} + \max{b} = \max{(a + b)}\)</span></p>
+</blockquote>
+<p>使用共轭函数和拉格朗日函数的关系求出：</p>
+<p><span class="math display">\[
+\begin{aligned}
+  g(\lambda, \nu) &amp;= -f_0^*(-A^T\lambda-C^T\nu) - b^T\lambda -d^T\nu
+\\
+  &amp;= -f_0^*(-A^T\lambda-\nu) - b^T\lambda -\nu \\
+  &amp;= - b^T\lambda -\nu  - \sum_{i=1}^n e^{-a_i^T\lambda -\nu -1}\\
+  &amp;= - b^T\lambda -\nu - e^{-\nu-1}\sum_{i=1}^n e^{-a_i^T\lambda}
+\end{aligned}
+\]</span></p>
+<p>其中，<span class="math inline">\(a_i\)</span> 是 <span
+class="math inline">\(A\)</span> 的第 <span
+class="math inline">\(i\)</span> 列，<span class="math inline">\(\lambda
+\in \mathbb{R}^n\)</span>，<span class="math inline">\(\nu \in
+\mathbb{R}\)</span>；</p>
+<p>进而可以写出其拉格朗日对偶问题为：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{maximize} &amp; - b^T\lambda -\nu - e^{-\nu-1}\sum_{i=1}^n
+e^{-a_i^T\lambda} \\
+  \text{subject to} &amp; \lambda \succeq 0
+\end{array}
+\]</span></p>
+<p>拉格朗日对偶问题一定是凸优化问题，且假设其满足弱形式的史莱特条件（这里不等式限制函数全为仿射函数），即存在
+<span class="math inline">\(x\succ 0\)</span> 满足 <span
+class="math inline">\(Ax\preceq b\)</span> 且 <span
+class="math inline">\(\mathbf{1}^Tx =
+1\)</span>，那么就有了强对偶性；我们可以从上述凸优化问题中求出 <span
+class="math inline">\((\lambda^\star, \nu^\star)\)</span>；</p>
+<p>我们可以先固定 <span class="math inline">\(\lambda\)</span>
+进行最大化，让关于 <span class="math inline">\(\nu\)</span>
+的导数为0，得到：</p>
+<p><span class="math display">\[
+\nu = \log \sum_{i=1}^n e^{-a_i^T\lambda} - 1
+\]</span></p>
+<p>问题简化为：</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+  \text{maximize} &amp; - b^T\lambda  - \log\sum_{i=1}^n
+e^{-a_i^T\lambda} \\
+  \text{subject to} &amp; \lambda \succeq 0
+\end{array}
+\]</span></p>
+<p>这是一个几何规划问题的凸优化形式；</p>
+<p>求得 <span class="math inline">\((\lambda^\star, \nu^\star)\)</span>
+后，拉格朗日函数在 <span class="math inline">\((\lambda^\star,
+\nu^\star)\)</span> 是关于 <span class="math inline">\(x\)</span> 在
+<span class="math inline">\(\mathcal{D}\)</span>
+上的严格凸函数，可以令关于 <span class="math inline">\(x\)</span>
+的导数为0得到 <span class="math inline">\(x^\star\)</span>；如果 <span
+class="math inline">\(x^\star\)</span>
+是可行的，那么就是最优解；如果不可行，说明最优解不可达；</p>
+<p><span class="math display">\[
+L(x, \lambda^\star, \nu^\star) = \sum_{i=1}^n x_i \log x_i +
+\lambda^{\star T} (Ax-b) + \nu^\star (\mathbf{1}^Tx - 1)
+\]</span></p>
+<p><span class="math display">\[
+x^\star_i = 1/\exp{(a^T_i \lambda^\star + \nu^\star + 1)},\quad i = 1,
+\dots, n
+\]</span></p>
 
     </div>
 
