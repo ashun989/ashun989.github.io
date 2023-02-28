@@ -8047,6 +8047,7 @@ href="https://baike.baidu.com/item/%E7%81%B5%E4%B8%8E%E8%82%89/13012440?fr=aladd
 <p>本文记录MMSegmentation中Metircs模块的实现，关注模块设计，实现细节，边界情况，给出在库外使用该模块的方法；这部分的代码主要在<a
 href="https://github.com/open-mmlab/mmsegmentation/blob/master/mmseg/core/evaluation/metrics.py">此处</a>。</p>
 </blockquote>
+<span id="more"></span>
 <h2 id="模块设计">模块设计</h2>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">eval_metrics</span><br><span class="line">├─total_intersect_and_union</span><br><span class="line">│  └─intersect_and_union</span><br><span class="line">├─total_area_to_metrics</span><br></pre></td></tr></table></figure>
 <ul>
