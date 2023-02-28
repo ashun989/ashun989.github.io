@@ -129,18 +129,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -165,6 +165,143 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/02/28/MMSeg-Metrics/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/02/28/MMSeg-Metrics/" class="post-title-link" itemprop="url">MMSegmentation中几种Metrics的实现</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-02-28 21:15:20" itemprop="dateCreated datePublished" datetime="2023-02-28T21:15:20+08:00">2023-02-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-01 00:18:07" itemprop="dateModified" datetime="2023-03-01T00:18:07+08:00">2023-03-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">代码阅读</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <blockquote>
+<p>本文记录MMSegmentation中Metircs模块的实现，关注模块设计，实现细节，边界情况，给出在库外使用该模块的方法；这部分的代码主要在<a
+target="_blank" rel="noopener" href="https://github.com/open-mmlab/mmsegmentation/blob/master/mmseg/core/evaluation/metrics.py">此处</a>。</p>
+</blockquote>
+<h2 id="模块设计">模块设计</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">eval_metrics</span><br><span class="line">├─total_intersect_and_union</span><br><span class="line">│  └─intersect_and_union</span><br><span class="line">├─total_area_to_metrics</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>total_intersect_and_union</code> 循环为多个(pred, gt)调用
+<code>intersect_and_union</code>，并使用加法在数量维度上规约其结果；</li>
+<li><code>intersect_and_union</code>
+计算四个的直方图（横坐标为类，纵坐标为像素数量）：交、并、pred，gt；</li>
+<li><code>total_area_to_metrics</code> 使用总直方图信息计算</li>
+<li>诸如 <code>mean_iou</code>, <code>mean_dice</code>,
+<code>mean_fscore</code>都是对<code>eval_metrics</code>
+的简单封装（这三个也是目前MMSeg支持的，除了Acc, Precision,
+Recall之外的指标）；</li>
+<li><code>pre_eval_to_metrics</code> 将 <code>pre_eval</code>
+积累的所有输出的评估结果加法规约，之后再送入
+<code>total_area_to_metrics</code>；</li>
+</ul>
+<blockquote>
+<p>什么情况下触发 <code>pre_eval</code>？为什么需要
+<code>pre_eval</code>？</p>
+<ul>
+<li>在使用 <code>--eval</code>
+指定评估指标，并且不是在cityscapes的format结果上进行cityscape
+mIoU的评估时，都会开启 <code>pre_eval</code>；</li>
+<li>希望在将验证集上每个batch的输入（事实上在验证/测试时batch=1）通过模型后，就立刻与gt计算metrics，而不是在某处保存生成的结果，这样将来在reduce的时候也无需再次加载gt；</li>
+<li>按照笔者曾经的经验来看，由于把每个batch的结果都添加到内存里，笔者曾经用一台内存比较小的机器跑ADE20K的推理，观察到内存占用逐渐增加，最后出现内存的OOM问题；为什么不边算便求和？</li>
+</ul>
+</blockquote>
+<h2 id="实现细节">实现细节</h2>
+<p>这里主要关注 <code>intersect_and_union</code> 以及
+<code>total_area_to_metrics</code> 的实现；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">intersect_and_union</span>(<span class="params">pred_label,</span></span><br><span class="line"><span class="params">                        label,</span></span><br><span class="line"><span class="params">                        num_classes,</span></span><br><span class="line"><span class="params">                        ignore_index,</span></span><br><span class="line"><span class="params">                        label_map=<span class="built_in">dict</span>(<span class="params"></span>),</span></span><br><span class="line"><span class="params">                        reduce_zero_label=<span class="literal">False</span></span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(pred_label, <span class="built_in">str</span>):</span><br><span class="line">        pred_label = torch.from_numpy(np.load(pred_label))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        pred_label = torch.from_numpy((pred_label))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(label, <span class="built_in">str</span>):</span><br><span class="line">        label = torch.from_numpy(</span><br><span class="line">            mmcv.imread(label, flag=<span class="string">&#x27;unchanged&#x27;</span>, backend=<span class="string">&#x27;pillow&#x27;</span>))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        label = torch.from_numpy(label)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> reduce_zero_label:</span><br><span class="line">        label[label == <span class="number">0</span>] = <span class="number">255</span></span><br><span class="line">        label = label - <span class="number">1</span></span><br><span class="line">        label[label == <span class="number">254</span>] = <span class="number">255</span></span><br><span class="line">    <span class="keyword">if</span> label_map <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        label_copy = label.clone()</span><br><span class="line">        <span class="keyword">for</span> old_id, new_id <span class="keyword">in</span> label_map.items():</span><br><span class="line">            label[label_copy == old_id] = new_id</span><br><span class="line"></span><br><span class="line">    mask = (label != ignore_index)</span><br><span class="line">    pred_label = pred_label[mask]</span><br><span class="line">    label = label[mask]</span><br><span class="line"></span><br><span class="line">    intersect = pred_label[pred_label == label]</span><br><span class="line">    area_intersect = torch.histc(</span><br><span class="line">        intersect.<span class="built_in">float</span>(), bins=(num_classes), <span class="built_in">min</span>=<span class="number">0</span>, <span class="built_in">max</span>=num_classes - <span class="number">1</span>)</span><br><span class="line">    area_pred_label = torch.histc(</span><br><span class="line">        pred_label.<span class="built_in">float</span>(), bins=(num_classes), <span class="built_in">min</span>=<span class="number">0</span>, <span class="built_in">max</span>=num_classes - <span class="number">1</span>)</span><br><span class="line">    area_label = torch.histc(</span><br><span class="line">        label.<span class="built_in">float</span>(), bins=(num_classes), <span class="built_in">min</span>=<span class="number">0</span>, <span class="built_in">max</span>=num_classes - <span class="number">1</span>)</span><br><span class="line">    area_union = area_pred_label + area_label - area_intersect</span><br><span class="line">    <span class="keyword">return</span> area_intersect, area_union, area_pred_label, area_label</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">total_area_to_metrics</span>(<span class="params">total_area_intersect,</span></span><br><span class="line"><span class="params">                          total_area_union,</span></span><br><span class="line"><span class="params">                          total_area_pred_label,</span></span><br><span class="line"><span class="params">                          total_area_label,</span></span><br><span class="line"><span class="params">                          metrics=[<span class="string">&#x27;mIoU&#x27;</span>],</span></span><br><span class="line"><span class="params">                          nan_to_num=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                          beta=<span class="number">1</span></span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(metrics, <span class="built_in">str</span>):</span><br><span class="line">        metrics = [metrics]</span><br><span class="line">    allowed_metrics = [<span class="string">&#x27;mIoU&#x27;</span>, <span class="string">&#x27;mDice&#x27;</span>, <span class="string">&#x27;mFscore&#x27;</span>]</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">set</span>(metrics).issubset(<span class="built_in">set</span>(allowed_metrics)):</span><br><span class="line">        <span class="keyword">raise</span> KeyError(<span class="string">&#x27;metrics &#123;&#125; is not supported&#x27;</span>.<span class="built_in">format</span>(metrics))</span><br><span class="line"></span><br><span class="line">    all_acc = total_area_intersect.<span class="built_in">sum</span>() / total_area_label.<span class="built_in">sum</span>()</span><br><span class="line">    ret_metrics = OrderedDict(&#123;<span class="string">&#x27;aAcc&#x27;</span>: all_acc&#125;)</span><br><span class="line">    <span class="keyword">for</span> metric <span class="keyword">in</span> metrics:</span><br><span class="line">        <span class="keyword">if</span> metric == <span class="string">&#x27;mIoU&#x27;</span>:</span><br><span class="line">            iou = total_area_intersect / total_area_union</span><br><span class="line">            acc = total_area_intersect / total_area_label</span><br><span class="line">            ret_metrics[<span class="string">&#x27;IoU&#x27;</span>] = iou</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Acc&#x27;</span>] = acc</span><br><span class="line">        <span class="keyword">elif</span> metric == <span class="string">&#x27;mDice&#x27;</span>:</span><br><span class="line">            dice = <span class="number">2</span> * total_area_intersect / (</span><br><span class="line">                total_area_pred_label + total_area_label)</span><br><span class="line">            acc = total_area_intersect / total_area_label</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Dice&#x27;</span>] = dice</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Acc&#x27;</span>] = acc</span><br><span class="line">        <span class="keyword">elif</span> metric == <span class="string">&#x27;mFscore&#x27;</span>:</span><br><span class="line">            precision = total_area_intersect / total_area_pred_label</span><br><span class="line">            recall = total_area_intersect / total_area_label</span><br><span class="line">            f_value = torch.tensor(</span><br><span class="line">                [f_score(x[<span class="number">0</span>], x[<span class="number">1</span>], beta) <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">zip</span>(precision, recall)])</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Fscore&#x27;</span>] = f_value</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Precision&#x27;</span>] = precision</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Recall&#x27;</span>] = recall</span><br><span class="line"></span><br><span class="line">    ret_metrics = &#123;</span><br><span class="line">        metric: value.numpy()</span><br><span class="line">        <span class="keyword">for</span> metric, value <span class="keyword">in</span> ret_metrics.items()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> nan_to_num <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        ret_metrics = OrderedDict(&#123;</span><br><span class="line">            metric: np.nan_to_num(metric_value, nan=nan_to_num)</span><br><span class="line">            <span class="keyword">for</span> metric, metric_value <span class="keyword">in</span> ret_metrics.items()</span><br><span class="line">        &#125;)</span><br><span class="line">    <span class="keyword">return</span> ret_metrics</span><br></pre></td></tr></table></figure>
+<p>在 <code>intersect_and_union</code> 使用了 <a
+target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.histc.html?highlight=histc#torch.histc"><code>torch.histc</code></a>
+实现，避免了逐个类的for循环；</p>
+<p>值得注意的是，所有的metrics都是先对直方图信息求和，再计算，当然求和的位置确实会影响最终结果，笔者认为这样做可以避免频繁在个例中出现Nan；以第
+<span class="math inline">\(c\)</span> 类的 <span
+class="math inline">\(\mathrm{IoU}_c\)</span> 为例：</p>
+<p><span class="math display">\[
+\mathrm{IoU}_c =\frac{ \sum_{i=1}^N P_c^{(i)}\cap Q_c^{(i)}}{
+\sum_{i=1}^N P_c^{(i)}\cup Q_c^{(i)}}
+\]</span></p>
+<p>边界情况：当某个类别从未在任何一张gt上出现时，以
+<code>total_area_label</code>
+为分母的metrics都是Nan，如果还满足从未在任何一张pred上出现，那么
+<code>total_area_union</code> 为分母的IoU也是Nan；</p>
+<h2 id="在任何地方使用">在任何地方使用</h2>
+<p>笔者认为，使用 <code>meanXxx</code>
+这类接口就能满足大部分的需求，以下面一个随机demo为例，这个例子也验证了IoU的计算并不是逐对计算后平均；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> mmseg.core.evaluation.metrics <span class="keyword">import</span> mean_iou</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> partial</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">random_int_matrix</span>(<span class="params">shape, upper</span>):</span><br><span class="line">    tmp = np.zeros(shape)</span><br><span class="line">    tmp.fill(upper)</span><br><span class="line">    <span class="keyword">return</span> np.random.randint(tmp)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_order</span>():</span><br><span class="line">    gen_mat = partial(random_int_matrix, (<span class="number">10</span>, <span class="number">10</span>), <span class="number">5</span>)</span><br><span class="line">    cal_mean_iou = partial(mean_iou, num_classes=<span class="number">5</span>, ignore_index=-<span class="number">1</span>)</span><br><span class="line">    N = <span class="number">100</span></span><br><span class="line">    ls = [gen_mat() <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N)]</span><br><span class="line">    ps = [gen_mat() <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N)]</span><br><span class="line">    miou = cal_mean_iou(ls, ps)</span><br><span class="line"></span><br><span class="line">    ious = []</span><br><span class="line">    <span class="keyword">for</span> l, p <span class="keyword">in</span> <span class="built_in">zip</span>(ls, ps):</span><br><span class="line">        ious.append(cal_mean_iou(l, p)[<span class="string">&#x27;IoU&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    avg_iou = <span class="built_in">sum</span>(ious) / <span class="built_in">len</span>(ious)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;miou: <span class="subst">&#123;miou&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;avg_iou: <span class="subst">&#123;avg_iou&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1052,100 +1189,6 @@ EE364a</a>课程slides和book；穿插着网络资源和少量自己的理解（
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/11/07/DBB/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/11/03/Model-Compression/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="ashun">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ashun's Blog">
-      <meta itemprop="description" content="个人博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Ashun's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/11/03/Model-Compression/" class="post-title-link" itemprop="url">模型压缩论文阅读列表</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2022-11-03 19:13:26" itemprop="dateCreated datePublished" datetime="2022-11-03T19:13:26+08:00">2022-11-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <blockquote>
-<p>模型压缩，包括低秩分解、剪枝、量化、蒸馏等技术，旨在精度损失很小的前提下，获得参数更小、推理速度更快的模型</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/11/03/Model-Compression/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

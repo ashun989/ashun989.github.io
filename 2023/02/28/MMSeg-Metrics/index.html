@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本文记录MMSegmentation中Metircs模块的实现，关注模块设计，实现细节，边界情况，给出在库外使用该模块的方法；这部分的代码主要在此处。  模块设计 1234eval_metrics├─total_intersect_and_union│  └─intersect_and_union├─total_area_to_metrics  total_intersect_and">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MMSegmentation中几种Metrics的实现">
+<meta property="og:url" content="https://ashun989.github.io/2023/02/28/MMSeg-Metrics/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="本文记录MMSegmentation中Metircs模块的实现，关注模块设计，实现细节，边界情况，给出在库外使用该模块的方法；这部分的代码主要在此处。  模块设计 1234eval_metrics├─total_intersect_and_union│  └─intersect_and_union├─total_area_to_metrics  total_intersect_and">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-28T13:15:20.000Z">
+<meta property="article:modified_time" content="2023-02-28T16:18:07.942Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="MMSegmentation">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2023/02/28/MMSeg-Metrics/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2023/02/28/MMSeg-Metrics/","path":"2023/02/28/MMSeg-Metrics/","title":"MMSegmentation中几种Metrics的实现"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>MMSegmentation中几种Metrics的实现 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">模块设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-number">2.</span> <span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E4%BB%BB%E4%BD%95%E5%9C%B0%E6%96%B9%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">在任何地方使用</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/02/28/MMSeg-Metrics/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="MMSegmentation中几种Metrics的实现 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MMSegmentation中几种Metrics的实现
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-02-28 21:15:20" itemprop="dateCreated datePublished" datetime="2023-02-28T21:15:20+08:00">2023-02-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-01 00:18:07" itemprop="dateModified" datetime="2023-03-01T00:18:07+08:00">2023-03-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">代码阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>本文记录MMSegmentation中Metircs模块的实现，关注模块设计，实现细节，边界情况，给出在库外使用该模块的方法；这部分的代码主要在<a
+target="_blank" rel="noopener" href="https://github.com/open-mmlab/mmsegmentation/blob/master/mmseg/core/evaluation/metrics.py">此处</a>。</p>
+</blockquote>
+<h2 id="模块设计">模块设计</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">eval_metrics</span><br><span class="line">├─total_intersect_and_union</span><br><span class="line">│  └─intersect_and_union</span><br><span class="line">├─total_area_to_metrics</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>total_intersect_and_union</code> 循环为多个(pred, gt)调用
+<code>intersect_and_union</code>，并使用加法在数量维度上规约其结果；</li>
+<li><code>intersect_and_union</code>
+计算四个的直方图（横坐标为类，纵坐标为像素数量）：交、并、pred，gt；</li>
+<li><code>total_area_to_metrics</code> 使用总直方图信息计算</li>
+<li>诸如 <code>mean_iou</code>, <code>mean_dice</code>,
+<code>mean_fscore</code>都是对<code>eval_metrics</code>
+的简单封装（这三个也是目前MMSeg支持的，除了Acc, Precision,
+Recall之外的指标）；</li>
+<li><code>pre_eval_to_metrics</code> 将 <code>pre_eval</code>
+积累的所有输出的评估结果加法规约，之后再送入
+<code>total_area_to_metrics</code>；</li>
+</ul>
+<blockquote>
+<p>什么情况下触发 <code>pre_eval</code>？为什么需要
+<code>pre_eval</code>？</p>
+<ul>
+<li>在使用 <code>--eval</code>
+指定评估指标，并且不是在cityscapes的format结果上进行cityscape
+mIoU的评估时，都会开启 <code>pre_eval</code>；</li>
+<li>希望在将验证集上每个batch的输入（事实上在验证/测试时batch=1）通过模型后，就立刻与gt计算metrics，而不是在某处保存生成的结果，这样将来在reduce的时候也无需再次加载gt；</li>
+<li>按照笔者曾经的经验来看，由于把每个batch的结果都添加到内存里，笔者曾经用一台内存比较小的机器跑ADE20K的推理，观察到内存占用逐渐增加，最后出现内存的OOM问题；为什么不边算便求和？</li>
+</ul>
+</blockquote>
+<h2 id="实现细节">实现细节</h2>
+<p>这里主要关注 <code>intersect_and_union</code> 以及
+<code>total_area_to_metrics</code> 的实现；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">intersect_and_union</span>(<span class="params">pred_label,</span></span><br><span class="line"><span class="params">                        label,</span></span><br><span class="line"><span class="params">                        num_classes,</span></span><br><span class="line"><span class="params">                        ignore_index,</span></span><br><span class="line"><span class="params">                        label_map=<span class="built_in">dict</span>(<span class="params"></span>),</span></span><br><span class="line"><span class="params">                        reduce_zero_label=<span class="literal">False</span></span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(pred_label, <span class="built_in">str</span>):</span><br><span class="line">        pred_label = torch.from_numpy(np.load(pred_label))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        pred_label = torch.from_numpy((pred_label))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(label, <span class="built_in">str</span>):</span><br><span class="line">        label = torch.from_numpy(</span><br><span class="line">            mmcv.imread(label, flag=<span class="string">&#x27;unchanged&#x27;</span>, backend=<span class="string">&#x27;pillow&#x27;</span>))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        label = torch.from_numpy(label)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> reduce_zero_label:</span><br><span class="line">        label[label == <span class="number">0</span>] = <span class="number">255</span></span><br><span class="line">        label = label - <span class="number">1</span></span><br><span class="line">        label[label == <span class="number">254</span>] = <span class="number">255</span></span><br><span class="line">    <span class="keyword">if</span> label_map <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        label_copy = label.clone()</span><br><span class="line">        <span class="keyword">for</span> old_id, new_id <span class="keyword">in</span> label_map.items():</span><br><span class="line">            label[label_copy == old_id] = new_id</span><br><span class="line"></span><br><span class="line">    mask = (label != ignore_index)</span><br><span class="line">    pred_label = pred_label[mask]</span><br><span class="line">    label = label[mask]</span><br><span class="line"></span><br><span class="line">    intersect = pred_label[pred_label == label]</span><br><span class="line">    area_intersect = torch.histc(</span><br><span class="line">        intersect.<span class="built_in">float</span>(), bins=(num_classes), <span class="built_in">min</span>=<span class="number">0</span>, <span class="built_in">max</span>=num_classes - <span class="number">1</span>)</span><br><span class="line">    area_pred_label = torch.histc(</span><br><span class="line">        pred_label.<span class="built_in">float</span>(), bins=(num_classes), <span class="built_in">min</span>=<span class="number">0</span>, <span class="built_in">max</span>=num_classes - <span class="number">1</span>)</span><br><span class="line">    area_label = torch.histc(</span><br><span class="line">        label.<span class="built_in">float</span>(), bins=(num_classes), <span class="built_in">min</span>=<span class="number">0</span>, <span class="built_in">max</span>=num_classes - <span class="number">1</span>)</span><br><span class="line">    area_union = area_pred_label + area_label - area_intersect</span><br><span class="line">    <span class="keyword">return</span> area_intersect, area_union, area_pred_label, area_label</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">total_area_to_metrics</span>(<span class="params">total_area_intersect,</span></span><br><span class="line"><span class="params">                          total_area_union,</span></span><br><span class="line"><span class="params">                          total_area_pred_label,</span></span><br><span class="line"><span class="params">                          total_area_label,</span></span><br><span class="line"><span class="params">                          metrics=[<span class="string">&#x27;mIoU&#x27;</span>],</span></span><br><span class="line"><span class="params">                          nan_to_num=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                          beta=<span class="number">1</span></span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(metrics, <span class="built_in">str</span>):</span><br><span class="line">        metrics = [metrics]</span><br><span class="line">    allowed_metrics = [<span class="string">&#x27;mIoU&#x27;</span>, <span class="string">&#x27;mDice&#x27;</span>, <span class="string">&#x27;mFscore&#x27;</span>]</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">set</span>(metrics).issubset(<span class="built_in">set</span>(allowed_metrics)):</span><br><span class="line">        <span class="keyword">raise</span> KeyError(<span class="string">&#x27;metrics &#123;&#125; is not supported&#x27;</span>.<span class="built_in">format</span>(metrics))</span><br><span class="line"></span><br><span class="line">    all_acc = total_area_intersect.<span class="built_in">sum</span>() / total_area_label.<span class="built_in">sum</span>()</span><br><span class="line">    ret_metrics = OrderedDict(&#123;<span class="string">&#x27;aAcc&#x27;</span>: all_acc&#125;)</span><br><span class="line">    <span class="keyword">for</span> metric <span class="keyword">in</span> metrics:</span><br><span class="line">        <span class="keyword">if</span> metric == <span class="string">&#x27;mIoU&#x27;</span>:</span><br><span class="line">            iou = total_area_intersect / total_area_union</span><br><span class="line">            acc = total_area_intersect / total_area_label</span><br><span class="line">            ret_metrics[<span class="string">&#x27;IoU&#x27;</span>] = iou</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Acc&#x27;</span>] = acc</span><br><span class="line">        <span class="keyword">elif</span> metric == <span class="string">&#x27;mDice&#x27;</span>:</span><br><span class="line">            dice = <span class="number">2</span> * total_area_intersect / (</span><br><span class="line">                total_area_pred_label + total_area_label)</span><br><span class="line">            acc = total_area_intersect / total_area_label</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Dice&#x27;</span>] = dice</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Acc&#x27;</span>] = acc</span><br><span class="line">        <span class="keyword">elif</span> metric == <span class="string">&#x27;mFscore&#x27;</span>:</span><br><span class="line">            precision = total_area_intersect / total_area_pred_label</span><br><span class="line">            recall = total_area_intersect / total_area_label</span><br><span class="line">            f_value = torch.tensor(</span><br><span class="line">                [f_score(x[<span class="number">0</span>], x[<span class="number">1</span>], beta) <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">zip</span>(precision, recall)])</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Fscore&#x27;</span>] = f_value</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Precision&#x27;</span>] = precision</span><br><span class="line">            ret_metrics[<span class="string">&#x27;Recall&#x27;</span>] = recall</span><br><span class="line"></span><br><span class="line">    ret_metrics = &#123;</span><br><span class="line">        metric: value.numpy()</span><br><span class="line">        <span class="keyword">for</span> metric, value <span class="keyword">in</span> ret_metrics.items()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> nan_to_num <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        ret_metrics = OrderedDict(&#123;</span><br><span class="line">            metric: np.nan_to_num(metric_value, nan=nan_to_num)</span><br><span class="line">            <span class="keyword">for</span> metric, metric_value <span class="keyword">in</span> ret_metrics.items()</span><br><span class="line">        &#125;)</span><br><span class="line">    <span class="keyword">return</span> ret_metrics</span><br></pre></td></tr></table></figure>
+<p>在 <code>intersect_and_union</code> 使用了 <a
+target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.histc.html?highlight=histc#torch.histc"><code>torch.histc</code></a>
+实现，避免了逐个类的for循环；</p>
+<p>值得注意的是，所有的metrics都是先对直方图信息求和，再计算，当然求和的位置确实会影响最终结果，笔者认为这样做可以避免频繁在个例中出现Nan；以第
+<span class="math inline">\(c\)</span> 类的 <span
+class="math inline">\(\mathrm{IoU}_c\)</span> 为例：</p>
+<p><span class="math display">\[
+\mathrm{IoU}_c =\frac{ \sum_{i=1}^N P_c^{(i)}\cap Q_c^{(i)}}{
+\sum_{i=1}^N P_c^{(i)}\cup Q_c^{(i)}}
+\]</span></p>
+<p>边界情况：当某个类别从未在任何一张gt上出现时，以
+<code>total_area_label</code>
+为分母的metrics都是Nan，如果还满足从未在任何一张pred上出现，那么
+<code>total_area_union</code> 为分母的IoU也是Nan；</p>
+<h2 id="在任何地方使用">在任何地方使用</h2>
+<p>笔者认为，使用 <code>meanXxx</code>
+这类接口就能满足大部分的需求，以下面一个随机demo为例，这个例子也验证了IoU的计算并不是逐对计算后平均；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> mmseg.core.evaluation.metrics <span class="keyword">import</span> mean_iou</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> partial</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">random_int_matrix</span>(<span class="params">shape, upper</span>):</span><br><span class="line">    tmp = np.zeros(shape)</span><br><span class="line">    tmp.fill(upper)</span><br><span class="line">    <span class="keyword">return</span> np.random.randint(tmp)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_order</span>():</span><br><span class="line">    gen_mat = partial(random_int_matrix, (<span class="number">10</span>, <span class="number">10</span>), <span class="number">5</span>)</span><br><span class="line">    cal_mean_iou = partial(mean_iou, num_classes=<span class="number">5</span>, ignore_index=-<span class="number">1</span>)</span><br><span class="line">    N = <span class="number">100</span></span><br><span class="line">    ls = [gen_mat() <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N)]</span><br><span class="line">    ps = [gen_mat() <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N)]</span><br><span class="line">    miou = cal_mean_iou(ls, ps)</span><br><span class="line"></span><br><span class="line">    ious = []</span><br><span class="line">    <span class="keyword">for</span> l, p <span class="keyword">in</span> <span class="built_in">zip</span>(ls, ps):</span><br><span class="line">        ious.append(cal_mean_iou(l, p)[<span class="string">&#x27;IoU&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    avg_iou = <span class="built_in">sum</span>(ious) / <span class="built_in">len</span>(ious)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;miou: <span class="subst">&#123;miou&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;avg_iou: <span class="subst">&#123;avg_iou&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MMSegmentation/" rel="tag"><i class="fa fa-tag"></i> MMSegmentation</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/02/06/Low-Rank-and-Sparse/" rel="prev" title="低秩分解与稀疏化的统一">
+                  <i class="fa fa-chevron-left"></i> 低秩分解与稀疏化的统一
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"ad220a76c18b6fd63dfa97022eae7b8e"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>
