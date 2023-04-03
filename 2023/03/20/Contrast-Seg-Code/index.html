@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本文主要记录了对ContrastiveSeg(论文,代码)的作者公开的代码的阅读和分析； 这篇论文提出的方法，从实现上来看，就是对于训练时模型添加了一个与分类头平行的投影头，添加了一个语义空间中的像素对比损失；按照对比对象来看，对比损失又分为两种实现，一种是mini-batch内的自对比，一种是mini-batch到memory bank的对比；在为对比损失挑选正负样本时，还先后设计了se">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ContrastiveSeg 代码阅读">
+<meta property="og:url" content="https://ashun989.github.io/2023/03/20/Contrast-Seg-Code/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="本文主要记录了对ContrastiveSeg(论文,代码)的作者公开的代码的阅读和分析； 这篇论文提出的方法，从实现上来看，就是对于训练时模型添加了一个与分类头平行的投影头，添加了一个语义空间中的像素对比损失；按照对比对象来看，对比损失又分为两种实现，一种是mini-batch内的自对比，一种是mini-batch到memory bank的对比；在为对比损失挑选正负样本时，还先后设计了se">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/20/Contrast-Seg-Code/nce-loss.png">
+<meta property="article:published_time" content="2023-03-20T13:03:37.000Z">
+<meta property="article:modified_time" content="2023-03-24T08:59:52.685Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="InfoNCE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2023/03/20/Contrast-Seg-Code/nce-loss.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2023/03/20/Contrast-Seg-Code/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2023/03/20/Contrast-Seg-Code/","path":"2023/03/20/Contrast-Seg-Code/","title":"ContrastiveSeg 代码阅读"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ContrastiveSeg 代码阅读 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">17</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">30</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A0memorybank%E7%9A%84%E5%83%8F%E7%B4%A0%E5%AF%B9%E6%AF%94%E6%8D%9F%E5%A4%B1%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.</span> <span class="nav-text">无MemoryBank的像素对比损失实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89memory-bank%E7%9A%84%E5%83%8F%E7%B4%A0%E5%88%B0%E5%83%8F%E7%B4%A0%E5%83%8F%E7%B4%A0%E5%88%B0%E5%8C%BA%E5%9F%9F%E7%9A%84%E5%AF%B9%E6%AF%94%E6%8D%9F%E5%A4%B1%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">有Memory
+Bank的像素到像素、像素到区域的对比损失实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E6%B2%A1%E6%9C%89%E5%BC%80%E6%94%BE%E6%BA%90%E7%A0%81%E7%9A%84example-sampling%E7%AD%96%E7%95%A5"><span class="nav-number">3.</span> <span class="nav-text">关于没有开放源码的example
+sampling策略</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/03/20/Contrast-Seg-Code/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ContrastiveSeg 代码阅读 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ContrastiveSeg 代码阅读
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-20 21:03:37" itemprop="dateCreated datePublished" datetime="2023-03-20T21:03:37+08:00">2023-03-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-24 16:59:52" itemprop="dateModified" datetime="2023-03-24T16:59:52+08:00">2023-03-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">代码阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>本文主要记录了对ContrastiveSeg(<a
+target="_blank" rel="noopener" href="https://arxiv.org/abs/2101.11939">论文</a>,<a
+target="_blank" rel="noopener" href="https://github.com/tfzhou/ContrastiveSeg">代码</a>)的作者公开的代码的阅读和分析；</p>
+<p>这篇论文提出的方法，从实现上来看，就是对于训练时模型添加了一个与分类头平行的投影头，添加了一个语义空间中的像素对比损失；按照对比对象来看，对比损失又分为两种实现，一种是mini-batch内的自对比，一种是mini-batch到memory
+bank的对比；在为对比损失挑选正负样本时，还先后设计了segmentation-awared
+hard anchor sampling用于从mini-batch中采样作为损失函数中的anchor
+feature，以及semi-hard example sampling用于从memory
+bank中采样作为损失函数的contrast feature（example
+sampling部分作者暂未开源实现）。</p>
+</blockquote>
+<span id="more"></span>
+<h3
+id="无memorybank的像素对比损失实现">无MemoryBank的像素对比损失实现</h3>
+<p><code>PixelContrastLoss</code>:
+该损失函数对应于作者在文中提到的不使用Memory
+Bank的baseline，也就是只计算一个mini batch内的像素对比损失；</p>
+<p>在<a
+target="_blank" rel="noopener" href="https://github.com/tfzhou/ContrastiveSeg/blob/main/lib/loss/loss_contrast.py">loss_contrast.py</a>中：</p>
+<p>通过<code>ContrastCELoss</code>的前向传播过程主要是将预测分割图上采样到gt
+label大小之后，分别计算CE Loss和Pixel Contrast Loss；<code>seg</code>
+是正常分割网络都会输出的 <code>(B, C, H, W)</code> (C是类别数)
+的预测图，<code>embed</code>则是本文添加的与计算<code>seg</code>的 <span
+class="math inline">\(f_\mathrm{SEG}\)</span> 并行的一个分支 <span
+class="math inline">\(f_\mathrm{PROJ}\)</span>
+的输出，旨在将特征图降维</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ContrastCELoss</span>(nn.Module, ABC):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, configer=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(ContrastCELoss, self).__init__()</span><br><span class="line"></span><br><span class="line">        self.configer = configer</span><br><span class="line"></span><br><span class="line">        ignore_index = -<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> self.configer.exists(<span class="string">&#x27;loss&#x27;</span>, <span class="string">&#x27;params&#x27;</span>) <span class="keyword">and</span> <span class="string">&#x27;ce_ignore_index&#x27;</span> <span class="keyword">in</span> self.configer.get(<span class="string">&#x27;loss&#x27;</span>, <span class="string">&#x27;params&#x27;</span>):</span><br><span class="line">            ignore_index = self.configer.get(<span class="string">&#x27;loss&#x27;</span>, <span class="string">&#x27;params&#x27;</span>)[<span class="string">&#x27;ce_ignore_index&#x27;</span>]</span><br><span class="line">        Log.info(<span class="string">&#x27;ignore_index: &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(ignore_index))</span><br><span class="line"></span><br><span class="line">        self.loss_weight = self.configer.get(<span class="string">&#x27;contrast&#x27;</span>, <span class="string">&#x27;loss_weight&#x27;</span>)</span><br><span class="line">        self.use_rmi = self.configer.get(<span class="string">&#x27;contrast&#x27;</span>, <span class="string">&#x27;use_rmi&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> self.use_rmi:</span><br><span class="line">            self.seg_criterion = FSAuxRMILoss(configer=configer)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.seg_criterion = FSCELoss(configer=configer)</span><br><span class="line"></span><br><span class="line">        self.contrast_criterion = PixelContrastLoss(configer=configer)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, preds, target, with_embed=<span class="literal">False</span></span>):</span><br><span class="line">        h, w = target.size(<span class="number">1</span>), target.size(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">assert</span> <span class="string">&quot;seg&quot;</span> <span class="keyword">in</span> preds</span><br><span class="line">        <span class="keyword">assert</span> <span class="string">&quot;embed&quot;</span> <span class="keyword">in</span> preds</span><br><span class="line"></span><br><span class="line">        seg = preds[<span class="string">&#x27;seg&#x27;</span>]</span><br><span class="line">        embedding = preds[<span class="string">&#x27;embed&#x27;</span>]</span><br><span class="line"></span><br><span class="line">        pred = F.interpolate(<span class="built_in">input</span>=seg, size=(h, w), mode=<span class="string">&#x27;bilinear&#x27;</span>, align_corners=<span class="literal">True</span>)</span><br><span class="line">        loss = self.seg_criterion(pred, target)</span><br><span class="line"></span><br><span class="line">        _, predict = torch.<span class="built_in">max</span>(seg, <span class="number">1</span>)  <span class="comment"># predict 还是seg的尺寸</span></span><br><span class="line">        loss_contrast = self.contrast_criterion(embedding, target, predict)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> with_embed <span class="keyword">is</span> <span class="literal">True</span>:</span><br><span class="line">            <span class="keyword">return</span> loss + self.loss_weight * loss_contrast</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> loss + <span class="number">0</span> * loss_contrast  <span class="comment"># just a trick to avoid errors in distributed training</span></span><br></pre></td></tr></table></figure>
+<p>首先来看<code>PixelContrastLoss</code>的初始化和前向部分 &gt;
+<code>max_examples</code>对应文中的 <span
+class="math inline">\(K\)</span> (每个mini
+batch采样的像素数量)；而文中所说的每个类别采样50个anchor，一半是hard，一半是random的策略，在这里的实现却稍有出入，与之相关的超参数是
+<code>max_views</code>，一般为100，一个明显的原因是，无法保证在一个mini
+batch中各个类别都有足够多的样本；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PixelContrastLoss</span>(nn.Module, ABC):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, configer</span>):</span><br><span class="line">        <span class="built_in">super</span>(PixelContrastLoss, self).__init__()</span><br><span class="line"></span><br><span class="line">        self.configer = configer</span><br><span class="line">        self.temperature = self.configer.get(<span class="string">&#x27;contrast&#x27;</span>, <span class="string">&#x27;temperature&#x27;</span>)</span><br><span class="line">        self.base_temperature = self.configer.get(<span class="string">&#x27;contrast&#x27;</span>, <span class="string">&#x27;base_temperature&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        self.ignore_label = -<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> self.configer.exists(<span class="string">&#x27;loss&#x27;</span>, <span class="string">&#x27;params&#x27;</span>) <span class="keyword">and</span> <span class="string">&#x27;ce_ignore_index&#x27;</span> <span class="keyword">in</span> self.configer.get(<span class="string">&#x27;loss&#x27;</span>, <span class="string">&#x27;params&#x27;</span>):</span><br><span class="line">            self.ignore_label = self.configer.get(<span class="string">&#x27;loss&#x27;</span>, <span class="string">&#x27;params&#x27;</span>)[<span class="string">&#x27;ce_ignore_index&#x27;</span>]</span><br><span class="line"></span><br><span class="line">        self.max_samples = self.configer.get(<span class="string">&#x27;contrast&#x27;</span>, <span class="string">&#x27;max_samples&#x27;</span>)</span><br><span class="line">        self.max_views = self.configer.get(<span class="string">&#x27;contrast&#x27;</span>, <span class="string">&#x27;max_views&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, feats, labels=<span class="literal">None</span>, predict=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="comment"># 将labels空间尺寸与feats空间尺寸对齐（下采样），也就意味着和predict的空间尺寸对齐了</span></span><br><span class="line">        labels = labels.unsqueeze(<span class="number">1</span>).<span class="built_in">float</span>().clone()</span><br><span class="line">        labels = torch.nn.functional.interpolate(labels,</span><br><span class="line">                                                 (feats.shape[<span class="number">2</span>], feats.shape[<span class="number">3</span>]), mode=<span class="string">&#x27;nearest&#x27;</span>)</span><br><span class="line">        labels = labels.squeeze(<span class="number">1</span>).long()</span><br><span class="line">        <span class="keyword">assert</span> labels.shape[-<span class="number">1</span>] == feats.shape[-<span class="number">1</span>], <span class="string">&#x27;&#123;&#125; &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(labels.shape, feats.shape)</span><br><span class="line"></span><br><span class="line">        batch_size = feats.shape[<span class="number">0</span>]</span><br><span class="line">        <span class="comment"># 将labels,predict,feats的空间维度展平，并且把feats的embedding维度放到最后(B, HW, D)</span></span><br><span class="line">        labels = labels.contiguous().view(batch_size, -<span class="number">1</span>)</span><br><span class="line">        predict = predict.contiguous().view(batch_size, -<span class="number">1</span>)</span><br><span class="line">        feats = feats.permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>)</span><br><span class="line">        feats = feats.contiguous().view(feats.shape[<span class="number">0</span>], -<span class="number">1</span>, feats.shape[-<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Segmentation-Aware Hard Anchor Sampling</span></span><br><span class="line">        feats_, labels_ = self._hard_anchor_sampling(feats, labels, predict)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 计算像素对比损失</span></span><br><span class="line">        loss = self._contrastive(feats_, labels_)</span><br><span class="line">        <span class="keyword">return</span> loss</span><br></pre></td></tr></table></figure>
+<p>接下来看<code>_hard_anchor_sampling</code>的细节：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_hard_anchor_sampling</span>(<span class="params">self, X, y_hat, y</span>):</span><br><span class="line">    batch_size, feat_dim = X.shape[<span class="number">0</span>], X.shape[-<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># classes 中保存的是mini batch中每张gt label包含满足一定条件的的类别索引</span></span><br><span class="line">    <span class="comment"># 条件是：1. 不在ignore label中；2. 数量大于 max_views</span></span><br><span class="line">    classes = []</span><br><span class="line">    total_classes = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> ii <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">        this_y = y_hat[ii]</span><br><span class="line">        this_classes = torch.unique(this_y)</span><br><span class="line">        this_classes = [x <span class="keyword">for</span> x <span class="keyword">in</span> this_classes <span class="keyword">if</span> x != self.ignore_label]</span><br><span class="line">        this_classes = [x <span class="keyword">for</span> x <span class="keyword">in</span> this_classes <span class="keyword">if</span> (this_y == x).nonzero().shape[<span class="number">0</span>] &gt; self.max_views]</span><br><span class="line"></span><br><span class="line">        classes.append(this_classes)</span><br><span class="line">        total_classes += <span class="built_in">len</span>(this_classes)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> total_classes == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 希望mini batch中每个label的每个类别的采样数是相同的，即`n_view`</span></span><br><span class="line">    n_view = self.max_samples // total_classes</span><br><span class="line">    <span class="comment"># 同时n_view又不能超过每个label的每个类别的像素数量的下限</span></span><br><span class="line">    n_view = <span class="built_in">min</span>(n_view, self.max_views)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用C_t简记total_classes，注意这并不是类别数，用V简记n_view，用D简记feat_dim</span></span><br><span class="line">    <span class="comment"># X_ (C_t, V, D) 用来保存筛选出的所有anchor</span></span><br><span class="line">    X_ = torch.zeros((total_classes, n_view, feat_dim), dtype=torch.<span class="built_in">float</span>).cuda()</span><br><span class="line">    <span class="comment"># y_(C_t,) 用来保存筛选出来的anchor对应的类别索引（因为相同类别的n_view的anchor是连续存储的，这里y_就是(C_t, )而暂时无须(C_t, V)）</span></span><br><span class="line">    y_ = torch.zeros(total_classes, dtype=torch.<span class="built_in">float</span>).cuda()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 对于mini batch的每个pred和label</span></span><br><span class="line">    <span class="comment"># 按照预测正确/错误，将anchor分为hard和easy两类，尽可能一半一半地从中随机采样</span></span><br><span class="line">    X_ptr = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> ii <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">        this_y_hat = y_hat[ii]</span><br><span class="line">        this_y = y[ii]</span><br><span class="line">        this_classes = classes[ii]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> cls_id <span class="keyword">in</span> this_classes:</span><br><span class="line">            hard_indices = ((this_y_hat == cls_id) &amp; (this_y != cls_id)).nonzero()</span><br><span class="line">            easy_indices = ((this_y_hat == cls_id) &amp; (this_y == cls_id)).nonzero()</span><br><span class="line"></span><br><span class="line">            num_hard = hard_indices.shape[<span class="number">0</span>]</span><br><span class="line">            num_easy = easy_indices.shape[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> num_hard &gt;= n_view / <span class="number">2</span> <span class="keyword">and</span> num_easy &gt;= n_view / <span class="number">2</span>:</span><br><span class="line">                num_hard_keep = n_view // <span class="number">2</span></span><br><span class="line">                num_easy_keep = n_view - num_hard_keep</span><br><span class="line">            <span class="keyword">elif</span> num_hard &gt;= n_view / <span class="number">2</span>:</span><br><span class="line">                num_easy_keep = num_easy</span><br><span class="line">                num_hard_keep = n_view - num_easy_keep</span><br><span class="line">            <span class="keyword">elif</span> num_easy &gt;= n_view / <span class="number">2</span>:</span><br><span class="line">                num_hard_keep = num_hard</span><br><span class="line">                num_easy_keep = n_view - num_hard_keep</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                Log.info(<span class="string">&#x27;this shoud be never touched! &#123;&#125; &#123;&#125; &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(num_hard, num_easy, n_view))</span><br><span class="line">                <span class="keyword">raise</span> Exception</span><br><span class="line"></span><br><span class="line">            perm = torch.randperm(num_hard)</span><br><span class="line">            hard_indices = hard_indices[perm[:num_hard_keep]]</span><br><span class="line">            perm = torch.randperm(num_easy)</span><br><span class="line">            easy_indices = easy_indices[perm[:num_easy_keep]]</span><br><span class="line">            indices = torch.cat((hard_indices, easy_indices), dim=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">            X_[X_ptr, :, :] = X[ii, indices, :].squeeze(<span class="number">1</span>)</span><br><span class="line">            y_[X_ptr] = cls_id</span><br><span class="line">            X_ptr += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> X_, y_</span><br></pre></td></tr></table></figure>
+<p>接下来看<code>_contrastive</code>的实现细节：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_contrastive</span>(<span class="params">self, feats_, labels_</span>):</span><br><span class="line">    <span class="comment"># anchor_num，即C_t，n_view，即V，总的采样的embedding向量的数量为 V*C_t</span></span><br><span class="line">    anchor_num, n_view = feats_.shape[<span class="number">0</span>], feats_.shape[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获得(C_t, C_t)的mask，mask[i,j]标识i和j是否属于同一类别</span></span><br><span class="line">    labels_ = labels_.contiguous().view(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    mask = torch.eq(labels_, torch.transpose(labels_, <span class="number">0</span>, <span class="number">1</span>)).<span class="built_in">float</span>().cuda()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># contrast_count，即 C_t</span></span><br><span class="line">    contrast_count = n_view</span><br><span class="line">    <span class="comment"># (C_t, V, D) ==&gt; (V * C_t, D)</span></span><br><span class="line">    contrast_feature = torch.cat(torch.unbind(feats_, dim=<span class="number">1</span>), dim=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># anchor_xxx和contrast_xxx，也就相当于所有anchor“自对比”</span></span><br><span class="line">    anchor_feature = contrast_feature</span><br><span class="line">    anchor_count = contrast_count</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 所有anchor互相点乘，除以温度，再减去最大值避免数值问题，得到logits (V*C_t, V*C_t)</span></span><br><span class="line">    anchor_dot_contrast = torch.div(torch.matmul(anchor_feature, torch.transpose(contrast_feature, <span class="number">0</span>, <span class="number">1</span>)),</span><br><span class="line">                                    self.temperature)</span><br><span class="line">    logits_max, _ = torch.<span class="built_in">max</span>(anchor_dot_contrast, dim=<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">    logits = anchor_dot_contrast - logits_max.detach()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 终于还是要把前面在y_t节约下来的V倍的重复内容补上，(C_t, C_t) ==&gt; (V*C_t, V*C_t)</span></span><br><span class="line">    mask = mask.repeat(anchor_count, contrast_count) </span><br><span class="line"></span><br><span class="line">    <span class="comment"># 对角线上的既不是正例也不是负例，其他不是正例的都是负例</span></span><br><span class="line">    neg_mask = <span class="number">1</span> - mask</span><br><span class="line"></span><br><span class="line">    logits_mask = torch.ones_like(mask).scatter_(<span class="number">1</span>,</span><br><span class="line">                                                 torch.arange(anchor_num * anchor_count).view(-<span class="number">1</span>, <span class="number">1</span>).cuda(),</span><br><span class="line">                                                 <span class="number">0</span>)</span><br><span class="line">    mask = mask * logits_mask</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算InfoNCE损失</span></span><br><span class="line">    neg_logits = torch.exp(logits) * neg_mask</span><br><span class="line">    neg_logits = neg_logits.<span class="built_in">sum</span>(<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">    exp_logits = torch.exp(logits)</span><br><span class="line">    log_prob = logits - torch.log(exp_logits + neg_logits)</span><br><span class="line">    mean_log_prob_pos = (mask * log_prob).<span class="built_in">sum</span>(<span class="number">1</span>) / mask.<span class="built_in">sum</span>(<span class="number">1</span>)</span><br><span class="line">    loss = - (self.temperature / self.base_temperature) * mean_log_prob_pos</span><br><span class="line">    loss = loss.mean()</span><br><span class="line">    <span class="keyword">return</span> loss</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="nce-loss.png" alt="InfoNCE" />
+<figcaption aria-hidden="true">InfoNCE</figcaption>
+</figure>
+<p>这里的实现细节如下：</p>
+<p>记anchor_feature为 <span
+class="math inline">\(Q\in\mathbb{R}^{VC_t\times D}\)</span>，contrast
+feature为 <span class="math inline">\(K \in \mathbb{R}^{VC_t\times
+D}\)</span>，logits为 <span class="math display">\[
+L = QK^T/\tau - C
+\]</span> 其中 <span class="math inline">\(C_i\)</span> 对于每个 <span
+class="math inline">\(Q_i\)</span>
+来说应当是一个常数，因为有等价变换：</p>
+<p><span class="math display">\[
+\frac{\exp({L_i-c})}{L_i + \exp(\sum_j L_j - c)} = \frac{\exp
+L_i}{\exp\sum_j L_j}
+\]</span> <span class="math inline">\(C_i\)</span> 对于 <span
+class="math inline">\(K_i\)</span>
+却没有必要一致，这也就解释了为什么这一行代码中<code>dim=1</code>；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logits_max, _ = torch.<span class="built_in">max</span>(anchor_dot_contrast, dim=<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+<p>下面两行代码计算所有anchor与它们的负例计算的logits的和
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">neg_logits = torch.exp(logits) * neg_mask</span><br><span class="line">neg_logits = neg_logits.<span class="built_in">sum</span>(<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure></p>
+<p>对于下面这段代码，乍一看好像不太对劲： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">exp_logits = torch.exp(logits)</span><br><span class="line">log_prob = logits - torch.log(exp_logits + neg_logits)</span><br><span class="line">mean_log_prob_pos = (mask * log_prob).<span class="built_in">sum</span>(<span class="number">1</span>) / mask.<span class="built_in">sum</span>(<span class="number">1</span>)</span><br></pre></td></tr></table></figure></p>
+<p>似乎，这一段应该写成： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mean_log_prob_pos = <span class="number">0.0</span></span><br><span class="line">logits = logits * mask</span><br><span class="line">exp_logits = torch.exp(logits)</span><br><span class="line"><span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(mask.shape[<span class="number">1</span>]):</span><br><span class="line">    mean_log_prob_pos += logits[:, j] - torch.log(exp_logits[:, j] + neg_logits)</span><br><span class="line">mean_log_prob_pos /= mask.<span class="built_in">sum</span>(<span class="number">1</span>)</span><br></pre></td></tr></table></figure></p>
+<p>但是因为exp, log, add,
+sub与乘mask一样都是逐点运算，因此可以写成源代码的样子；</p>
+<p>唯一的小出入发生在这个与<code>base_temperature</code>加权上，原来的公式没有提到这一点；
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">loss = - (self.temperature / self.base_temperature) * mean_log_prob_pos</span><br></pre></td></tr></table></figure></p>
+<h3 id="有memory-bank的像素到像素像素到区域的对比损失实现">有Memory
+Bank的像素到像素、像素到区域的对比损失实现</h3>
+<p>首先在模型初始化时（<a
+target="_blank" rel="noopener" href="https://github.com/tfzhou/ContrastiveSeg/blob/main/lib/models/nets/hrnet.py">hrnet.py</a>），注册了相关的buffer，<code>memory_size</code>这个超参在文中没有提到，但是估计是出于实际应用考虑，仍然要给队列大小设置一个限，一般是5000，简记为
+<span
+class="math inline">\(R\)</span>（固定大小的queue也比可变大小的queue实现简单）；<code>segment_queue</code>
+保存 <span class="math inline">\(C\)</span>
+个类别上的采样的anchor均值池化信息，<code>pixel_queue</code> 保存 <span
+class="math inline">\(C\)</span>
+个类别上采样的anchor的信息；因为各个类别的queue是单独维护的，因此需要有记录每个类别的queue队尾的指针；（非常的C风格）</p>
+<p>训练时，前向阶段返回<code>key</code>是该批次所有输入图片在嵌入空间的特征（不含梯度），<code>lb_key</code>就是gt
+label；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">HRNet_W48_MEM</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, configer, dim=<span class="number">256</span>, m=<span class="number">0.999</span>, with_masked_ppm=<span class="literal">False</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(HRNet_W48_MEM, self).__init__()</span><br><span class="line">        self.configer = configer</span><br><span class="line">        self.m = m</span><br><span class="line">        self.r = self.configer.get(<span class="string">&#x27;contrast&#x27;</span>, <span class="string">&#x27;memory_size&#x27;</span>)</span><br><span class="line">        self.with_masked_ppm = with_masked_ppm</span><br><span class="line"></span><br><span class="line">        num_classes = self.configer.get(<span class="string">&#x27;data&#x27;</span>, <span class="string">&#x27;num_classes&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        self.encoder_q = HRNet_W48_CONTRAST(configer)</span><br><span class="line"></span><br><span class="line">        self.register_buffer(<span class="string">&quot;segment_queue&quot;</span>, torch.randn(num_classes, self.r, dim))</span><br><span class="line">        self.segment_queue = nn.functional.normalize(self.segment_queue, p=<span class="number">2</span>, dim=<span class="number">2</span>)</span><br><span class="line">        self.register_buffer(<span class="string">&quot;segment_queue_ptr&quot;</span>, torch.zeros(num_classes, dtype=torch.long))</span><br><span class="line"></span><br><span class="line">        self.register_buffer(<span class="string">&quot;pixel_queue&quot;</span>, torch.randn(num_classes, self.r, dim))</span><br><span class="line">        self.pixel_queue = nn.functional.normalize(self.pixel_queue, p=<span class="number">2</span>, dim=<span class="number">2</span>)</span><br><span class="line">        self.register_buffer(<span class="string">&quot;pixel_queue_ptr&quot;</span>, torch.zeros(num_classes, dtype=torch.long))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, im_q, lb_q=<span class="literal">None</span>, with_embed=<span class="literal">True</span>, is_eval=<span class="literal">False</span></span>):</span><br><span class="line">        <span class="keyword">if</span> is_eval <span class="keyword">is</span> <span class="literal">True</span> <span class="keyword">or</span> lb_q <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            ret = self.encoder_q(im_q, with_embed=with_embed)</span><br><span class="line">            <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line">        ret = self.encoder_q(im_q)</span><br><span class="line"></span><br><span class="line">        q = ret[<span class="string">&#x27;embed&#x27;</span>]</span><br><span class="line">        out = ret[<span class="string">&#x27;seg&#x27;</span>]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="string">&#x27;seg&#x27;</span>: out, <span class="string">&#x27;embed&#x27;</span>: q, <span class="string">&#x27;key&#x27;</span>: q.detach(), <span class="string">&#x27;lb_key&#x27;</span>: lb_q.detach()&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>接着在<a
+target="_blank" rel="noopener" href="https://github.com/tfzhou/ContrastiveSeg/blob/main/segmentor/trainer_contrastive.py">trainer_contrastive.py</a>中，每个批次的前向传播完成后，会将这个批次得到的anchor进行采样后加入memory
+bank：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i, data_dict <span class="keyword">in</span> <span class="built_in">enumerate</span>(self.train_loader):</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 省略数据准备等...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> self.with_contrast <span class="keyword">is</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">if</span> self.with_memory <span class="keyword">is</span> <span class="literal">True</span>:</span><br><span class="line">            outputs = self.seg_net(*inputs, targets, with_embed=with_embed)</span><br><span class="line">            <span class="comment"># 方便后面在Loss中拿到这些queue和ptr而已</span></span><br><span class="line">            outputs[<span class="string">&#x27;pixel_queue&#x27;</span>] = self.seg_net.module.pixel_queue</span><br><span class="line">            outputs[<span class="string">&#x27;pixel_queue_ptr&#x27;</span>] = self.seg_net.module.pixel_queue_ptr</span><br><span class="line">            outputs[<span class="string">&#x27;segment_queue&#x27;</span>] = self.seg_net.module.segment_queue</span><br><span class="line">            outputs[<span class="string">&#x27;segment_queue_ptr&#x27;</span>] = self.seg_net.module.segment_queue_ptr</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            outputs = self.seg_net(*inputs, with_embed=with_embed)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        outputs = self.seg_net(*inputs)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 省略backword_loss的计算等...这里的backward_loss应当是loss_contrast_mem.py中定义的ContrastCELoss</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> self.with_memory <span class="keyword">and</span> <span class="string">&#x27;key&#x27;</span> <span class="keyword">in</span> outputs <span class="keyword">and</span> <span class="string">&#x27;lb_key&#x27;</span> <span class="keyword">in</span> outputs:</span><br><span class="line">        <span class="comment"># 采样结果入队，队满出队</span></span><br><span class="line">        self._dequeue_and_enqueue(outputs[<span class="string">&#x27;key&#x27;</span>], outputs[<span class="string">&#x27;lb_key&#x27;</span>],</span><br><span class="line">                                    segment_queue=self.seg_net.module.segment_queue,</span><br><span class="line">                                    segment_queue_ptr=self.seg_net.module.segment_queue_ptr,</span><br><span class="line">                                    pixel_queue=self.seg_net.module.pixel_queue,</span><br><span class="line">                                    pixel_queue_ptr=self.seg_net.module.pixel_queue_ptr)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 省略用于log的信息的计算等...</span></span><br><span class="line"></span><br><span class="line">    self.optimizer.zero_grad()</span><br><span class="line">    backward_loss.backward()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><code>_dequeue_and_enqueue</code>的实现比较好理解，只不过这里是将label下采样到嵌入特征图尺寸，而不是上采样特征图；以及这里实现的pixel采样方法就只是随机采样，没有用到pred
+seg，对每个类别随机挑选了K个pixel
+embedding入队；<code>pixel_update_freq</code> 是文中的 <span
+class="math inline">\(V=10\)</span>；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_dequeue_and_enqueue</span>(<span class="params">self, keys, labels,</span></span><br><span class="line"><span class="params">                         segment_queue, segment_queue_ptr,</span></span><br><span class="line"><span class="params">                         pixel_queue, pixel_queue_ptr</span>):</span><br><span class="line">    batch_size = keys.shape[<span class="number">0</span>]</span><br><span class="line">    feat_dim = keys.shape[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    labels = labels[:, ::self.network_stride, ::self.network_stride]  <span class="comment"># 下采样到keys相同的空间尺寸</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> bs <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">        this_feat = keys[bs].contiguous().view(feat_dim, -<span class="number">1</span>)</span><br><span class="line">        this_label = labels[bs].contiguous().view(-<span class="number">1</span>)</span><br><span class="line">        this_label_ids = torch.unique(this_label)</span><br><span class="line">        this_label_ids = [x <span class="keyword">for</span> x <span class="keyword">in</span> this_label_ids <span class="keyword">if</span> x &gt; <span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> lb <span class="keyword">in</span> this_label_ids:</span><br><span class="line">            idxs = (this_label == lb).nonzero()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># segment enqueue and dequeue</span></span><br><span class="line">            feat = torch.mean(this_feat[:, idxs], dim=<span class="number">1</span>).squeeze(<span class="number">1</span>)</span><br><span class="line">            ptr = <span class="built_in">int</span>(segment_queue_ptr[lb])</span><br><span class="line">            segment_queue[lb, ptr, :] = nn.functional.normalize(feat.view(-<span class="number">1</span>), p=<span class="number">2</span>, dim=<span class="number">0</span>)</span><br><span class="line">            segment_queue_ptr[lb] = (segment_queue_ptr[lb] + <span class="number">1</span>) % self.memory_size</span><br><span class="line"></span><br><span class="line">            <span class="comment"># pixel enqueue and dequeue</span></span><br><span class="line">            num_pixel = idxs.shape[<span class="number">0</span>]</span><br><span class="line">            perm = torch.randperm(num_pixel)</span><br><span class="line">            K = <span class="built_in">min</span>(num_pixel, self.pixel_update_freq)</span><br><span class="line">            feat = this_feat[:, perm[:K]]</span><br><span class="line">            feat = torch.transpose(feat, <span class="number">0</span>, <span class="number">1</span>)</span><br><span class="line">            ptr = <span class="built_in">int</span>(pixel_queue_ptr[lb])</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> ptr + K &gt;= self.memory_size:</span><br><span class="line">                pixel_queue[lb, -K:, :] = nn.functional.normalize(feat, p=<span class="number">2</span>, dim=<span class="number">1</span>)</span><br><span class="line">                pixel_queue_ptr[lb] = <span class="number">0</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                pixel_queue[lb, ptr:ptr + K, :] = nn.functional.normalize(feat, p=<span class="number">2</span>, dim=<span class="number">1</span>)</span><br><span class="line">                pixel_queue_ptr[lb] = (pixel_queue_ptr[lb] + <span class="number">1</span>) % self.memory_size</span><br></pre></td></tr></table></figure>
+<p>定义在<a
+target="_blank" rel="noopener" href="https://github.com/tfzhou/ContrastiveSeg/blob/main/lib/loss/loss_contrast_mem.py"><code>loss_contrast_mem.py</code></a>中的使用Memory
+Bank的像素对比损失，在forward中相比无mem的版本加入了queue；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ContrastCELoss</span>(nn.Module, ABC):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, configer=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="comment"># 省略...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, preds, target, with_embed=<span class="literal">False</span></span>):</span><br><span class="line">        h, w = target.size(<span class="number">1</span>), target.size(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">assert</span> <span class="string">&quot;seg&quot;</span> <span class="keyword">in</span> preds</span><br><span class="line">        <span class="keyword">assert</span> <span class="string">&quot;embed&quot;</span> <span class="keyword">in</span> preds</span><br><span class="line"></span><br><span class="line">        seg = preds[<span class="string">&#x27;seg&#x27;</span>]</span><br><span class="line">        embedding = preds[<span class="string">&#x27;embed&#x27;</span>]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;segment_queue&quot;</span> <span class="keyword">in</span> preds:</span><br><span class="line">            segment_queue = preds[<span class="string">&#x27;segment_queue&#x27;</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            segment_queue = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;pixel_queue&quot;</span> <span class="keyword">in</span> preds:</span><br><span class="line">            pixel_queue = preds[<span class="string">&#x27;pixel_queue&#x27;</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            pixel_queue = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 基操两行</span></span><br><span class="line">        pred = F.interpolate(<span class="built_in">input</span>=seg, size=(h, w), mode=<span class="string">&#x27;bilinear&#x27;</span>, align_corners=<span class="literal">True</span>)</span><br><span class="line">        loss = self.seg_criterion(pred, target)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> segment_queue <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">and</span> pixel_queue <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            queue = torch.cat((segment_queue, pixel_queue), dim=<span class="number">1</span>)  <span class="comment"># 得到一个(C, 2R, D)的queue</span></span><br><span class="line"></span><br><span class="line">            _, predict = torch.<span class="built_in">max</span>(seg, <span class="number">1</span>)</span><br><span class="line">            loss_contrast = self.contrast_criterion(embedding, target, predict, queue)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            loss_contrast = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> with_embed <span class="keyword">is</span> <span class="literal">True</span>:</span><br><span class="line">            <span class="keyword">return</span> loss + self.loss_weight * loss_contrast</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> loss + <span class="number">0</span> * loss_contrast  <span class="comment"># just a trick to avoid errors in distributed training</span></span><br></pre></td></tr></table></figure>
+<p>之后的主要区别应该体现在 <code>contrast_criterion</code>
+的前向过程了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, feats, labels=<span class="literal">None</span>, predict=<span class="literal">None</span>, queue=<span class="literal">None</span></span>):</span><br><span class="line">    labels = labels.unsqueeze(<span class="number">1</span>).<span class="built_in">float</span>().clone()</span><br><span class="line">    labels = torch.nn.functional.interpolate(labels,</span><br><span class="line">                                             (feats.shape[<span class="number">2</span>], feats.shape[<span class="number">3</span>]), mode=<span class="string">&#x27;nearest&#x27;</span>)</span><br><span class="line">    labels = labels.squeeze(<span class="number">1</span>).long()</span><br><span class="line">    <span class="keyword">assert</span> labels.shape[-<span class="number">1</span>] == feats.shape[-<span class="number">1</span>], <span class="string">&#x27;&#123;&#125; &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(labels.shape, feats.shape)</span><br><span class="line"></span><br><span class="line">    batch_size = feats.shape[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    labels = labels.contiguous().view(batch_size, -<span class="number">1</span>)</span><br><span class="line">    predict = predict.contiguous().view(batch_size, -<span class="number">1</span>)</span><br><span class="line">    feats = feats.permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>)</span><br><span class="line">    feats = feats.contiguous().view(feats.shape[<span class="number">0</span>], -<span class="number">1</span>, feats.shape[-<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">    feats_, labels_ = self._hard_anchor_sampling(feats, labels, predict)</span><br><span class="line">    <span class="comment"># 就这一行不一样，多传了一个参数queue</span></span><br><span class="line">    loss = self._contrastive(feats_, labels_, queue=queue)</span><br><span class="line">    <span class="keyword">return</span> loss</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>定睛一看，还不是，区别都在<code>_contrastive</code>里（确信是C风格而不是C++/python风格因为不使用继承而是import
+A as B）；</p>
+<p>这其中有个 <code>_simple_negative</code>，其功能是把
+<code>(C, 2R, D)</code>
+的<code>queue</code>变成<code>(C*2R, D)</code>的<code>X_contrast</code>和对应<code>(C*2R, )</code>的类别标签<code>y_contrast</code>（排除了背景类0）；这就意味着，这里是一个mini-batch中采样的<code>V*C_t</code>个anchor与所memory
+bank中<code>C*2R</code>个记录两两计算相似度，进一步计算InfoNCE损失；计算损失的实现与先前相同；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_contrastive</span>(<span class="params">self, X_anchor, y_anchor, queue=<span class="literal">None</span></span>):</span><br><span class="line">    anchor_num, n_view = X_anchor.shape[<span class="number">0</span>], X_anchor.shape[<span class="number">1</span>]  <span class="comment"># C_t, V</span></span><br><span class="line"></span><br><span class="line">    y_anchor = y_anchor.contiguous().view(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    anchor_count = n_view</span><br><span class="line">    anchor_feature = torch.cat(torch.unbind(X_anchor, dim=<span class="number">1</span>), dim=<span class="number">0</span>)  <span class="comment"># (V*C_t, D)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> queue <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        X_contrast, y_contrast = self._sample_negative(queue)</span><br><span class="line">        y_contrast = y_contrast.contiguous().view(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">        contrast_count = <span class="number">1</span></span><br><span class="line">        contrast_feature = X_contrast</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        y_contrast = y_anchor</span><br><span class="line">        contrast_count = n_view</span><br><span class="line">        contrast_feature = torch.cat(torch.unbind(X_anchor, dim=<span class="number">1</span>), dim=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    mask = torch.eq(y_anchor, y_contrast.T).<span class="built_in">float</span>().cuda()  <span class="comment"># (C_t, C*2R)</span></span><br><span class="line"></span><br><span class="line">    anchor_dot_contrast = torch.div(torch.matmul(anchor_feature, contrast_feature.T),</span><br><span class="line">                                    self.temperature)</span><br><span class="line">    logits_max, _ = torch.<span class="built_in">max</span>(anchor_dot_contrast, dim=<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">    logits = anchor_dot_contrast - logits_max.detach()</span><br><span class="line"></span><br><span class="line">    mask = mask.repeat(anchor_count, contrast_count)  <span class="comment"># (V*C_t, C*2R)</span></span><br><span class="line">    <span class="comment"># 之后同前文分析</span></span><br><span class="line">    neg_mask = <span class="number">1</span> - mask</span><br><span class="line">    logits_mask = torch.ones_like(mask).scatter_(<span class="number">1</span>,</span><br><span class="line">                                                 torch.arange(anchor_num * anchor_count).view(-<span class="number">1</span>, <span class="number">1</span>).cuda(),</span><br><span class="line">                                                 <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    mask = mask * logits_mask</span><br><span class="line">    neg_logits = torch.exp(logits) * neg_mask</span><br><span class="line">    neg_logits = neg_logits.<span class="built_in">sum</span>(<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">    exp_logits = torch.exp(logits)</span><br><span class="line">    log_prob = logits - torch.log(exp_logits + neg_logits)</span><br><span class="line">    mean_log_prob_pos = (mask * log_prob).<span class="built_in">sum</span>(<span class="number">1</span>) / mask.<span class="built_in">sum</span>(<span class="number">1</span>)</span><br><span class="line">    loss = - (self.temperature / self.base_temperature) * mean_log_prob_pos</span><br><span class="line">    loss = loss.mean()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> loss</span><br></pre></td></tr></table></figure>
+<h3
+id="关于没有开放源码的example-sampling策略">关于没有开放源码的example
+sampling策略</h3>
+<p>正如很多人在<a
+target="_blank" rel="noopener" href="https://github.com/tfzhou/ContrastiveSeg/issues">issues</a>中指出的，作者确实没有在仓库中给出任何example
+sampling的有关代码，只有一个把所有memory bank全部拿来用的
+<code>_simple_negative</code>；通过上述分析，找到了这个example
+sampling发生的位置，那么只要把这个<code>_simple_negative</code>换成文中说的semi-hard的策略就可以了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/InfoNCE/" rel="tag"><i class="fa fa-tag"></i> InfoNCE</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/03/16/Prototype-for-Seg/" rel="prev" title="语义分割中的prototype">
+                  <i class="fa fa-chevron-left"></i> 语义分割中的prototype
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/03/30/Diffuse-on-Seg/" rel="next" title="Diffusion x 语义分割">
+                  Diffusion x 语义分割 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"6b49960d807ee72684f54e16d82d2632"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

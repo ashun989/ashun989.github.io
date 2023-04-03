@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://ashun989.github.io/2022/09/01/Swin-Transformer/image-20220903114100072.png">
 <meta property="og:image" content="https://ashun989.github.io/2022/09/01/Swin-Transformer/image-20220903122014122.png">
 <meta property="article:published_time" content="2022-09-01T08:48:28.000Z">
-<meta property="article:modified_time" content="2023-02-12T12:24:32.297Z">
+<meta property="article:modified_time" content="2023-03-31T02:47:49.129Z">
 <meta property="article:author" content="ashun">
 <meta property="article:tag" content="Transformer">
 <meta name="twitter:card" content="summary">
@@ -101,7 +101,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">17</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">30</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
   </ul>
 </nav>
 
@@ -142,7 +142,7 @@ Embedding</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" hr
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -153,7 +153,7 @@ Embedding</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" hr
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -224,7 +224,7 @@ Embedding</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" hr
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+      <time title="修改时间：2023-03-31 10:47:49" itemprop="dateModified" datetime="2023-03-31T10:47:49+08:00">2023-03-31</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -371,12 +371,10 @@ M^2\)</span>矩阵上分配这些相对位置编码？</p>
 class="math inline">\(M=2\)</span>时，按照作者的构造索引矩阵的代码的部分执行情况（我认为作者脑回路清奇，难以理解）：</p>
 <p><img src="v2-0c99206fb39da67bae3415a650c38742_1440w.png" /></p>
 <p>直接看最右边的索引矩阵的结果，记为<span
-class="math inline">\(B\)</span>，则满足：<span
-class="math inline">\(i-j\)</span>相同的位置使用相同的索引，也正好就是<span
-class="math inline">\(3\times 3=9\)</span>种取值；</p>
+class="math inline">\(B\)</span>；</p>
 <p>初始化look up table的代码，注意到不同head使用不同的table</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># define a parameter table of relative position bias</span></span><br><span class="line">self.relative_position_bias_table = nn.Parameter(</span><br><span class="line">    torch.zeros((<span class="number">2</span> * window_size[<span class="number">0</span>] - <span class="number">1</span>) * (<span class="number">2</span> * window_size[<span class="number">1</span>] - <span class="number">1</span>), num_heads))  <span class="comment"># 2*Wh-1 * 2*Ww-1, nH</span></span><br></pre></td></tr></table></figure>
-<p>构造索引矩阵的代码，完全可以写得更简单？</p>
+<p>构造索引矩阵的代码</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># get pair-wise relative position index for each token inside the window</span></span><br><span class="line">coords_h = torch.arange(self.window_size[<span class="number">0</span>])</span><br><span class="line">coords_w = torch.arange(self.window_size[<span class="number">1</span>])</span><br><span class="line">coords = torch.stack(torch.meshgrid([coords_h, coords_w]))  <span class="comment"># 2, Wh, Ww</span></span><br><span class="line">coords_flatten = torch.flatten(coords, <span class="number">1</span>)  <span class="comment"># 2, Wh*Ww</span></span><br><span class="line">relative_coords = coords_flatten[:, :, <span class="literal">None</span>] - coords_flatten[:, <span class="literal">None</span>, :]  <span class="comment"># 2, Wh*Ww, Wh*Ww</span></span><br><span class="line">relative_coords = relative_coords.permute(<span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>).contiguous()  <span class="comment"># Wh*Ww, Wh*Ww, 2</span></span><br><span class="line">relative_coords[:, :, <span class="number">0</span>] += self.window_size[<span class="number">0</span>] - <span class="number">1</span>  <span class="comment"># shift to start from 0</span></span><br><span class="line">relative_coords[:, :, <span class="number">1</span>] += self.window_size[<span class="number">1</span>] - <span class="number">1</span></span><br><span class="line">relative_coords[:, :, <span class="number">0</span>] *= <span class="number">2</span> * self.window_size[<span class="number">1</span>] - <span class="number">1</span></span><br><span class="line">relative_position_index = relative_coords.<span class="built_in">sum</span>(-<span class="number">1</span>)  <span class="comment"># Wh*Ww, Wh*Ww</span></span><br><span class="line">self.register_buffer(<span class="string">&quot;relative_position_index&quot;</span>, relative_position_index)</span><br></pre></td></tr></table></figure>
 <p>在前向传播过程中查表，添加相对位置编码的代码：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-<span class="number">1</span>)].view(</span><br><span class="line">    self.window_size[<span class="number">0</span>] * self.window_size[<span class="number">1</span>], self.window_size[<span class="number">0</span>] * self.window_size[<span class="number">1</span>], -<span class="number">1</span>)  <span class="comment"># Wh*Ww,Wh*Ww,nH</span></span><br><span class="line">relative_position_bias = relative_position_bias.permute(<span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>).contiguous()  <span class="comment"># nH, Wh*Ww, Wh*Ww</span></span><br><span class="line">attn = attn + relative_position_bias.unsqueeze(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
@@ -395,16 +393,10 @@ ADE20K上的图像分类、目标检测、语义分割的结果，效果远好�
 <p>作者训练了一个30亿参数的Swin Transformer
 V2模型（看看就行），能够使用高达1536x1536的图像作为输入；</p>
 <p>作者使用如下三种解决方案，前两种都在下图中体现：</p>
-<figure>
-<img src="image-20220903114141714.png" alt="image-20220903114141714" />
-<figcaption aria-hidden="true">image-20220903114141714</figcaption>
-</figure>
+<p><img src="image-20220903114141714.png" /></p>
 <h3 id="ln后移并使用归一化cos距离">LN后移并使用归一化cos距离</h3>
 <p>作者观察到，在V1模型中，随着参数的增加，深层block的输出特征的方差会越来越大，直至不能训练：（下图中圆形点为V1版本，三角形点为V2版本）</p>
-<figure>
-<img src="image-20220903114100072.png" alt="image-20220903114100072" />
-<figcaption aria-hidden="true">image-20220903114100072</figcaption>
-</figure>
+<p><img src="image-20220903114100072.png" /></p>
 <p>将LN移动到残差连接之前，并且将受向量长度、幅值影响的点积距离换成余弦距离，并学习归一化参数；</p>
 <p>移动<code>LN</code>位置的变化发生在<code>SwinTransformerBlock</code>中，不再赘述；</p>
 <p>余弦距离归一化参数，在对数空间内学习：</p>
@@ -431,10 +423,7 @@ class="math inline">\((2M-1)\times(2M-1)\)</span>相对位置坐标，适当归�
 <p>在前向传播过程中，添加相对位置编码的代码：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">relative_position_bias_table = self.cpb_mlp(self.relative_coords_table).view(-<span class="number">1</span>, self.num_heads)</span><br><span class="line">relative_position_bias = relative_position_bias_table[self.relative_position_index.view(-<span class="number">1</span>)].view(</span><br><span class="line">    self.window_size[<span class="number">0</span>] * self.window_size[<span class="number">1</span>], self.window_size[<span class="number">0</span>] * self.window_size[<span class="number">1</span>], -<span class="number">1</span>)  <span class="comment"># Wh*Ww,Wh*Ww,nH</span></span><br><span class="line">relative_position_bias = relative_position_bias.permute(<span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>).contiguous()  <span class="comment"># nH, Wh*Ww, Wh*Ww</span></span><br><span class="line">relative_position_bias = <span class="number">16</span> * torch.sigmoid(relative_position_bias)</span><br><span class="line">attn = attn + relative_position_bias.unsqueeze(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
 <p>这种改进的效果，在下表中体现出来了，原来的方案，如果不在高分辨率的输入上微调，准确率会严重下降，微调后才能恢复（这也启发作者问题可能出现在相对编码处）；使用CPB效果显著；</p>
-<figure>
-<img src="image-20220903122014122.png" alt="image-20220903122014122" />
-<figcaption aria-hidden="true">image-20220903122014122</figcaption>
-</figure>
+<p><img src="image-20220903122014122.png" /></p>
 <h3 id="自监督的预训练">自监督的预训练</h3>
 <p>作者将具体方法用另一篇论文讲述：<strong>SimMIM: a Simple Framework
 for Masked Image Modeling</strong>；这里做如下简单记录：</p>

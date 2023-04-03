@@ -19,28 +19,33 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="本文记录笔者已经阅读&#x2F;准备阅读的语义分割论文，并进行简单介绍，附相关链接。">
+    <meta name="description" content="新坑+1">
 <meta property="og:type" content="article">
-<meta property="og:title" content="语义分割论文阅读列表">
-<meta property="og:url" content="https://ashun989.github.io/2022/10/19/Semantic-Segmantation-Papers/index.html">
+<meta property="og:title" content="Diffusion x 语义分割">
+<meta property="og:url" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/index.html">
 <meta property="og:site_name" content="Ashun&#39;s Blog">
-<meta property="og:description" content="本文记录笔者已经阅读&#x2F;准备阅读的语义分割论文，并进行简单介绍，附相关链接。">
+<meta property="og:description" content="新坑+1">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-10-19T02:48:30.000Z">
-<meta property="article:modified_time" content="2023-02-12T12:24:32.297Z">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DiffusionSeg/fig2.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DiffusionSeg/eq4.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DiffusionSeg/eq5.png">
+<meta property="article:published_time" content="2023-03-30T12:30:43.000Z">
+<meta property="article:modified_time" content="2023-04-03T08:06:07.360Z">
 <meta property="article:author" content="ashun">
 <meta property="article:tag" content="语义分割">
+<meta property="article:tag" content="扩散模型">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DiffusionSeg/fig2.png">
 
 
-<link rel="canonical" href="https://ashun989.github.io/2022/10/19/Semantic-Segmantation-Papers/">
+<link rel="canonical" href="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/10/19/Semantic-Segmantation-Papers/","path":"2022/10/19/Semantic-Segmantation-Papers/","title":"语义分割论文阅读列表"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/","path":"2023/03/30/Diffuse-on-Seg/","title":"Diffusion x 语义分割"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>语义分割论文阅读列表 | Ashun's Blog</title>
+<title>Diffusion x 语义分割 | Ashun's Blog</title>
   
 
 
@@ -92,7 +97,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">17</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">30</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
   </ul>
 </nav>
 
@@ -117,7 +122,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#maskformer"><span class="nav-number">1.</span> <span class="nav-text">MaskFormer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#segmentor"><span class="nav-number">2.</span> <span class="nav-text">Segmentor</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#diffusion-model-%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">Diffusion Model 基本知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E7%9B%91%E7%9D%A3"><span class="nav-number">2.</span> <span class="nav-text">无监督</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#diffusionseg"><span class="nav-number">2.1.</span> <span class="nav-text">DiffusionSeg</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">3.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -132,7 +137,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -143,7 +148,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -178,7 +183,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/10/19/Semantic-Segmantation-Papers/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -191,12 +196,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="语义分割论文阅读列表 | Ashun's Blog">
+      <meta itemprop="name" content="Diffusion x 语义分割 | Ashun's Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          语义分割论文阅读列表
+          Diffusion x 语义分割
         </h1>
 
         <div class="post-meta-container">
@@ -207,14 +212,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-10-19 10:48:30" itemprop="dateCreated datePublished" datetime="2022-10-19T10:48:30+08:00">2022-10-19</time>
+      <time title="创建时间：2023-03-30 20:30:43" itemprop="dateCreated datePublished" datetime="2023-03-30T20:30:43+08:00">2023-03-30</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+      <time title="修改时间：2023-04-03 16:06:07" itemprop="dateModified" datetime="2023-04-03T16:06:07+08:00">2023-04-03</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -243,62 +248,68 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>本文记录笔者已经阅读/准备阅读的语义分割论文，并进行简单介绍，附相关链接。</p>
-<span id="more"></span>
-<h5 id="maskformer">MaskFormer</h5>
-<h5 id="segmentor">Segmentor</h5>
-<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2105.05633.pdf">Segmentor: Transformer
-for Semantic Segmentation</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/rstrudel/segmenter">原代码仓库</a>，<a
-target="_blank" rel="noopener" href="https://github.com/open-mmlab/mmsegmentation/blob/master/mmseg/models/decode_heads/segmenter_mask_head.py">MMSeg
-- MaskFormer Decoder</a></p>
-<blockquote>
-<p>原代码的依赖好像不是很强，将来不想用mmseg的时候可以试着用这个。</p>
+        <blockquote>
+<p>新坑+1</p>
 </blockquote>
-<p>一种purely transformer
-based方法：encoder使用ViT或DeiT的结构（使用了数据增强和正则化的trick，在ImageNet上的top1-acc比原来提升了2%），解码器设计了一种Mask
-Transformer的结构：该模块以patch-encodings <span
-class="math inline">\(\mathbf{z_L}\in \mathbb R^{N\times D}\)</span>
-和<span class="math inline">\(K\)</span>个类别的embeddings <span
-class="math inline">\(\mathbf{cls}\in \mathbb R^{K\times
-D}\)</span>作为输入，经过<span
-class="math inline">\(M\)</span>层Transformer之后，将K类嵌入编码分别与<span
-class="math inline">\(N\)</span>个patch做标量积， 得到<span
-class="math inline">\(N\)</span>组<span
-class="math inline">\(K\)</span>类掩码，最后进行LN+reshape+上采样得到pixel-wise
-class score <span class="math inline">\(s \in \mathbb{R}^{H\times
-W\times K}\)</span>；如果想做实例分割，可以将class embedding换成object
-embedding。</p>
-<p>在消融实验部分，作者一个比较重要的观察时，使用更小的patch
-size，一方面会提高计算量（降低推理速度，但参数量是不变的），但另一方面也会显著提升分割任务的精度。</p>
-<p>在ADE20K上，部分模型性能如下：</p>
-<table>
-<thead>
-<tr class="header">
-<th>Model</th>
-<th>Patch Size</th>
-<th>Params</th>
-<th>Im/sec</th>
-<th>mIoU(ss)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Seg-Ti</td>
-<td>16</td>
-<td>6M</td>
-<td>396</td>
-<td>39.03</td>
-</tr>
-<tr class="even">
-<td>Seg-L</td>
-<td>16</td>
-<td>307M</td>
-<td>33</td>
-<td>50.71</td>
-</tr>
-</tbody>
-</table>
+<span id="more"></span>
+<h2 id="diffusion-model-基本知识">Diffusion Model 基本知识</h2>
+<h2 id="无监督">无监督</h2>
+<h3 id="diffusionseg">DiffusionSeg</h3>
+<figure>
+<img src="DiffusionSeg/fig2.png" alt="DiffusionSeg两阶段示意图" />
+<figcaption aria-hidden="true">DiffusionSeg两阶段示意图</figcaption>
+</figure>
+<p>DiffusionSeg<a
+href="#refer-anchor-ma2023diffusionseg"><sup>1</sup></a>提出了一种无监督语义分割/目标检测的两阶段算法。</p>
+<p>Synthesis阶段： 1. 生成image：选择训练好的t2i Stable Diffusion<a
+href="#refer-anchor-rombach2022high"><sup>2</sup></a>，从ImageNet中采样类别名称并且使用ChatGPT生成上下文丰富的prompt，与随机噪声送入模型进行inverse
+diffusion，得到合成的输入图片； 2. 抽取、聚合mask：用prompt中cls
+token抽取cross attention中的特征图 <span
+class="math inline">\(A_c\)</span>（原始粗糙mask），并抽取self
+attention的特征图 <span
+class="math inline">\(A_s\)</span>，并且在不同层和不同时间步上聚合； 3.
+Refine mask：根据“用<span class="math inline">\(A_s\)</span> refine
+<span class="math inline">\(A_c\)</span> 的边界，用 <span
+class="math inline">\(A_s\)</span> 和
+输入图片像素间RGB距离和欧氏距离来提升coherence区域的响应”，设计了能量函数并且使用图割算法最小化；（比直接使用KMeans,NCut,
+DenseCRF效果好）</p>
+<p>Exploitation阶段：</p>
+<ol type="1">
+<li>DDPM的扩散过程每一步都需要引入随机噪声，这里使用DDIM的思路，获得确定的噪声，利于重建；之后在反向过程中，获得特征图；</li>
+<li>输入图片和之前生成的prompt送入CLIP？</li>
+<li>用AttentionCut生成的pseudo mask作为监督，训练简单的三层 FCN
+Decoder（Diffusion Model 是冻结的）</li>
+</ol>
+<p>因为笔者知识储备不足，加之目前没有开放源代码，笔者还有如下疑问： 1.
+为什么在DiffusionSeg中，类别标签要由CLIP选出，而不直接用AttentionCut中输入的类别标签？
+2. objectness的能量函数的定义中，像素 <span
+class="math inline">\(p\)</span> 属于前景/背景的先验从哪来？是使用阈值
+<span class="math inline">\(\tau\)</span> 对 <span
+class="math inline">\(A_c\)</span> 进行初步二值化得到的吗？以及，在
+<span class="math inline">\(p \in \text{background}\)</span>
+时的目标是不是少了一个负号？ <img src="DiffusionSeg/eq4.png" /> 3. Inner
+Coherence中定义的Spacial Coherence <span
+class="math inline">\(\mathcal{D}(p,q)\)</span> 是来自于哪个传统的方法？
+<img src="DiffusionSeg/eq5.png" /></p>
+<h2 id="参考文献">参考文献</h2>
+<div id="refer-anchor-ma2023diffusionseg">
+
+</div>
+<ul>
+<li>[1] <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2303.09813">Ma, Chaofan, et al.
+"DiffusionSeg: Adapting Diffusion Towards Unsupervised Object
+Discovery." arXiv preprint arXiv:2303.09813 (2023).</a></li>
+</ul>
+<div id="refer-anchor-rombach2022high">
+
+</div>
+<ul>
+<li>[2] <a
+target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper.html">Rombach,
+Robin, et al. "High-resolution image synthesis with latent diffusion
+models." Proceedings of the IEEE/CVF Conference on Computer Vision and
+Pattern Recognition. 2022.</a></li>
+</ul>
 
     </div>
 
@@ -309,20 +320,18 @@ size，一方面会提高计算量（降低推理速度，但参数量是不变�
     <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/" rel="tag"><i class="fa fa-tag"></i> 语义分割</a>
+              <a href="/tags/%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B/" rel="tag"><i class="fa fa-tag"></i> 扩散模型</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/10/13/Linear-Structure-Within-Conv/" rel="prev" title="探索卷积网络的线性性质来进行推理时加速">
-                  <i class="fa fa-chevron-left"></i> 探索卷积网络的线性性质来进行推理时加速
+                <a href="/2023/03/20/Contrast-Seg-Code/" rel="prev" title="ContrastiveSeg 代码阅读">
+                  <i class="fa fa-chevron-left"></i> ContrastiveSeg 代码阅读
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/10/20/Object-Detection-Papers/" rel="next" title="目标检测论文阅读列表">
-                  目标检测论文阅读列表 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -408,7 +417,7 @@ size，一方面会提高计算量（降低推理速度，但参数量是不变�
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
 
-<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"56833136a924066a3d40503dc2584840"}</script>
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"33cc3ec28c51dfd2f3731c476a4ca42b"}</script>
 <script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>

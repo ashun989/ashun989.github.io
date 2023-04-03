@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="记录一下笔者最近调研的几篇把CLIP等多模态预训练模型用在语义分割任务上的文章。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CLIP x 语义分割">
+<meta property="og:url" content="https://ashun989.github.io/2023/03/09/CLIP-on-Seg/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="记录一下笔者最近调研的几篇把CLIP等多模态预训练模型用在语义分割任务上的文章。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/09/CLIP-on-Seg/ReSTR/fig2.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/09/CLIP-on-Seg/ReSTR/fig3.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/09/CLIP-on-Seg/ReSTR/tab3.png">
+<meta property="article:published_time" content="2023-03-09T06:00:18.000Z">
+<meta property="article:modified_time" content="2023-04-03T08:04:24.161Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="语义分割">
+<meta property="article:tag" content="CLIP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashun989.github.io/2023/03/09/CLIP-on-Seg/ReSTR/fig2.png">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2023/03/09/CLIP-on-Seg/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2023/03/09/CLIP-on-Seg/","path":"2023/03/09/CLIP-on-Seg/","title":"CLIP x 语义分割"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CLIP x 语义分割 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">17</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">30</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#clip%E7%AE%80%E5%8D%95%E5%9B%9E%E9%A1%BE"><span class="nav-number">1.</span> <span class="nav-text">CLIP简单回顾</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A8%E7%9B%91%E7%9D%A3"><span class="nav-number">2.</span> <span class="nav-text">全监督</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#denseclip"><span class="nav-number">2.1.</span> <span class="nav-text">DenseCLIP:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%B1%E7%9B%91%E7%9D%A3"><span class="nav-number">3.</span> <span class="nav-text">弱监督</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#referring"><span class="nav-number">4.</span> <span class="nav-text">Referring</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restr%E4%BD%BF%E7%94%A8transformer%E8%9E%8D%E5%90%88%E5%A4%9A%E6%A8%A1%E6%80%81%E7%89%B9%E5%BE%81"><span class="nav-number">4.1.</span> <span class="nav-text">ReSTR：使用Transformer融合多模态特征</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cris%E4%BD%BF%E7%94%A8clip%E5%BC%95%E5%AF%BC%E7%9A%84referring-image-segmentation"><span class="nav-number">4.2.</span> <span class="nav-text">CRIS：使用CLIP引导的Referring
+Image Segmentation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#qa"><span class="nav-number">5.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/03/09/CLIP-on-Seg/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CLIP x 语义分割 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CLIP x 语义分割
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-09 14:00:18" itemprop="dateCreated datePublished" datetime="2023-03-09T14:00:18+08:00">2023-03-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-04-03 16:04:24" itemprop="dateModified" datetime="2023-04-03T16:04:24+08:00">2023-04-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>记录一下笔者最近调研的几篇把CLIP等多模态预训练模型用在语义分割任务上的文章。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="clip简单回顾">CLIP简单回顾</h2>
+<p>CLIP<a href="#refer-anchor-radford2021learning"><sup>1</sup></a></p>
+<h2 id="全监督">全监督</h2>
+<h3 id="denseclip">DenseCLIP:</h3>
+<p>DenseCLIP<a
+href="#refer-anchor-rao2022denseclip"><sup>2</sup></a></p>
+<h2 id="弱监督">弱监督</h2>
+<h2 id="referring">Referring</h2>
+<p>Referring Image Segmentation
+的任务是，用用户感兴趣的对象的描述作为输出，输出是满足条件的对象的分割mask。与全监督语义分割相比，每个GT
+mask对应的类别标签换成了一个描述的句子（比如“在橘黄色车后面的白车”），这些句子不像类别，是开放集合。</p>
+<h3
+id="restr使用transformer融合多模态特征">ReSTR：使用Transformer融合多模态特征</h3>
+<p>ReSTR<a
+href="#refer-anchor-kim2022restr"><sup>a</sup></a>是CVPR'2022上的一篇文章，主要完成Referring
+Image
+Segmentation任务，提出了一种基于Transformer的多模态特征融合的结构，并从粗（patch-level）到细（pixel-level）地解码预测mask。这篇文章没有使用CLIP，也还没有公开代码，但是一些解决问题的方法值得学习。</p>
+<p><img src="ReSTR/fig2.png" alt="ReSTR模型结构" />
+<!-- <center><small>ReSTR模型结构</small></center> --></p>
+<p>Vision Encoder使用在ImageNet-21K上与训练的ViT-B-16，Language
+Encoder使用预训练的GloVe模型。多模态Encoder使用与Vision
+Encoder一样的结构。而Decoder有4层（简单的线性投影+非线性激活），因为patch_size=16，每层decoder上采样2倍。</p>
+<p>为什么要引入 class seed embedding？ <span
+class="math inline">\(\mathbf{e}_s\in \mathbb{R}^{1\times D}\)</span>
+是随机初始化的可学习参数，经过Linguistic-Seed
+Model，作为一种文本全局信息的聚合，(在上图中，它应该抽象的表示出目标人类对象的文本语义)，之后与融合了文本信息的图像特征
+<span class="math inline">\(\mathbf{z}_v&#39;\)</span>
+内积、归一化，并通过sigmoid，得到全局文本语义在各个patch上的注意力，而这可以作为一种patch-level的预测mask。这个mask本身还能与
+<span
+class="math inline">\(\mathbf{z}_v&#39;\)</span>进行广播逐点乘法，也就是只保留与全局语义有关的patch上的语义信息，接着再与视觉特征concat，送入简单的decoder中，得到精细的分割结果。</p>
+<p>为什么用了Visual-Linguistic和Linguistic-Seed两种编码器以及这样的连接方式来获得全局语义信息，以及融合文本信息的视觉特征？</p>
+<p><img src="ReSTR/fig3.png"
+alt="作者尝试过的3中多模态编码器结构，(a)VME, (b)IME, (c)CME" />
+<!-- <center><small>作者尝试过的3中多模态编码器结构，(a)VME, (b)IME, (c)CME</small></center> --></p>
+<p>上图是作者尝试过的三种多模态编码方式，VME是最直接的做法，但是作者发现，可能是因为图像patch个数
+<span class="math inline">\(N_v =
+900\)</span>（意味着输入是480x480的分辨率），而句子长度上限为 <span
+class="math inline">\(N_l =
+20\)</span>，两中模态的token数量差距过大，使得VME的多模态编码器总是会偏向视觉信息，下表(a)展示了在VME的4个Transformer块中，<span
+class="math inline">\(\mathbf e_s\)</span>
+的注意力几乎都关注在视觉特征上。因此希望 <span
+class="math inline">\(\mathbf{e}_s\)</span>
+不要与视觉特征计算注意力。而IME的效果又差了很多，因此设计了CME，<span
+class="math inline">\(\mathbf{e}_s\)</span>
+与融合了视觉信息的文本特征计算注意力。</p>
+<blockquote>
+<p><span class="math inline">\(a_v\)</span> 和 <span
+class="math inline">\(a_l\)</span> 分别是将 <span
+class="math inline">\(N_v\)</span> 和 <span
+class="math inline">\(N_l\)</span>
+个注意力相加的结果，所以就算视觉特征的平均注意力与文本特征的平均注意力一样，总比例也是是90:2，第
+2-4 个块基本都符合这个比例</p>
+</blockquote>
+<p><img src="ReSTR/tab3.png"
+alt="VMA中cls-seed对于视觉和文本注意力的占比，以及不同多模态编码器结构的性能对比" />
+<!-- <center><small>VMA中cls-seed对于视觉和文本注意力的占比，以及不同多模态编码器结构的性能对比</small></center> --></p>
+<p><br></p>
+<h3
+id="cris使用clip引导的referring-image-segmentation">CRIS：使用CLIP引导的Referring
+Image Segmentation</h3>
+<p>CRIS<a
+href="#refer-anchor-wang2022cris"><sup>b</sup></a>使用CLIP的Vision编码器（ResNet50/101）和Text编码器，使用如下3处改动将文本特征与像素级的图像特征进行融合解码：</p>
+<ol type="1">
+<li>设计了Cross-Modal Neck，将全局文本特征 <span
+class="math inline">\(F_s\)</span>
+与多层图像特征进行融合，并融合了coordinate特征，得到了16倍下采样的特征图
+<span class="math inline">\(F_v \in\mathbb{R}^{N\times C}, N =
+\frac{H}{16}\times\frac{W}{16}\)</span>；</li>
+<li>设计了Vision Language Decoder，将图像特征 <span
+class="math inline">\(F_v\)</span> 和 文本特征 <span
+class="math inline">\(F_t \in\mathbf{L\times C}\)</span>
+分别加上固定的sine位置编码，接着将 <span
+class="math inline">\(F_v\)</span> 送入带残差连接的MHSA得到 <span
+class="math inline">\(F_v&#39;\)</span>，再让 <span
+class="math inline">\(F_v&#39;\)</span> 作为 query，<span
+class="math inline">\(F_t\)</span> 作为 key 和 value，计算MHCA，得到
+<span class="math inline">\(F_c&#39; \in \mathbb{R}^{N\times
+C}\)</span>，之to后再送入带有残差连接的MLP。这样的<code>MHSA-MHCA-FFN</code>作为Decoder的一个Transformer块，共n块。最后得到的多模态特征
+<span class="math inline">\(F_c\)</span> 即可用于最后的分割。</li>
+<li>使用Text-to-Pixel的对比损失作为额外的损失函数。将 <span
+class="math inline">\(F_c&#39;\)</span> (<span
+class="math inline">\(F_c\)</span> 上采样4倍，即原图的4倍下采样大小) 和
+<span class="math inline">\(F_s\)</span>
+线性投影到同样的空间后，计算内积的sigmoid作为相似度，对于在标签内的位置，将相似度度拟合到1，否则将相似度拟合到0。（使用CE
+Loss）</li>
+</ol>
+<p>在消融实验部分，作者以不使用Vision Language
+Decoder、不使用Text-to-Pixel损失模型作为baseline，在3个基准数据集上证明了这两个模块的有效性，并且Decoder的层数
+<span class="math inline">\(n = 3\)</span>。</p>
+<p>根据论文中结果，CRIS比前文讲述ReSTR性能更好。</p>
+<p>代码已经开源在<a
+target="_blank" rel="noopener" href="https://github.com/DerrickWang005/CRIS.pytorch">CRIS.pytorch</a>。但是作者目前还没有给出pretrained
+model，不过<a
+target="_blank" rel="noopener" href="https://github.com/DerrickWang005/CRIS.pytorch/issues/3">issue</a>中有一个别人训练好的模型。</p>
+<h2 id="qa">Q&amp;A</h2>
+<ol type="1">
+<li><p>为什么不直接用CLIP的vision分支直接在语义分割数据集上linear
+probe？</p></li>
+<li><p>CLIP的训练方式与Dense任务的“鸿沟”？</p></li>
+</ol>
+<h2 id="参考文献">参考文献</h2>
+<div id="refer-anchor-radford2021learning">
+
+</div>
+<ul>
+<li>[1] <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2103.00020">Radford, Alec, et al.
+"Learning transferable visual models from natural language supervision."
+International conference on machine learning. PMLR, 2021.</a></li>
+</ul>
+<div id="refer-anchor-rao2022denseclip">
+
+</div>
+<ul>
+<li>[2] <a
+target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/CVPR2022/html/Rao_DenseCLIP_Language-Guided_Dense_Prediction_With_Context-Aware_Prompting_CVPR_2022_paper.html">Rao,
+Yongming, et al. "Denseclip: Language-guided dense prediction with
+context-aware prompting." Proceedings of the IEEE/CVF Conference on
+Computer Vision and Pattern Recognition. 2022.</a></li>
+</ul>
+<div id="refer-anchor-kim2022restr">
+
+</div>
+<ul>
+<li>[a] <a
+target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/CVPR2022/html/Kim_ReSTR_Convolution-Free_Referring_Image_Segmentation_Using_Transformers_CVPR_2022_paper.html">Kim,
+Namyup, et al. "Restr: Convolution-free referring image segmentation
+using transformers." Proceedings of the IEEE/CVF Conference on Computer
+Vision and Pattern Recognition. 2022.</a></li>
+</ul>
+<div id="refer-anchor-wang2022cris">
+
+</div>
+<ul>
+<li>[b] <a
+target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/CVPR2022/html/Wang_CRIS_CLIP-Driven_Referring_Image_Segmentation_CVPR_2022_paper.html">Wang,
+Zhaoqing, et al. "Cris: Clip-driven referring image segmentation."
+Proceedings of the IEEE/CVF conference on computer vision and pattern
+recognition. 2022.</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/" rel="tag"><i class="fa fa-tag"></i> 语义分割</a>
+              <a href="/tags/CLIP/" rel="tag"><i class="fa fa-tag"></i> CLIP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/02/28/MMSeg-Metrics/" rel="prev" title="MMSegmentation中几种Metrics的实现">
+                  <i class="fa fa-chevron-left"></i> MMSegmentation中几种Metrics的实现
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/03/16/Prototype-for-Seg/" rel="next" title="语义分割中的prototype">
+                  语义分割中的prototype <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"5a9a79d47ec7cf3037f8ac3de1e67752"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>
