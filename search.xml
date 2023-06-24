@@ -78,12 +78,113 @@ class="math inline">\(\pm\)</span> std的曲线：</p>
 </blockquote>
 <span id="more"></span>
 <h2 id="clip简单回顾">CLIP简单回顾</h2>
-<p>CLIP<a href="#refer-anchor-radford2021learning"><sup>1</sup></a></p>
+<p>很多的博客、论文都从不同角度回顾了CLIP<a
+href="#refer-anchor-radford2021learning"><sup>1</sup></a>。CLIP使用互联网上爬取并清洗的的400M图片文本对，进行对比学习训练，相比于传统图像分类数据集上的预训练模型，CLIP可以将各种文本进行编码，而不需要选择固定的词表，不需要微调，即可以有比较好的图像分类性能。可以说，CLIP具有强大zero
+shot/few shot的分类能力，其中，few shot的微调方式是linear
+probe。（当然，在预训练的时候应该是见过丰富的类别的）。</p>
+<p>笔者这里想记录一下CLIP的视觉编码器的细节。</p>
+<p>CLIP目前有两种架构的视觉编码器，ModifiedResNet或者ViT。</p>
+<blockquote>
+<p>对于Modified
+ResNet，其中比较重要的改动是，ResNet最后一层的均值池化，换成了一种attention
+pool，对于第4层特征 <span class="math inline">\(\rm x_4\in
+\mathbb{R}^{H_4 W_4 \times C}\)</span>，其空间位置上的均值为 <span
+class="math inline">\(\overline{\rm x}_4\in \mathbb{R}^{1\times
+C}\)</span>，之后使用一个多头自注意力： <span class="math display">\[
+[\overline{\rm z}, \rm z] = \operatorname{MHSA}([\overline{\rm x}_4, \rm
+x _4])
+\]</span> 获得图像的全局表示 <span class="math inline">\(\overline{\rm
+z}\)</span>。</p>
+<p>(总结来自DenseCLIP<a
+href="#refer-anchor-rao2022denseclip"><sup>2</sup></a>)</p>
+</blockquote>
+<p>CLIP的视觉编码器下采样率很大（ResNet-32,
+ViT-16），这是不利于直接适配到图像分割任务的一点。</p>
+<p>只要对Transformer encoder/attn
+pooling中的位置编码进行某种线性插值，就可以做到接收任意尺寸的输入。</p>
 <h2 id="全监督">全监督</h2>
 <h3 id="denseclip">DenseCLIP:</h3>
 <p>DenseCLIP<a
 href="#refer-anchor-rao2022denseclip"><sup>2</sup></a></p>
 <h2 id="弱监督">弱监督</h2>
+<h3 id="clip-es">CLIP-ES</h3>
+<blockquote>
+<p>这个工作代码开源且可用，就是因为改动了clip和pytorch-grad-cam库而不是继承等方式重写，代码初看起来比较混乱。</p>
+</blockquote>
+<p>CLIP-ES<a
+href="#lin2023clip"><sup>3</sup></a>是CVPR'2023的一篇文章。做多阶段的弱监督语义分割。根据图像类别标签获得CAM，从self
+attn获得affinity map来refine CAM，最后再用refined CAM训练分割模型。</p>
+<p>本文提出了多种技术。</p>
+<h4 id="类别间更互斥的cam">类别间更互斥的CAM？</h4>
+<p>作者提出将Softmax引入CAM会使得激活区域更加discriminative。笔者发现，这样的技术实现似乎早就已经在pytorch-grad-cam中有了（<a
+href="https://github.com/jacobgil/pytorch-grad-cam/blob/master/pytorch_grad_cam/utils/model_targets.py">model_targets.py中的ClassifierOutputSoftmaxTarget</a>），本文通过求导，解释了这样做激活区域更“收缩”的原因，并（结合后续消融实验）说明这样是更适合多标签的分割任务以及CLIP的。</p>
+<h4 id="self-attention-refine-cam">Self Attention refine CAM</h4>
+<p>用self attention获得affinity矩阵，之后用random
+walk微调CAM不是本文的独创方法，本文的独创之处在于，根据初步的CAM伪标签，得到一个bbox来mask
+affinity矩阵，使得通过random
+walk之后，前景区域能够被控制在合适的范围内细化。这个bbox是class-aware的，因此这个方法就称为Class-aware
+Attention-based Affinity (CAA)。</p>
+<h4 id="低置信度区域不学">低置信度区域不学</h4>
+<p>对于置信度图 <span class="math inline">\(X\in \mathbb{R}^{h\times w
+\times c}\)</span>，<span class="math inline">\(X_{h,w,c}\)</span>
+表示<span class="math inline">\(X(h, w)\)</span>位置属于前景 <span
+class="math inline">\(c\)</span> 的概率。如果 <span
+class="math inline">\(\max_cX(h,w) &gt;
+0.5\)</span>，那么就认为该位置属于前景类别 <span
+class="math inline">\(c\)</span>，否则就属于背景/忽略类别。这样解释完，我们就可以理解作者对于置信度的定义了。</p>
+<h4 id="碎碎念">碎碎念</h4>
+<p>这篇工作与CLIP有一定关系，但是CAM-&gt;refine-&gt;train的流程还是WSSS常用的一套，从CLIP中最大的受益还是来自其zero-shot的分类能力。</p>
+<p>为不同数据集挑选前景及其同义词、背景同义词、以及template的细节见原论文及代码。</p>
+<h2 id="zero-shot">Zero-Shot</h2>
+<h3 id="maskclip">MaskCLIP</h3>
+<h4 id="方法简介">方法简介</h4>
+<p>MaskCLIP<a
+href="#zhou2022extract"><sup>4</sup></a>是ECCV'2022的一篇文章，提出的MaskCLIP只需要简单调整CLIP的权重结构，无需训练和任何微调，就可以实现开放域的语义分割。接着，又通过将MaskCLIP的预测结果作为伪标签，将其知识蒸馏给其他任意结构的分割模型（文中用的Deeplabv2），并在合适的时候进行自训练，得到MaskCLIP+。</p>
+<figure>
+<img src="MaskCLIP/fig2.png" alt="MaskCLIP/MaskCLIP+的流程图" />
+<figcaption aria-hidden="true">MaskCLIP/MaskCLIP+的流程图</figcaption>
+</figure>
+<p>如上图所示，从技术角度上，本文的方法看起来很简单。给定任何的一个字典集合，使用适当的prompt工程，都可以得到一组固定的CLIP的text
+embeddings，可以用作线性分类器。</p>
+<h4 id="如何用实现局部分类">如何用实现局部分类</h4>
+<p>下面用自问自答的方式解释MaskCLIP的部分实现细节。</p>
+<ol type="1">
+<li><p>为什么可以用输入attention pooling的value embedding直接与text
+embedding计算相似度？ <img src="MaskCLIP/eq3.png" />
+文中的式(3)说明了，因为MHSA的输出映射 <span
+class="math inline">\(\mathcal{F}\)</span>
+是线性操作，因此，可以用“分配律”放到求和符号内。而现在相对局部的图像快而非全局的图像进行分类，因此去除softmax的加权求和也是合理的。</p></li>
+<li><p>对于ViT的视觉编码器，怎么改？ 相比于attention
+pooling，Transformer block与之的区别主要在于：全局token使用专门的cls
+token而不是所有patch
+token的平均；有残差连接；有norm和一些线性计算。因此，只需要把最后一层的value
+embedding拿出来，通过这些残差连接、norm和线性计算即可。
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Transformer Encoder块的代码修改</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x, return_qkv=<span class="literal">False</span></span>):</span><br><span class="line">    q, k, v = <span class="literal">None</span>, <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line">    <span class="keyword">if</span> return_qkv:</span><br><span class="line">        y = self.norm1(x)</span><br><span class="line">        y = F.linear(y, self.attn.attn.in_proj_weight, self.attn.attn.in_proj_bias)</span><br><span class="line">        N, L, C = y.shape</span><br><span class="line">        y = y.view(N, L, <span class="number">3</span>, C//<span class="number">3</span>).permute(<span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>).reshape(<span class="number">3</span>*N, L, C//<span class="number">3</span>)</span><br><span class="line">        y = F.linear(y, self.attn.attn.out_proj.weight, self.attn.attn.out_proj.bias)</span><br><span class="line">        q, k, v = y.tensor_split(<span class="number">3</span>, dim=<span class="number">0</span>)</span><br><span class="line">        v += x</span><br><span class="line">        v = self.ffn(self.norm2(v), identity=v)</span><br><span class="line"></span><br><span class="line">    x = self.attn(self.norm1(x), identity=x)</span><br><span class="line">    x = self.ffn(self.norm2(x), identity=x)</span><br><span class="line">    <span class="keyword">return</span> x, q, k, v</span><br></pre></td></tr></table></figure></p></li>
+<li><p>对于attention pooling，为什么不用经过MSHA输出的patch
+token，而是用计算MSHA之前的value embedding？ 因为在attn
+pooling的输出中，只有 <span class="math inline">\(\overline{\rm
+z}\)</span> 受到了后续损失函数的监督训练，<span
+class="math inline">\(\rm z\)</span> 不受监督，不可用。</p></li>
+</ol>
+<p>MaskCLIP还引入了key smoothing和prompt
+denoising的两个小tricks来改善“斑驳”的预测效果，由于只是tricks，细节见原文。</p>
+<h4 id="在新颖的设置中取胜">在新颖的设置中取胜</h4>
+<p>对于MaskCLIP+，技术上就是先伪标签蒸馏、再自训练。本文主要强调了MaskCLIP+对于CLIP能力的继承性。</p>
+<h5 id="无标签分割">无标签分割</h5>
+<p>使用3种分割常用的数据集，但是不使用任何人工标注的gt来监督，转而只使用MaskCLIP生成的伪标签监督MaskCLIP+，在这些验证集集上表现还不是很差，并且继承了CLIP的鲁棒性，面对多种输入图像的corruption性能还能有所保持。</p>
+<h5 id="开放字典分割">开放字典分割</h5>
+<p>调整文本embedding，MaskCLIP是可以直接推理出各种我们想要的开放域标签，当然这肯定得益于CLIP预训练见过这些文本。不过对于MaskCLIP+，还是需要MaskCLIP引导、训练一波的。</p>
+<h5 id="zero-shot-1">Zero-Shot</h5>
+<p>zero-shot的setting中，是要求模型运用学习到的知识，能够推理出在训练时没有标注的类别。根据在训练时，模型有没有见过无标注类别的样本，见过则称为transductive，没见过则称为inductive。（<a
+href="https://learnopencv.com/zero-shot-learning-an-introduction/">关于ZSL的详细介绍</a>）。由于用了CLIP引导生成伪标签，本文时transductive
+zero-shot。在保持与先前方法配置一样的前提下，远超之前的ZSL方法，甚至与全监督的baseline差不多。</p>
+<h4 id="本文的一些启发">本文的一些启发</h4>
+<ol type="1">
+<li>微调CLIP的图像编码器、文本编码器不可靠，因为CLIP的图像编码器并没有为分割任务专门设计，并且传统微调过程会损失语义信息，使得模型失去zero-shot能力；</li>
+<li>CLIP本身把图像文本编码成特征并对齐的训练方式，尽管看起来是非常“全局”的行为，但是正如文中的例子那样，"the
+man at bat readies to swing at the patch while the umpire looks on"
+这句话包含的多种语义信息可以对应图像的不同局部位置。这种把原始图像/文本空间向量映射到语义空间再分类的做法也正是ZSL的一种解决思路。</li>
+</ol>
 <h2 id="referring">Referring</h2>
 <p>Referring Image Segmentation
 的任务是，用用户感兴趣的对象的描述作为输出，输出是满足条件的对象的分割mask。与全监督语义分割相比，每个GT
@@ -195,6 +296,28 @@ href="https://openaccess.thecvf.com/content/CVPR2022/html/Rao_DenseCLIP_Language
 Yongming, et al. "Denseclip: Language-guided dense prediction with
 context-aware prompting." Proceedings of the IEEE/CVF Conference on
 Computer Vision and Pattern Recognition. 2022.</a></li>
+</ul>
+<div id="lin2023clip">
+
+</div>
+<ul>
+<li>[3] <a
+href="https://openaccess.thecvf.com/content/CVPR2023/papers/Lin_CLIP_Is_Also_an_Efficient_Segmenter_A_Text-Driven_Approach_for_CVPR_2023_paper.pdf">Lin,
+Yuqi, et al. "Clip is also an efficient segmenter: A text-driven
+approach for weakly supervised semantic segmentation." Proceedings of
+the IEEE/CVF Conference on Computer Vision and Pattern Recognition.
+2023.</a></li>
+</ul>
+<div id="zhou2022extract">
+
+</div>
+<ul>
+<li>[4] <a
+href="https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136880687.pdf">Zhou,
+Chong, Chen Change Loy, and Bo Dai. "Extract free dense labels from
+clip." Computer Vision–ECCV 2022: 17th European Conference, Tel Aviv,
+Israel, October 23–27, 2022, Proceedings, Part XXVIII. Cham: Springer
+Nature Switzerland, 2022.</a></li>
 </ul>
 <div id="refer-anchor-kim2022restr">
 
@@ -5354,17 +5477,6 @@ Recognition. 2022.</a></li>
 "GMMSeg: Gaussian Mixture based Generative Semantic Segmentation
 Models." arXiv preprint arXiv:2210.02025 (2022).</a></li>
 </ul>
-<!-- 对于一个mini-batch中的第$c$类：
-
-$L^c \in \{0, 1\}^{K\times N}$ 是的N个像素到K个prototype的映射关系；
-
-$P^c \in \mathbb{R}^{D\times K}$ 是prototype；
-
-$X^c \in \mathbb{R}^{D\times N}$ 是N个像素embedding；
-
-$P^{cT}X^c$ 是 N 个pixel embedding 到 K 个 prototype 的相似度，$\operatorname{tr}(L^{cT}P^{cT}X^c)=\sum_{k,n}^{K,N}L^c_{k,n}(P^{cT}X^c)_{k,n}$ 是有正确分配的那些相似度；
-
-下面的三个限制要求了每个像素有且仅有一个assignment，并且每个prototype分到的像素数量是均等的； -->
 ]]></content>
       <categories>
         <category>论文阅读</category>
@@ -8376,5 +8488,16 @@ href="https://baike.baidu.com/item/%E7%81%B5%E4%B8%8E%E8%82%89/13012440?fr=aladd
       <categories>
         <category>随笔</category>
       </categories>
+  </entry>
+  <entry>
+    <title>语义分割，是像素分类问题还是mask分类问题？</title>
+    <url>/2023/04/14/Mask-Classifier/</url>
+    <content><![CDATA[<p>本文主要串讲以下工作</p>
+<ul>
+<li>Max-DeepLab</li>
+<li>MaskFormer</li>
+<li>Mask2Former</li>
+</ul>
+]]></content>
   </entry>
 </search>
