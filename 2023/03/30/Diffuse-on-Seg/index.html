@@ -19,18 +19,24 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="Diffusion Model 基本知识 无监督 DiffusionSeg   DiffusionSeg两阶段示意图  DiffusionSeg1提出了一种无监督语义分割&#x2F;目标检测的两阶段算法。 Synthesis阶段： 1. 生成image：选择训练好的t2i Stable Diffusion2，从ImageNet中采样类别名称并且使用ChatGPT生成上下文丰富的promp">
-<meta property="og:type" content="article">
+    <meta property="og:type" content="article">
 <meta property="og:title" content="Diffusion x 语义分割">
 <meta property="og:url" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/index.html">
 <meta property="og:site_name" content="Ashun&#39;s Blog">
-<meta property="og:description" content="Diffusion Model 基本知识 无监督 DiffusionSeg   DiffusionSeg两阶段示意图  DiffusionSeg1提出了一种无监督语义分割&#x2F;目标检测的两阶段算法。 Synthesis阶段： 1. 生成image：选择训练好的t2i Stable Diffusion2，从ImageNet中采样类别名称并且使用ChatGPT生成上下文丰富的promp">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DiffusionSeg/fig2.png">
 <meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DiffusionSeg/eq4.png">
 <meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DiffusionSeg/eq5.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DiffSeg/pipe.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/SegDiff/arch.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DMIISE/arch.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/Pix2Seq-D/arch.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/Pix2Seq-D/alg.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DDP/arch.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DenseDiffusion/observation.png">
+<meta property="og:image" content="https://ashun989.github.io/2023/03/30/Diffuse-on-Seg/DenseDiffusion/eq2.png">
 <meta property="article:published_time" content="2023-03-30T12:30:43.000Z">
-<meta property="article:modified_time" content="2023-08-22T10:10:45.287Z">
+<meta property="article:modified_time" content="2023-09-09T07:37:25.242Z">
 <meta property="article:author" content="ashun">
 <meta property="article:tag" content="语义分割">
 <meta property="article:tag" content="扩散模型">
@@ -98,7 +104,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">18</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">31</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">18</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">33</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
   </ul>
 </nav>
 
@@ -123,7 +129,8 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#diffusion-model-%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">Diffusion Model 基本知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E7%9B%91%E7%9D%A3"><span class="nav-number">2.</span> <span class="nav-text">无监督</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#diffusionseg"><span class="nav-number">2.1.</span> <span class="nav-text">DiffusionSeg</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A8%E7%9B%91%E7%9D%A3"><span class="nav-number">3.</span> <span class="nav-text">全监督</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#segdiff"><span class="nav-number">3.1.</span> <span class="nav-text">SegDiff</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ddp"><span class="nav-number">3.2.</span> <span class="nav-text">DDP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">4.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#geodiffusion"><span class="nav-number">4.1.</span> <span class="nav-text">GeoDiffusion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">5.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E7%9B%91%E7%9D%A3zero-shotfew-shot"><span class="nav-number">1.</span> <span class="nav-text">无监督、Zero Shot、Few Shot</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#diffusionseg"><span class="nav-number">1.1.</span> <span class="nav-text">DiffusionSeg</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#diffumask"><span class="nav-number">1.2.</span> <span class="nav-text">DiffuMask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#diffseg"><span class="nav-number">1.3.</span> <span class="nav-text">DiffSeg</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A8%E7%9B%91%E7%9D%A3"><span class="nav-number">2.</span> <span class="nav-text">全监督</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#segdiff"><span class="nav-number">2.1.</span> <span class="nav-text">SegDiff</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#diffusion-models-for-implicit-image-segmentation-ensembles"><span class="nav-number">2.2.</span> <span class="nav-text">Diffusion
+Models for Implicit Image Segmentation Ensembles</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pix2seq-d"><span class="nav-number">2.3.</span> <span class="nav-text">Pix2Seq-D</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ddp"><span class="nav-number">2.4.</span> <span class="nav-text">DDP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">3.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#geodiffusion"><span class="nav-number">3.1.</span> <span class="nav-text">GeoDiffusion</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#densediffusion"><span class="nav-number">3.2.</span> <span class="nav-text">DenseDiffusion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">4.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -138,7 +145,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -220,7 +227,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-08-22 18:10:45" itemprop="dateModified" datetime="2023-08-22T18:10:45+08:00">2023-08-22</time>
+      <time title="修改时间：2023-09-09 15:37:25" itemprop="dateModified" datetime="2023-09-09T15:37:25+08:00">2023-09-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -249,9 +256,11 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <span id="more"></span>
-<h2 id="diffusion-model-基本知识">Diffusion Model 基本知识</h2>
-<h2 id="无监督">无监督</h2>
+        <blockquote>
+
+</blockquote>
+<span id="more"></span>
+<h2 id="无监督zero-shotfew-shot">无监督、Zero Shot、Few Shot</h2>
 <h3 id="diffusionseg">DiffusionSeg</h3>
 <figure>
 <img src="DiffusionSeg/fig2.png" alt="DiffusionSeg两阶段示意图" />
@@ -289,10 +298,89 @@ class="math inline">\(A_c\)</span> 进行初步二值化得到的吗？以及，
 Coherence中定义的Spacial Coherence <span
 class="math inline">\(\mathcal{D}(p,q)\)</span> 是来自于哪个传统的方法？
 <img src="DiffusionSeg/eq5.png" /></p>
+<h3 id="diffumask">DiffuMask</h3>
+<h3 id="diffseg">DiffSeg</h3>
+<figure>
+<img src="DiffSeg/pipe.png" alt="DiffSeg的流程图" />
+<figcaption aria-hidden="true">DiffSeg的流程图</figcaption>
+</figure>
+<p>不同于DiffusionSeg和DiffuMask，使用cross attn
+map获得文本指定的前景物体mask，DiffSeg<a
+href="#tian2023diffuse"><sup>9</sup></a>只使用了self attn
+map，获得物体分组信息。</p>
+<p>本文观察总结了self attn的两大特点， 1. Intra-Attention
+Similarity，即在一个像素 <span class="math inline">\((I,J)\)</span>
+对应的2D注意力图 <span class="math inline">\(A(I,J,:,:)\)</span>
+中，激活值高的区域往往是与 <span class="math inline">\((I,J)\)</span>
+属于同一个 object group的； 2. Inter-Attention
+Similarity，属于同一个object
+group的两个像素对应的两个2D注意力图，应该是相似的；</p>
+<p>低分辨率的注意力图在原始图像上有更大的感受野，因此激活区域比例往往更大一些。这样本文解释了为什么4个分辨率的attn
+map都要使用。</p>
+<p>整个后处理算法的步骤如下：</p>
+<ul>
+<li>首先，设置一组与分辨率成正比的超参，按照像素位置的对应关系，将多个分辨率的self
+attn maps上采用、加权求和、归一化到 <span class="math inline">\(64\times
+64\)</span> 个 <span class="math inline">\(64\times 64\)</span> self
+attn maps。</li>
+<li>在已知任意两张注意力图的距离的情况下，设计了一种迭代算法，从 <span
+class="math inline">\(M^2\)</span> 个采样点对应的初始attn组集合 <span
+class="math inline">\(\mathcal{L}_\alpha\)</span> 开始（ <span
+class="math inline">\(M\le 64\)</span> ），在阈值 <span
+class="math inline">\(\tau\)</span> 的过滤下，每次将候选attn组集合<span
+class="math inline">\(\mathcal{L}_p\)</span> 中与其他attn距离小于 <span
+class="math inline">\(\tau\)</span>
+的聚合为新的attn；最终得到每个attn关注不同object/stuff的attn集合 <span
+class="math inline">\(\mathcal{L}_p \in\mathbb{R}^{N_p\times 64 \times
+64}\)</span>。距离度量使用forward KL和reverse KL的均值。</li>
+<li>上采样到原图尺寸，并且逐像素位置上使用概率值最高的attn对应的label。</li>
+</ul>
+<blockquote>
+<p>由于单张注意力图有和为1的性质，因此可以使用KL散度来衡量两张注意力图的相似性！</p>
+</blockquote>
 <h2 id="全监督">全监督</h2>
 <p>尝试用逆扩散过程实现密集预测，输入图像的特征作为逆扩散过程中的“条件”。</p>
 <h3 id="segdiff">SegDiff</h3>
+<figure>
+<img src="SegDiff/arch.png" alt="SegDiff框架图" />
+<figcaption aria-hidden="true">SegDiff框架图</figcaption>
+</figure>
+<p>SegDiff<a
+href="#amit2021segdiff"><sup>5</sup></a>修改了UNet的encoder，分别处理
+<span class="math inline">\(x_t\)</span> 和图像 <span
+class="math inline">\(I\)</span> 并将其融合。整个UNet可以表达为：</p>
+<p><span class="math display">\[
+\epsilon_\theta(x_t, I, t) = D(E(F(x_t) + G(I), t), t)
+\]</span></p>
+<p>其他与DDPM一致。</p>
+<p>需要注意的是，SegDiff最终解决的问题是<strong>二值分割</strong>。对于Cityscapes这样的多目标数据集，采用交互式分割的设置（预先给定目标物体的bbox）。</p>
+<h3
+id="diffusion-models-for-implicit-image-segmentation-ensembles">Diffusion
+Models for Implicit Image Segmentation Ensembles</h3>
+<p>本文使用Diffusion Model解决二值脑瘤分割问题。</p>
+<figure>
+<img src="DMIISE/arch.png" alt="DMIISE流程图" />
+<figcaption aria-hidden="true">DMIISE流程图</figcaption>
+</figure>
+<h3 id="pix2seq-d">Pix2Seq-D</h3>
+<p>Pix2Seq-D<a href="#chen2022ageneralist"><sup>6</sup></a> 用Diffusion
+Model解决全景分割问题。抛弃了UNet结构，单独设计了图像特征的encoder和mask
+decoder。</p>
+<p>在label的编码上使用了analog bits<a
+href="#chen2022analog"><sup>7</sup></a>。</p>
+<figure>
+<img src="Pix2Seq-D/arch.png" alt="Pix2Seq-D模型框架" />
+<figcaption aria-hidden="true">Pix2Seq-D模型框架</figcaption>
+</figure>
+<figure>
+<img src="Pix2Seq-D/alg.png" alt="Pix2Seq-D训练和采样伪代码" />
+<figcaption aria-hidden="true">Pix2Seq-D训练和采样伪代码</figcaption>
+</figure>
 <h3 id="ddp">DDP</h3>
+<figure>
+<img src="DDP/arch.png" alt="DDP的框架图" />
+<figcaption aria-hidden="true">DDP的框架图</figcaption>
+</figure>
 <p>这篇文章（DDP<a
 href="#ji2023ddp"><sup>3</sup></a>）在技术上的贡献包括：</p>
 <ul>
@@ -312,6 +400,11 @@ loss，为depth任务使用sigloss，而不是用扩散模型原来用的L2损�
 <li>动态推理能力</li>
 <li>通过几个推理map的比较知道模型uncertainty的区域；</li>
 </ul>
+<p>与SegDiff的一个主要区别是，DDP没有使用参数量巨大的UNet；考虑到目标函数也换了，整个方法与Diffusion相关的就只有加噪、去噪的模式。</p>
+<blockquote>
+<p>DDP在pipeline上，损失函数的选择上，都与Pix2Seq-D很相似，在label的编码上也尝试过analog
+bits，不过最终被可学西的编码替代。</p>
+</blockquote>
 <h2 id="其他">其他</h2>
 <h3 id="geodiffusion">GeoDiffusion</h3>
 <p>GeoDiffusion<a href="#chen2023intergrating"><sup>4</sup></a>
@@ -339,6 +432,39 @@ R-CNN模型，观察生成数据的增强效果；</li>
 </ol>
 <p>这篇文章提出的这种对于T2I
 DMs的微调方式使得DMs在给定layout的情况下能够生成前景数量丰富的图片，但是这限制了微调后GeoDiffusion只能作为训练集的增强模型，其对于OOD的layout有一定泛化能力，但是对于训练集没有出现的类别以及不能再像原sd一样生成。</p>
+<h3 id="densediffusion">DenseDiffusion</h3>
+<p>DenseDiffusion<a
+href="#kim2023dense"><sup>8</sup></a><strong>不微调stable
+diffusion</strong>，通过一种调制注意力的方法，使得生成的图片与dense的文本匹配更好！</p>
+<blockquote>
+<p>在阅读Introduction和Related
+work的时候，笔者发现自己关于Diffusion的论文看得太少了；</p>
+</blockquote>
+<figure>
+<img src="DenseDiffusion/observation.png"
+alt="对于sd的cross attn和self attn的定性观察（并不新鲜）" />
+<figcaption aria-hidden="true">对于sd的cross attn和self
+attn的定性观察（并不新鲜）</figcaption>
+</figure>
+<!-- ![对于sd的cross attn和self attn的定量观察](DenseDiffusion/observation2.png) -->
+<p>作者先后用定性和定量分析说明attention map反映生成图像的layout。</p>
+<p>无论cross attn，还是self attn，其注意力图调制的方式都可以表示为</p>
+<p><img src="DenseDiffusion/eq2.png" /></p>
+<p>其中 关系矩阵 <span class="math inline">\(R\)</span> 描述了key
+value的“相似关系”（ <span class="math inline">\(R\)</span> 是binary map
+），在cross attn和self attn中不同，<span
+class="math inline">\(M_\text{pos}\)</span> 和 <span
+class="math inline">\(M_\text{neg}\)</span> 用于调整attn value
+range在调制前后相当。<span class="math inline">\(S\)</span>
+表示每个query对应的段面积，旨在为不同大小的目标使用不同程度的调制，<span
+class="math inline">\(\lambda_t\)</span> 是随着 <span
+class="math inline">\(t\)</span>
+从1到0逐渐变小的参数，因为在生成后期的调制会使得图退化。</p>
+<p>其中每个矩阵的设计见原论文，或者<a
+target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/b7_CqtaqKY2A_TxL86iosw">极市平台解读</a>。</p>
+<blockquote>
+<p>改动训练好的神经网络的参数往往导致性能锐减，但是在激活值上进行调制却可能有更好的效果。</p>
+</blockquote>
 <h2 id="参考文献">参考文献</h2>
 <div id="refer-anchor-ma2023diffusionseg">
 
@@ -375,6 +501,48 @@ target="_blank" rel="noopener" href="https://kaichen1998.github.io/projects/geod
 et al. "Integrating Geometric Control into Text-to-Image Diffusion
 Models for High-Quality Detection Data Generation via Text Prompt."
 arXiv preprint arXiv:2306.04607 (2023).</a></li>
+</ul>
+<div id="amit2021segdiff">
+
+</div>
+<ul>
+<li>[5] <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2112.00390">Amit, Tomer, et al.
+"Segdiff: Image segmentation with diffusion probabilistic models." arXiv
+preprint arXiv:2112.00390 (2021).</a></li>
+</ul>
+<div id="chen2022ageneralist">
+
+</div>
+<ul>
+<li>[6] <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2210.06366">Chen, Ting, et al. "A
+generalist framework for panoptic segmentation of images and videos."
+arXiv preprint arXiv:2210.06366 (2022).</a></li>
+</ul>
+<div id="chen2022analog">
+
+</div>
+<ul>
+<li>[7] <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2210.06366">Chen, Ting, Ruixiang
+Zhang, and Geoffrey Hinton. "Analog bits: Generating discrete data using
+diffusion models with self-conditioning." arXiv preprint
+arXiv:2208.04202 (2022).</a></li>
+</ul>
+<div id="kim2023dense">
+
+</div>
+<ul>
+<li>[8] <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2308.12964v1.pdf">Kim, Yunji, et
+al. "Dense Text-to-Image Generation with Attention Modulation." arXiv
+preprint arXiv:2308.12964 (2023).</a></li>
+</ul>
+<div id="tian2023diffuse">
+
+</div>
+<ul>
+<li>[9] <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2308.12469.pdf">Tian, Junjiao, et
+al. "Diffuse, Attend, and Segment: Unsupervised Zero-Shot Segmentation
+using Stable Diffusion." arXiv preprint arXiv:2308.12469
+(2023).</a></li>
 </ul>
 
     </div>
