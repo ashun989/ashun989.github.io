@@ -9185,6 +9185,9 @@ class="math inline">\((u,v)\)</span> 回到原世界坐标是不可解的。</p>
 <p>这篇博客主要记录BEV特征图的构建方法，略过3D目标检测、地图分割等各种头的设计和实现。<br />
 </p>
 <h4 id="homography-2d-2d">Homography, 2D-&gt;2D</h4>
+<p>在已知两个相机内外参、以及地平面信息（地面法向量）时，求出两个相机视图的单应性矩阵的方法可参考<a
+href="https://zhuanlan.zhihu.com/p/636990989">知乎 -
+从单应矩阵推导到自动驾驶环视投影应用</a></p>
 <h3 id="关于occupancy-grid-map">关于Occupancy Grid Map</h3>
 <p>Occupancy Grid Map
 是机器人常用的一种地图表示方式，机器人顶部的激光雷达(LIDAR)以一定频率发出激光(laser)，根据激光往返时间算出车身到障碍物在某一时刻的距离。将车所在的地平面栅格化表示，根据激光信息估计每个栅格
@@ -9202,11 +9205,27 @@ class="math inline">\(\log\frac{p(m_i=1)}{p(m_i=0)}\)</span>
 表示状态，可以用贝叶斯公式建模，最终得到类似于“后验=先验+似然”的简单形式（<a
 href="https://zhuanlan.zhihu.com/p/21738718">知乎 -
 占据栅格地图</a>），“似然”是一个常数参数。</p>
+<h3 id="其他预备知识">其他预备知识</h3>
+<ul>
+<li><a
+href="https://krasjet.github.io/quaternion/quaternion.pdf">四元数与3D旋转</a></li>
+</ul>
 <h2 id="论文阅读">论文阅读</h2>
 <h3 id="camera">Camera</h3>
 <h4 id="bev-ipm">BEV-IPM</h4>
 <p>本文以单张front-view的相机照片为输入，在通过“惯性测量”尽可能消除相机的pitch进而roll旋转后，通过将front-view变换成bev-view的确定的单应性矩阵，实现2D平面到2D平面的直接变换。最后在失真比较严重的BEV图像上直接训练2D旋转目标检测模型，检测车辆的地面位置，从而实现距离估计。</p>
 <p>除了失真的影响，还需要满足所有车辆与地面平行且处于地面（保证单应性矩阵有效）、相机相对于车辆绝对固定（相机外参不变）的假设。</p>
+<h4
+id="learning-to-look-around-objects-for-top-view-representations-of-outdoor-scenes">Learning
+to Look around Objects for Top-View Representations of Outdoor
+Scenes</h4>
+<figure>
+<img src="LearnLookAround/pipe.png" alt="LearnLookAround训练流程" />
+<figcaption aria-hidden="true">LearnLookAround训练流程</figcaption>
+</figure>
+<p>这篇文章在没有BEV地图分割标注的情况下，输入单张图片和分割模型预测的mask，使用CNN预测背景的seg和depth（包含对原来前景区域下seg和depth的inpainting）；之后再用这个seg和depth以及相机内参得到相机坐标系下的分割点云并拍平(z)、离散化(x,y)到BEV平面。从论文的实例中可以看到这样初始化的BEV分割非常不好。最后做一个BEV
+seg的refinement。</p>
+<p>方法忽略了路上的任何前景物体，包括汽车行人等，应用性不高。</p>
 <h4 id="vpn">VPN</h4>
 <figure>
 <img src="VPN/framework.png" alt="VPN框架图" />
@@ -9301,13 +9320,146 @@ class="math inline">\(m_i\)</span>
 match的anchor到gt的匹配方式 （待看）。</p>
 <p>使用了在nuScenes上的2D detector pretraining，用于初始化2D
 encoder，在训练过程中为不同尺度的特征使用了2D 检测头，计算aux loss。</p>
+<h4
+id="understanding-birds-eye-view-semantic-hd-maps-using-an-onboard-monocular-camera">Understanding
+Bird's-Eye View Semantic HD-maps Using an Onboard Monocular Camera</h4>
+<figure>
+<img src="BEV-HD-MAP/pipe.png" alt="BEV HD-Maps的训练流程" />
+<figcaption aria-hidden="true">BEV HD-Maps的训练流程</figcaption>
+</figure>
+<p>本文是最早使用单目相机的多帧输入预测BEV地图分割的工作。</p>
+<p>在处理透视图像特征时，将动态的前景目标和静态的区域分开解码，因为静态区域编码可能是重叠的（一个像素有多个静态标签），且前景目标只在关键帧有标注。</p>
+<blockquote>
+<p>在已知相机内外参、地面坐标时，可以求得FV到BEV的单应性矩阵，<strong>how?</strong></p>
+<p>且在已知每一帧ego2global的变换时，可以将关键帧前后共 <span
+class="math inline">\(N\)</span>
+个frame的特征、静态区域heatmap均对齐到关键帧</p>
+</blockquote>
+<p>不同帧的融合、特征与不同heatmap的融合如下图所示：</p>
+<figure>
+<img src="BEV-HD-MAP/fusion.png" alt="BEV HD-Map的时序特征融合策略" />
+<figcaption aria-hidden="true">BEV HD-Map的时序特征融合策略</figcaption>
+</figure>
+<h4 id="pyva">PYVA</h4>
+<p>CVP模块：与VPN类似，PYVA在将FV的feature变换到BEV的feature时，使用的是MLP：<span
+class="math inline">\(X&#39; = \mathcal{F}_\text{MLP}(X)\)</span>
+；但是在此基础之上，再建立一组MLP将BEV feature变换回 FV feature：<span
+class="math inline">\(X&#39;&#39; =
+\mathcal{F}&#39;_\text{MLP}(X&#39;)\)</span>；最小化 <span
+class="math inline">\(X&#39;&#39;\)</span> 和 <span
+class="math inline">\(X\)</span> 的 <span
+class="math inline">\(\mathcal{L}_1\)</span> 距离。</p>
+<figure>
+<img src="PYVA/CVT.png" alt="PYVA的CVT模块" />
+<figcaption aria-hidden="true">PYVA的CVT模块</figcaption>
+</figure>
+<p>CVT模块：之后，用 <span class="math inline">\(X&#39;\)</span>
+作为query，<span class="math inline">\(X\)</span> 和 <span
+class="math inline">\(X&#39;&#39;\)</span> 分别作为key和value。计算
+query <span class="math inline">\(X&#39;\)</span> 和 key <span
+class="math inline">\(X\)</span> 的余弦相似度矩阵 <span
+class="math inline">\(R\)</span>，之后选出<span
+class="math inline">\(R\)</span> 每一行的最大值 <span
+class="math inline">\(W\)</span> 以及对应的索引 <span
+class="math inline">\(H\)</span>；使用该索引选择 value <span
+class="math inline">\(X&#39;&#39;\)</span> 对应的向量 <span
+class="math inline">\(T\)</span>。</p>
+<blockquote>
+<p>上述操作与一个标准cross
+attn十分类似，以BEV特征为Q，以FV特征为K,V，Q、K、V使用不同的MLP获得更加丰富的表达。之后相当于将attention中的温度设为0（退化为argmax）得到了
+<span class="math inline">\(T\)</span></p>
+</blockquote>
+<p>之后是一些不太一样的shortcut</p>
+<p><span class="math display">\[
+X_{out} = X&#39; + \mathcal{F}_{conv}(\operatorname{Concat}(X&#39;,
+T))\odot W
+\]</span></p>
+<h4 id="neat">NEAT</h4>
+<figure>
+<img src="NEAT/arch.png" alt="NEAT模型结构" />
+<figcaption aria-hidden="true">NEAT模型结构</figcaption>
+</figure>
+<p>NEAT使用多视角单帧图像，以及目的坐标作为输入，预测未来 <span
+class="math inline">\(Z\)</span> 个时刻的航路点(waypoint)和当前以及未来
+<span class="math inline">\(Z\)</span> 个时刻的BEV分割。</p>
+<p>将多个视图图像分别过ResNet，得到的 <span
+class="math inline">\(S\times T\)</span> 张特征图(视图数 <span
+class="math inline">\(S=3\)</span>，输入帧数 <span
+class="math inline">\(T=1\)</span>)均划分成 <span
+class="math inline">\(P\)</span> 个 <span
+class="math inline">\(C\)</span>
+通道的patch，并加上速度编码以及位置编码，送入一个Transformer进行自注意力，得到
+<span class="math inline">\(\mathbf{c}\in \mathbb{R}^{STP\times
+C}\)</span>。</p>
+<p>之后使用输出坐标系t时刻的位置坐标、时刻以及目的坐标组成的 <span
+class="math inline">\(\mathbf{p} = (x,y,t,x&#39;,y&#39;)\)</span>
+作为Q，希望能与 <span class="math inline">\(\mathbf{c}\)</span>
+的信息进行交换，进而最后能够用于解码 <span
+class="math inline">\((x,y)\)</span>
+位置距离waypoint的偏移，以及该位置的label。</p>
+<blockquote>
+<p>Q是坐标，K,V是特征，这样也能attention?
+一般的，笔者会想到把Q搞成带有位置编码的可学习的embedding，在本文里，直接搞了一个MLP
+<span class="math inline">\(a_\phi:
+\mathbb{R}^5\times\mathbb{R}^C\rightarrow
+\mathbb{R}^{STP}\)</span>，用这个函数来计算相似度。笔者还不太理解这个MLP是具体怎么设计的？</p>
+<p>为什么要迭代？attention map不是一次计算好的，以解决显存占用？第 <span
+class="math inline">\(i\)</span> 次迭代计算 <span
+class="math inline">\(\mathbf{p}\)</span> 和 <span
+class="math inline">\(c_{i-1}\)</span> 的相似度 <span
+class="math inline">\(a_{i}\)</span>，归一化后再对 <span
+class="math inline">\(\mathbf{c}\)</span> 加权得到 <span
+class="math inline">\(c_i\)</span>。（其中 <span
+class="math inline">\(\mathbf c_0\)</span> 是 <span
+class="math inline">\(\mathbf c\)</span> 的 <span
+class="math inline">\(STP\)</span> 个向量的均值）</p>
+<p>非最后一次迭代的输出也可以在解码后受到监督作为aux loss。</p>
+<p>解码器还是那个神奇的 MLP 结构 <span class="math inline">\(d_{\psi}:
+\mathbb{R}^5\times \mathbb{R}^{C} \rightarrow \mathbb{R}^K\times
+\mathbb{R}^2\)</span></p>
+</blockquote>
+<h4 id="section"></h4>
 <h4 id="bevformer">BEVFormer</h4>
 <h3 id="lidar">LiDAR</h3>
-<h4 id="pointpillars">PointPillars</h4>
+<h4 id="voxelnet">VoxelNet</h4>
+<p>这篇论文完全没有用到BEV视角。只要知道VoxelNet将3D点云划分为若干voxel，接着对非空voxel，用其中点云特征聚合得到4D
+voxel特征，并建立了voxel特征到3D点云坐标的哈希表。后面的特征计算用了非常费时的3D卷积。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/40051716">知乎 - VoxelNet:
+基于点云的三维空间信息逐层次学习网络</a></p>
 <h4 id="second">SECOND</h4>
+<p>SECOND基于VoxelNet改进。用稀疏3D卷积代替VoxelNet中的3D卷积。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/356892010">知乎 -
+SECOND算法解析</a></p>
+<h4 id="pointpillars">PointPillars</h4>
+<p>PointPillars使用LiDAR数据做3D目标检测，并且不想用任何3D卷积。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/363970537">知乎 - PointPillars:
+Fast Encoders for Object Detection from Point Clouds解读</a></p>
 <h4 id="centerpoint">CenterPoint</h4>
-<h3 id="fusion">Fusion</h3>
+<h3 id="cameralidar">Camera+LiDAR</h3>
 <h4 id="mv3d">MV3D</h4>
+<figure>
+<img src="MV3D/arch.png" alt="MV3D网络结构" />
+<figcaption aria-hidden="true">MV3D网络结构</figcaption>
+</figure>
+<p>MV3D先将3D点云分别投影到front view和bird eye's
+view作为LiDAR输入，以获得更紧密的表示；对于鸟瞰网格视图，将点云信息为编码为M张高度图，1张密度图，1张强度图；对于前视网格视图，将点云信息投影到圆柱面而非平面以获得更加密集的表示，并使用高度、距离和强度3通道表示。一般的特征提取网络提取图像特征。</p>
+<p>接下来，使用BEV下的LiDAR图预测3D
+proposals，再将其投影到前视视角和鸟瞰视角作为各自的2D候选区并各自进行ROI
+pooling。最后再进行deep fusion融合特征。</p>
+<blockquote>
+<p>笔者觉得，按照文中3D点云到front
+view下所谓“圆柱面”的投影公式（定义源于<a
+href="https://arxiv.org/abs/1608.07916">Vehicle Detection from 3D Lidar
+Using Fully Convolutional Network</a>），应该是个球面啊；</p>
+</blockquote>
+<blockquote>
+<p>这里对点云特征的编码可以说是非常具有早期的hand-coded
+feature的感觉了。</p>
+</blockquote>
+<h4 id="avod">AVOD</h4>
+<p>大致思路与MV3D一样，就是在BEV中提3D proposal再投影。</p>
+<p><a
+href="https://zhuanlan.zhihu.com/p/40271319">AVOD相比于MV3D的改进</a></p>
 ]]></content>
   </entry>
 </search>
