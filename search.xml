@@ -3679,7 +3679,13 @@ alternatives) 表明两者有且只有一个是可行的；</p>
 
 </blockquote>
 <span id="more"></span>
-<h2 id="无监督zero-shotfew-shot">无监督、Zero Shot、Few Shot</h2>
+<h2 id="zero-shotopen-vocabulary">Zero Shot、Open Vocabulary</h2>
+<h3 id="diffumask">DiffuMask</h3>
+<p>DiffuMask<a href="#wu2023diffumask"><sup>10</sup></a></p>
+<h3 id="datasetdm">DatasetDM</h3>
+<p>DatasetDM<a href="#wu2023datasetdm"><sup>11</sup></a></p>
+<h3 id="grounded-diffusion">Grounded Diffusion</h3>
+<h2 id="无监督">无监督</h2>
 <h3 id="diffusionseg">DiffusionSeg</h3>
 <figure>
 <img src="DiffusionSeg/fig2.png" alt="DiffusionSeg两阶段示意图" />
@@ -3700,24 +3706,8 @@ class="math inline">\(A_s\)</span> 和
 输入图片像素间RGB距离和欧氏距离来提升coherence区域的响应”，设计了能量函数并且使用图割算法最小化；（比直接使用KMeans,NCut,
 DenseCRF效果好）</p>
 <p>Exploitation阶段：</p>
-<ol type="1">
-<li>DDPM的扩散过程每一步都需要引入随机噪声，这里使用DDIM的思路，获得确定的噪声，利于重建；之后在反向过程中，获得特征图；</li>
-<li>输入图片和之前生成的prompt送入CLIP？</li>
-<li>用AttentionCut生成的pseudo mask作为监督，训练简单的三层 FCN
-Decoder（Diffusion Model 是冻结的）</li>
-</ol>
-<p>因为笔者知识储备不足，加之目前没有开放源代码，笔者还有如下疑问： 1.
-为什么在DiffusionSeg中，类别标签要由CLIP选出，而不直接用AttentionCut中输入的类别标签？
-2. objectness的能量函数的定义中，像素 <span
-class="math inline">\(p\)</span> 属于前景/背景的先验从哪来？是使用阈值
-<span class="math inline">\(\tau\)</span> 对 <span
-class="math inline">\(A_c\)</span> 进行初步二值化得到的吗？以及，在
-<span class="math inline">\(p \in \text{background}\)</span>
-时的目标是不是少了一个负号？ <img src="DiffusionSeg/eq4.png" /> 3. Inner
-Coherence中定义的Spacial Coherence <span
-class="math inline">\(\mathcal{D}(p,q)\)</span> 是来自于哪个传统的方法？
-<img src="DiffusionSeg/eq5.png" /></p>
-<h3 id="diffumask">DiffuMask</h3>
+<p>用AttentionCut生成的pseudo mask作为监督，训练简单的三层 FCN
+Decoder（Diffusion Model 是冻结的</p>
 <h3 id="diffseg">DiffSeg</h3>
 <figure>
 <img src="DiffSeg/pipe.png" alt="DiffSeg的流程图" />
@@ -3907,8 +3897,8 @@ Pattern Recognition. 2022.</a></li>
 
 </div>
 <ul>
-<li>[3] <a href="https://arxiv.org/pdf/2303.17559.pdf">Ji, Yuanfeng, et
-al. "Ddp: Diffusion model for dense visual prediction." arXiv preprint
+<li>[3] <a href="https://arxiv.org/pdf/2303.17559">Ji, Yuanfeng, et al.
+"Ddp: Diffusion model for dense visual prediction." arXiv preprint
 arXiv:2303.17559 (2023).</a></li>
 </ul>
 <div id="chen2023intergrating">
@@ -3958,10 +3948,26 @@ preprint arXiv:2308.12964 (2023).</a></li>
 
 </div>
 <ul>
-<li>[9] <a href="https://arxiv.org/pdf/2308.12469.pdf">Tian, Junjiao, et
-al. "Diffuse, Attend, and Segment: Unsupervised Zero-Shot Segmentation
-using Stable Diffusion." arXiv preprint arXiv:2308.12469
-(2023).</a></li>
+<li>[9] <a href="https://arxiv.org/pdf/2308.12469">Tian, Junjiao, et al.
+"Diffuse, Attend, and Segment: Unsupervised Zero-Shot Segmentation using
+Stable Diffusion." arXiv preprint arXiv:2308.12469 (2023).</a></li>
+</ul>
+<div id="wu2023diffumask">
+
+</div>
+<ul>
+<li>[10] <a href="https://arxiv.org/abs/2303.11681">Wu, Weijia, et al.
+"Diffumask: Synthesizing images with pixel-level annotations for
+semantic segmentation using diffusion models." arXiv preprint
+arXiv:2303.11681 (2023).</a></li>
+</ul>
+<div id="wu2023datasetdm">
+
+</div>
+<ul>
+<li>[11] <a href="https://arxiv.org/abs/2308.06160">Wu, Weijia, et al.
+"DatasetDM: Synthesizing Data with Perception Annotations Using
+Diffusion Models." arXiv preprint arXiv:2308.06160 (2023).</a></li>
 </ul>
 ]]></content>
       <categories>
@@ -9460,6 +9466,121 @@ feature的感觉了。</p>
 <p>大致思路与MV3D一样，就是在BEV中提3D proposal再投影。</p>
 <p><a
 href="https://zhuanlan.zhihu.com/p/40271319">AVOD相比于MV3D的改进</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Open Vocabulary Segmentation</title>
+    <url>/2023/10/03/OV-Seg/</url>
+    <content><![CDATA[<blockquote>
+<p>本文记录开放世界语义分割相关工作。包括Zero Shot语义分割的工作。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="关于开放视觉感知">关于开放视觉感知</h2>
+<p>首先回顾close set的语义分割，任务预定义了 <span
+class="math inline">\(K\)</span>
+个类别，之后训练一种网络将RGB图像空间映射到离散的 <span
+class="math inline">\(K\)</span>
+标签空间。模型可能在学习过程中隐式地学习到了 <span
+class="math inline">\(K\)</span>
+个类别的属性。但是用户在使用的时候，必须要自己建立真实类别与这 <span
+class="math inline">\(K\)</span>
+个预定义类别的联系。比如用户想识别真实世界中的
+“稻草人”，但是首先要想到在预定义类别中与之最相近的就是“人”，接着需要在close
+set语义分割系统中识别出来的“人”中判断是不是稻草人。</p>
+<p>而一些大规模的图文匹配数据集催生了一批具有Zero
+shot感知能力的模型，例如（CLIP这样的图文匹配模型、Diffusion这样的文生图模型）。我们希望这样的能力能够被继承到分割模型中，也就是说分割模型能够显式地理解文本概念并且将其与正确的image
+region关联起来。从模型上来看，就是从学习softmax classifier变成了学习mask
+embedding和text embedding。普遍认为，text
+embedding已经学习地很好了，要做地就是让vision embedding与之对齐。</p>
+<p>由此，诞生了如下几种的实验setting。</p>
+<ul>
+<li>Zero shot:
+将某个数据集的类别划分为seen和unseen，仅仅使用seen类别的图像特征和文本类别训练，在seen和unseen上推理。</li>
+<li>Open Vocabulary:
+依然会使用训练集上的所有信息，但是在建模上，输出mask
+embedding，通过和现成的text
+embedding计算相似度的方式完成分类。测试在一个数据集训练的模型在多个数据集上的推理能力。</li>
+<li>Unsupervised/Training
+Free：不使用任何分割标注。可能是无监督学习；可能是重新预训练、之后再进行推理（<a
+href="#segclip">SegCLIP</a>）；也可能是直接使用某个预训练模型进行推理。</li>
+<li>Transductive Zero Shot：</li>
+</ul>
+<p>截至目前（2023.10），OV的<strong>局限性</strong>： -
+模型不确定性，什么情况下会出错？目前只能在固定类别上衡量模型的能力，但是在应用中需要在广泛的类别中衡量。目前的Evaluation是不够的。
+- 性能还不够好，需要逼近甚至超过close set模型。 -
+现有的训练标注粒度还不够细。 - 现在主要关注visual
+category，需要解决visual attribute、relationship等问题。 - Scale
+up能力不足。</p>
+<h2 id="论文阅读列表">论文阅读列表</h2>
+<h4 id="section"></h4>
+<p>Zero-Shot Semantic Segmentation</p>
+<h4 id="section-1"></h4>
+<p>Towards Open-Set Semantic Segmentation Of Aerial Images</p>
+<h4 id="section-2"></h4>
+<p>Unsupervised Semantic Segmentation by Contracting Object Mask
+Proposals</p>
+<h4 id="section-3"></h4>
+<p>A Simple Baseline for Zero-shot Semantic Segmentation with
+Pre-trained Vision-language Model</p>
+<h4 id="lseg">LSeg</h4>
+<p>Language-driven Semantic Segmentation</p>
+<h4 id="section-4"></h4>
+<p>Semantic segmentation in-the-wild without seeing any segmentation
+examples</p>
+<h4 id="zegformer">ZegFormer</h4>
+<h4 id="zegclip">ZegCLIP</h4>
+<h4 id="openseg">OpenSeg</h4>
+<h3 id="不使用pixel-annotation">不使用Pixel Annotation</h3>
+<h4 id="groupvit">GroupViT</h4>
+<h4 id="reco">ReCO</h4>
+<p>(no annotation)</p>
+<h4 id="maskclip">MaskCLIP</h4>
+<h4 id="segclip">SegCLIP</h4>
+<p>本文研究开放词汇表语义分割，遵循“学习patch表示到文本表示的对齐并学习patch分组”的pipeline，设计了一种cross-attention
+based聚类方法，重新训练了一个CLIP Image
+Encoder，使其具有空间上粒度更细的可以和文本对齐的patch特征。</p>
+<figure>
+<img src="SegCLIP/arch.png" alt="SegCLIP框架图" />
+<figcaption aria-hidden="true">SegCLIP框架图</figcaption>
+</figure>
+<p>如上图所示，Semantic Group插入在Encoder的Transformer
+Layer之间。基于聚类的思想，先初始化 <span
+class="math inline">\(L\)</span> 个可视化的语义中心 <span
+class="math inline">\(\mathcal{H}_c =
+\{c_k\}_{k=1}^{L}\)</span>；在计算语义中心和 <span
+class="math inline">\(N\)</span> 个patch语义 <span
+class="math inline">\(\mathcal{H}_p\)</span> 距离的建模上，使用cross
+attn，得到的 <span class="math inline">\(\hat{\mathcal{H}_c}\)</span>
+是微调后的语义中心；接下来将patch特征与聚类中心做一个分配，使用Gumbel-Softmax（依概率采样），得到匹配矩阵
+<span class="math inline">\(\mathcal{M}\in \mathbb{R}^{N\times
+L}\)</span> (类同GroupViT的soft
+assignment)；接下来，根据分配结果更新聚类中心，相比于KMeans中使用的将同一个聚类中的patch语义均值作为新的聚类中心
+<span class="math inline">\(\hat{\mathcal{H}_p} \in\mathbb{R}^{L\times
+C}\)</span>，这里添加了残差链接以及MLP： <span class="math display">\[
+\hat{\mathcal{H}_p} =
+\operatorname{MLP}(\operatorname{MEAN}(\mathcal{M}^T\mathcal{H}_p) +
+\hat{\mathcal{H}_c})
+\]</span></p>
+<figure>
+<img src="SegCLIP/construction-loss.png" alt="SegCLIP重建损失示意图" />
+<figcaption aria-hidden="true">SegCLIP重建损失示意图</figcaption>
+</figure>
+<p>除了CLIP本身的contrastive
+loss之外，还设计了另外两个损失。如果说，之前的cross-attn只是建立了聚类中心和所有patch特征的关系，这两个损失是真正在缩小类内距离。</p>
+<p>对于重建损失，其动机是，通过同一个聚类中可见的patch
+embedding获得的聚类中心，应该跟其他不可见的patch
+embedding语义仍然相似。</p>
+<p>对于KL损失，其动机是使用现成的superpixel方法，得到另外一组super
+patch，让该super patch与 <span
+class="math inline">\(\mathcal{M}\)</span> 表示的聚类保持一致。</p>
+<p>训练时，SegCLIP使用CLIP初始化参数并在文本对数据集上训练image
+encoder，之后直接在各个语义分割数据集上，进行Zero-Shot的推理。</p>
+<figure>
+<img src="SegCLIP/ablation-loss.png"
+alt="SegCLIP关于两个额外损失函数的消融实验" />
+<figcaption
+aria-hidden="true">SegCLIP关于两个额外损失函数的消融实验</figcaption>
+</figure>
 ]]></content>
   </entry>
 </search>
