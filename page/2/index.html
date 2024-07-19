@@ -91,7 +91,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">18</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">34</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">12</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">23</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
   </ul>
 </nav>
 
@@ -130,18 +130,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -175,7 +175,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/02/01/SCNN/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/10/03/RepVGG/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -193,7 +193,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/02/01/SCNN/" class="post-title-link" itemprop="url">SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法</a>
+          <a href="/2022/10/03/RepVGG/" class="post-title-link" itemprop="url">RepVGG论文与代码阅读</a>
         </h2>
 
         <div class="post-meta-container">
@@ -204,7 +204,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-02-01 16:52:54" itemprop="dateCreated datePublished" datetime="2023-02-01T16:52:54+08:00">2023-02-01</time>
+      <time title="创建时间：2022-10-03 11:45:13" itemprop="dateCreated datePublished" datetime="2022-10-03T11:45:13+08:00">2022-10-03</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -233,21 +233,25 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <img src="/2023/02/01/SCNN/fig1.png" class="">
+          <img src="/2022/10/03/RepVGG/image-20221003122122530.png" class="">
 <p><strong>论文</strong>：<a
-target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Liu_Sparse_Convolutional_Neural_2015_CVPR_paper.pdf"><strong>Sparse
-Convolutional Neural Networks</strong></a></p>
-<p><strong>作者</strong>：<em>Baoyuan Liu, Min Wang, Hassan Foroosh,
-Marshall F. Tappen, Marianna Penksy</em></p>
-<p><strong>一作单位</strong>：Computational Imaging Lab, Computer
-Science, University of Central Florida, Orlando, FL, USA</p>
-<p><strong>录用情况</strong>：CVPR'2015</p>
+target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/CVPR2021/papers/Ding_RepVGG_Making_VGG-Style_ConvNets_Great_Again_CVPR_2021_paper.pdf">RepVGG:
+Making VGG-style ConvNets Great Again</a></p>
+<p><strong>作者</strong>：<em>Xiaohan Ding</em>, <em>Xiangyu Zhang</em>,
+<em>Ningning Ma</em>, <em>Jungong Han</em>, <em>Guiguang Ding</em>,
+<em>Jian Sun</em></p>
+<p><strong>录用情况</strong>：CVPR'2021</p>
+<p><strong>第一作者单位</strong>：Beijing National Research Center for
+Information Science and Technology (BNRist); School of Software,
+Tsinghua University, Beijing, China</p>
 <blockquote>
-<p>本文将卷积核两次分解，之后对第二次分解得到的“权重”矩阵进行稀疏化，对于ILSVRC2012数据集上训练的一个5层卷积层的网络，经过微调，在1%的性能损失下，获得了90%的稀疏率；尽管稀疏的算法在高度并行的GPU设备上并不吃香，但是对无GPU设备的加速仍有其意义，因此本文设计了在CPU上高效的稀疏矩阵乘法，获得了实质的推理加速；</p>
+<p>本文借助重参数化技巧，提出了一个在训练时多分支，而在推理时为类似于VGG的直筒形网络（3x3卷积+ReLU堆叠成的基本块），命名为RepVGG。这是第一次一个简单的模型在ImageNet上获得了80%以上的top1准确率，并且直筒形状的结构让RepVGG有着很高的计算密度与推理速度，相比于EfficientNet和RegNet有更好的性能与速度的折中。<a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/344324470">作者本人在知乎上的稿子</a>。<a
+target="_blank" rel="noopener" href="https://github.com/DingXiaoH/RepVGG">代码仓库</a>。</p>
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2023/02/01/SCNN/#more" rel="contents">
+              <a class="btn" href="/2022/10/03/RepVGG/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -278,7 +282,7 @@ Science, University of Central Florida, Orlando, FL, USA</p>
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/01/19/LCNN/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/09/30/ML-Class/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -296,7 +300,7 @@ Science, University of Central Florida, Orlando, FL, USA</p>
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/01/19/LCNN/" class="post-title-link" itemprop="url">字典学习卷积模块以加速网络推理</a>
+          <a href="/2022/09/30/ML-Class/" class="post-title-link" itemprop="url">机器学习课堂笔记</a>
         </h2>
 
         <div class="post-meta-container">
@@ -307,7 +311,7 @@ Science, University of Central Florida, Orlando, FL, USA</p>
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-01-19 23:31:18" itemprop="dateCreated datePublished" datetime="2023-01-19T23:31:18+08:00">2023-01-19</time>
+      <time title="创建时间：2022-09-30 16:14:54" itemprop="dateCreated datePublished" datetime="2022-09-30T16:14:54+08:00">2022-09-30</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -315,15 +319,6 @@ Science, University of Central Florida, Orlando, FL, USA</p>
       </span>
       <span class="post-meta-item-text">更新于</span>
       <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
-        </span>
     </span>
 
   
@@ -336,23 +331,13 @@ Science, University of Central Florida, Orlando, FL, USA</p>
     
     
     <div class="post-body" itemprop="articleBody">
-          <img src="/2023/01/19/LCNN/fig1.png" class="">
-<p><strong>论文</strong>：<a
-target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Bagherinezhad_LCNN_Lookup-Based_Convolutional_CVPR_2017_paper.pdf"><strong>LCNN:
-Lookup-based Convolutional Neural Network</strong></a></p>
-<p><strong>作者</strong>：<em>Hessam Bagherinezhad, Mohammad Rastegari,
-Ali Farhadi</em></p>
-<p><strong>一作单位</strong>：University of Washington, XNOR.AI</p>
-<p><strong>录用情况</strong>：CVPR'2017</p>
-<blockquote>
-<p>本文将卷积运算替换为学习一个字典和一组线性组合的权重，并提出了直接从头开始训练的方式，除了一般的分类实验，本文还证明了这种方法在few
-shot
-learning的提升，以及对网络初始迭代时收敛水平的提升等；在AlexNet的架构上的修改，该方法获得了55.1%的ImageNet
-top1准确率以及3.2倍的加速比；</p>
+          <blockquote>
+<p>本文记录在本学期《机器学习及其应用课》上一些印象比较深刻的知识点；大部分在课堂PPT或者相关书籍（周志华《机器学习》，李航《统计学习方法》）上很容易理解的点就不在此赘述了；</p>
+<p>笔者水平有限，如果有错误清多多指正；</p>
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2023/01/19/LCNN/#more" rel="contents">
+              <a class="btn" href="/2022/09/30/ML-Class/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -383,7 +368,7 @@ top1准确率以及3.2倍的加速比；</p>
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/01/13/Non-linear-Conv-Decomp/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/09/21/Non-local/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -401,7 +386,7 @@ top1准确率以及3.2倍的加速比；</p>
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/01/13/Non-linear-Conv-Decomp/" class="post-title-link" itemprop="url">卷积分解：考虑非线性函数、多层误差累积以及秩选择</a>
+          <a href="/2022/09/21/Non-local/" class="post-title-link" itemprop="url">Non-local网络回顾</a>
         </h2>
 
         <div class="post-meta-container">
@@ -412,7 +397,7 @@ top1准确率以及3.2倍的加速比；</p>
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-01-13 11:30:13" itemprop="dateCreated datePublished" datetime="2023-01-13T11:30:13+08:00">2023-01-13</time>
+      <time title="创建时间：2022-09-21 16:53:49" itemprop="dateCreated datePublished" datetime="2022-09-21T16:53:49+08:00">2022-09-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -420,15 +405,6 @@ top1准确率以及3.2倍的加速比；</p>
       </span>
       <span class="post-meta-item-text">更新于</span>
       <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
-        </span>
     </span>
 
   
@@ -441,21 +417,24 @@ top1准确率以及3.2倍的加速比；</p>
     
     
     <div class="post-body" itemprop="articleBody">
-          <img src="/2023/01/13/Non-linear-Conv-Decomp/fig1.png" class="">
-<p><strong>论文</strong>：<a
-target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Zhang_Efficient_and_Accurate_2015_CVPR_paper.html"><strong>Efficient
-and Accurate Approximations of Nonlinear Convolutional
-Networks</strong></a></p>
-<p><strong>作者</strong>：<em>Xiangyu Zhang, Jianhua Zou, Xiang Ming,
-Kaiming He, Jian Sun</em></p>
-<p><strong>一作单位</strong>：Microsoft Research</p>
-<p><strong>录用情况</strong>：CVPR'2015</p>
+          <img src="/2022/09/21/Non-local/image-20220921200450948.png" class="">
+<p><strong>论文</strong>：Non-local Neural Networks</p>
+<p><strong>作者</strong>：<em>Xiaolong Wang, Ross Girshick, Abhinav
+Gupta, Kaiming He</em></p>
+<p><strong>录用情况</strong>：CVPR'2018</p>
+<p><strong>第一作者单位</strong>：Carnegie Mellon University，Facebook
+AI Research</p>
+<p>本文提出的Non-Local是捕获长距离信息的，这篇文章主要在视频分类任务上做实验（Kinetics,
+Charades），但在静态图像方面，也在COCO上进行了实例分割、检测和姿态估计的实验。</p>
+<p>笔者认为，Non-Local在计算attention的方法上有所扩展，并在计算attention之前使用池化方法减小计算量之外，与self-attention没有什么不同的。</p>
 <blockquote>
-<p>作者从卷积核沿着空间维度和通道维度展开后的低秩性入手，将其分解为更少的卷积核以及一系列1x1卷积；接着，作者考虑了卷积核后的非线性层的印象，设计了一个更加复杂的优化目标，并给出了优化算法；作者还考虑了多层误差累积现象，将优化目标改为“反对称”的；对于每一层的秩的选择，作者将其视为一个组合问题，用贪心法求解；在这一系列的策略下，SPPnet在字符分类精度损失0.7%的情况下获得了4.5倍加速比；</p>
+<p>当然，在当时的情况下，Self-Attention还在NLP领域内玩，而且作者提出他们的insight来自于一种经典的图像去噪算法<a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Non-local_means">Non-local
+mean</a>。</p>
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2023/01/13/Non-linear-Conv-Decomp/#more" rel="contents">
+              <a class="btn" href="/2022/09/21/Non-local/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -486,7 +465,7 @@ Kaiming He, Jian Sun</em></p>
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/01/12/Conv-Spatial-Low-Rank-Decomp/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/09/18/ConvNeXt/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -504,7 +483,7 @@ Kaiming He, Jian Sun</em></p>
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/01/12/Conv-Spatial-Low-Rank-Decomp/" class="post-title-link" itemprop="url">在空间域上的低秩分解和在通道上的线性组合加速卷积运算</a>
+          <a href="/2022/09/18/ConvNeXt/" class="post-title-link" itemprop="url">ConvNeXt论文阅读</a>
         </h2>
 
         <div class="post-meta-container">
@@ -515,14 +494,14 @@ Kaiming He, Jian Sun</em></p>
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-01-12 12:05:58" itemprop="dateCreated datePublished" datetime="2023-01-12T12:05:58+08:00">2023-01-12</time>
+      <time title="创建时间：2022-09-18 22:44:16" itemprop="dateCreated datePublished" datetime="2022-09-18T22:44:16+08:00">2022-09-18</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+      <time title="修改时间：2023-02-14 21:25:05" itemprop="dateModified" datetime="2023-02-14T21:25:05+08:00">2023-02-14</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -544,21 +523,18 @@ Kaiming He, Jian Sun</em></p>
     
     
     <div class="post-body" itemprop="articleBody">
-          <img src="/2023/01/12/Conv-Spatial-Low-Rank-Decomp/fig1.png" class="">
-<p><strong>论文</strong>：<a
-target="_blank" rel="noopener" href="https://arxiv.org/abs/1405.3866"><strong>Speeding up Convolutional
-Neural Networks with Low Rank Expansions</strong></a></p>
-<p><strong>作者</strong>：<em>Max Jaderberg, Andrea Vedaldi and Andrew
-Zisserman</em>;</p>
-<p><strong>一作单位</strong>：Visual Geometry Group Department of
-Engineering Science University of Oxford</p>
-<p><strong>录用情况</strong>：BMVC'2014</p>
+          <img src="/2022/09/18/ConvNeXt/fig1.png" class="">
+<p><strong>论文</strong>：<strong>A ConvNet for the 2020s</strong></p>
+<p><strong>作者</strong>：<em>Zhuang Liu, Hanzi Mao, Chao-Yuan Wu,
+Christoph Feichtenhofer, Trevor Darrell, Saining Xie</em>;</p>
+<p><strong>一作单位</strong>：Facebook AI Research, UC Berkeley</p>
+<p><strong>录用情况</strong>：CVPR'2022</p>
 <blockquote>
-<p>本文在空间维度上对卷积的空间域进行低秩分解，提出了两种分解的Scheme，直接的和间接的，相比于只在空间域上分解卷积核，作者还利用了通道维度上的冗余性，将多个卷积核视为基的线性组合；对于从传统卷积核到分解后的结构，提出了两种优化方法，基于卷积核的重建和基于数据的重建；该可以用到任何一般的卷积层中去。</p>
+<p>2020年以来，很多多层级的Transformer架构被提出，获得了优异的性能；本文找到一种更加现代的卷积神经网络，能够与Transformer相匹敌；本文的实验显然需要庞大的机器才能完成，但是这些结果给CNN爱好者们一个新的方向，正如题目所说，在2020年代，该如何设计、训练CNN？</p>
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2023/01/12/Conv-Spatial-Low-Rank-Decomp/#more" rel="contents">
+              <a class="btn" href="/2022/09/18/ConvNeXt/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -589,7 +565,7 @@ Engineering Science University of Oxford</p>
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2023/01/01/Structured-Convolutions/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/09/07/SegFormer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -607,7 +583,7 @@ Engineering Science University of Oxford</p>
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/01/01/Structured-Convolutions/" class="post-title-link" itemprop="url">把卷积分解成sum-pooling和更小的卷积</a>
+          <a href="/2022/09/07/SegFormer/" class="post-title-link" itemprop="url">SegFormer论文阅读</a>
         </h2>
 
         <div class="post-meta-container">
@@ -618,7 +594,7 @@ Engineering Science University of Oxford</p>
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-01-01 23:58:32" itemprop="dateCreated datePublished" datetime="2023-01-01T23:58:32+08:00">2023-01-01</time>
+      <time title="创建时间：2022-09-07 18:36:20" itemprop="dateCreated datePublished" datetime="2022-09-07T18:36:20+08:00">2022-09-07</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -647,22 +623,22 @@ Engineering Science University of Oxford</p>
     
     
     <div class="post-body" itemprop="articleBody">
-          <img src="/2023/01/01/Structured-Convolutions/fig1.png" class="">
-<p><strong>论文</strong>：<a
-target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2020/hash/3be0214185d6177a9aa6adea5a720b09-Abstract.html"><strong>Structured
-Convolutions for Efficient Neural Network Design</strong></a></p>
-<p><strong>作者</strong>：<em>Yash Bhalgat, Yizhe Zhang, Jamie Menjay
-Lin, Fatih Porikli</em></p>
-<p><strong>一作单位</strong>：Qualcomm AI Research</p>
-<p><strong>录用情况</strong>：Neurips'2020</p>
+          <p>标题：《<strong>SegFormer: Simple and Efficient Design for Semantic
+Segmentation with Transformers</strong>》</p>
+<p>作者：<em>Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandkumar, Jose
+M. Alvarez, Ping Luo</em></p>
+<p>录用情况：NeurIPS'2021</p>
+<p>开源代码：在MMSegmentation中已有实现</p>
+<p>这篇文章提出了一个简单高效的语义分割模型，使用了多尺度的Transformer结构做为Encoder，和使用MLP实现的简单的Decoder；在Transformer-Based中，作者没有使用显式的位置编码，而使用CNN建模位置信息；并且还使用了一些策略将attention计算的复杂度从<span
+class="math inline">\(O(N^2)\)</span>降低到<span
+class="math inline">\(O(N^2/R)\)</span>；</p>
+<img src="/2022/09/07/SegFormer/image-20220907185126016.png" class="" title="Figure1">
 <blockquote>
-<p>本文提出了一种Structured Convolution，将传统的卷积运算分解为sum
-pooling操作和卷积核更小的卷积操作，从而能够获得更小、更快的推理模型；为了使得分解带来的损失更小，作者还设计了一种Structural
-Regularization的正则项添加到训练过程中。该方法不亚于先前的各种张量分解或者通道剪枝方法。笔者认为，本文的分解方法很有意思。</p>
+<p>本文的很多方法都不是原创，但是在作者的组合、改进下，取得了性能与参数量平衡的结果；</p>
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2023/01/01/Structured-Convolutions/#more" rel="contents">
+              <a class="btn" href="/2022/09/07/SegFormer/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -693,7 +669,7 @@ Regularization的正则项添加到训练过程中。该方法不亚于先前的
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/11/14/Convex-Optimization/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/09/01/Swin-Transformer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -711,7 +687,7 @@ Regularization的正则项添加到训练过程中。该方法不亚于先前的
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/11/14/Convex-Optimization/" class="post-title-link" itemprop="url">凸优化学习笔记(一)</a>
+          <a href="/2022/09/01/Swin-Transformer/" class="post-title-link" itemprop="url">Swin Transformer 系列论文与代码阅读</a>
         </h2>
 
         <div class="post-meta-container">
@@ -722,14 +698,108 @@ Regularization的正则项添加到训练过程中。该方法不亚于先前的
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-11-14 10:37:10" itemprop="dateCreated datePublished" datetime="2022-11-14T10:37:10+08:00">2022-11-14</time>
+      <time title="创建时间：2022-09-01 16:48:28" itemprop="dateCreated datePublished" datetime="2022-09-01T16:48:28+08:00">2022-09-01</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-25 17:01:47" itemprop="dateModified" datetime="2023-02-25T17:01:47+08:00">2023-02-25</time>
+      <time title="修改时间：2023-03-31 10:47:49" itemprop="dateModified" datetime="2023-03-31T10:47:49+08:00">2023-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Swin Transformer是一种基于位移窗口的多尺度Vision
+Transformer结构，通过在窗口而非全局上计算自注意力，将与图像分辨率呈平方复杂度的MSA减少到了线性复杂度；窗口位移的技巧又使得窗口之间发生连接，从而随着网络深度的增加，使得每一个窗口的感受野不断增大；类似于CNN层级结构的网络设计让其与各种下游任务能够很好的集成，而Transformer捕获长程信息的特点更让其在dense的任务上有了相比于之前要好得多的表现！本文将介绍我个人对Swin
+Transformer模型结构的理解。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/09/01/Swin-Transformer/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/08/30/Stable-Calculations/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/08/30/Stable-Calculations/" class="post-title-link" itemprop="url">稳定的数值计算</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-08-30 17:10:09" itemprop="dateCreated datePublished" datetime="2022-08-30T17:10:09+08:00">2022-08-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -751,13 +821,12 @@ Regularization的正则项添加到训练过程中。该方法不亚于先前的
     
     
     <div class="post-body" itemprop="articleBody">
-          <blockquote>
-<p>内容主要来自<a target="_blank" rel="noopener" href="https://web.stanford.edu/class/ee364a/">MIT
-EE364a</a>课程slides和book；穿插着网络资源和少量自己的理解（这些内容不保证准确）</p>
-</blockquote>
+          <p>本文将介绍在实现softmax和交叉熵损失计算时需要注意的一些数学问题，并且回顾相关函数的定义与性质；代码来源于<a
+target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/5qYbxSe6X5KZo1ISOE4r8A">极市平台 -
+编写高效的Pytorch代码技巧</a>；</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/11/14/Convex-Optimization/#more" rel="contents">
+              <a class="btn" href="/2022/08/30/Stable-Calculations/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -788,7 +857,7 @@ EE364a</a>课程slides和book；穿插着网络资源和少量自己的理解（
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/11/07/DBB/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/08/29/SA-inductive-bias/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -806,7 +875,7 @@ EE364a</a>课程slides和book；穿插着网络资源和少量自己的理解（
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/11/07/DBB/" class="post-title-link" itemprop="url">Diverse Branch Block论文阅读</a>
+          <a href="/2022/08/29/SA-inductive-bias/" class="post-title-link" itemprop="url">《Attention is not all you need》阅读笔记</a>
         </h2>
 
         <div class="post-meta-container">
@@ -817,7 +886,7 @@ EE364a</a>课程slides和book；穿插着网络资源和少量自己的理解（
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-11-07 13:58:24" itemprop="dateCreated datePublished" datetime="2022-11-07T13:58:24+08:00">2022-11-07</time>
+      <time title="创建时间：2022-08-29 17:04:04" itemprop="dateCreated datePublished" datetime="2022-08-29T17:04:04+08:00">2022-08-29</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -846,384 +915,26 @@ EE364a</a>课程slides和book；穿插着网络资源和少量自己的理解（
     
     
     <div class="post-body" itemprop="articleBody">
-          <blockquote>
-<p>本文是重参数化的作者把这一方法做“透”了的一篇文章，在训练时用多路可以重参数化的结构不同的分支，在推理时合并起来；相比于先前的工作（ACNet和RepVGG），训练时的模型本身就在ImageNet上提点了，结合重参数化关于推理速度的卖点，这波是性能与速度的双赢；本文将主要关注代码实现；</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/11/07/DBB/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/11/03/Model-Compression/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="ashun">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ashun's Blog">
-      <meta itemprop="description" content="个人博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Ashun's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/11/03/Model-Compression/" class="post-title-link" itemprop="url">模型压缩论文阅读列表</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2022-11-03 19:13:26" itemprop="dateCreated datePublished" datetime="2022-11-03T19:13:26+08:00">2022-11-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <blockquote>
-<p>模型压缩，包括低秩分解、剪枝、量化、蒸馏等技术，旨在精度损失很小的前提下，获得参数更小、推理速度更快的模型</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/11/03/Model-Compression/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/11/01/English/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="ashun">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ashun's Blog">
-      <meta itemprop="description" content="个人博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Ashun's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/11/01/English/" class="post-title-link" itemprop="url">英语学习笔记（持续更新）</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2022-11-01 00:00:00" itemprop="dateCreated datePublished" datetime="2022-11-01T00:00:00+08:00">2022-11-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-08-24 19:23:36" itemprop="dateModified" datetime="2023-08-24T19:23:36+08:00">2023-08-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <span id="more"></span>
-<h2 id="collection-of-sentences">Collection of sentences</h2>
-<ol type="1">
-<li><p>With irrigation water also came potential problems, the most
-obvious being the susceptibility of low-lying farmlands to disastrous
-flooding from and the longer-term problem of salinization.</p>
-<p><strong>译文</strong>：有了灌溉水也会带来一些潜在的问题，最明显的就是低洼农田对灾难性洪水的敏感性以及长期的盐碱化。</p>
-<p><strong>缩写</strong>：irrigation water <span
-class="math inline">\(\rightarrow\)</span> low-lying farmlands are
-susceptible to flooding and sanlinization.</p>
-<p><strong>分析</strong>：这句话乍一看没有找到主语和谓语，仔细分析唯一可能做谓语的只有came，这里是一个介词短语做主语的用法，相似的句子还有：</p>
+          <p>本文是<a
+target="_blank" rel="noopener" href="https://scholar.google.com/citations?view_op=view_citation&amp;hl=en&amp;user=AjX6hisAAAAJ&amp;citation_for_view=AjX6hisAAAAJ:5nxA0vEk-isC">Attention
+is not all you need: Pure attention loses rank doubly exponentially with
+depth</a>的阅读笔记，主要贡献为：</p>
 <ul>
-<li><em>Between the six and seven will suit me.</em></li>
-<li><em>After the meeting is the time to visit.</em></li>
+<li>提出了一种路径分解(path decomposition)的方式来理解自注意力网络(SA or
+SANs)；</li>
+<li>从理论和实验上证明了如果没有skip
+connections和MLP，纯SANs将随着深度的增加，将以双倍指数的速度退化到一个秩为1的矩阵（重复的token），称为秩坍缩(rank
+collapse)，也可以说SA具有很强的token uniformity的偏执假设;</li>
+<li>结合skip-connection的有效性和路径分解的解释，可以将Transformer结构理解为浅层网络的集成；</li>
 </ul>
-<p>此外，作为名词性用法，介词短语还可以做宾语或同位语，参考<a
-target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26088391">知乎 -
-介词短语就这三类用法</a>；</p></li>
-<li><p>Coordinated social interactions tend to be weak when a colony is
-first forming, but true colonies provide extra benefits.</p>
-<p><strong>译文</strong>：当一个群体刚形成时，协调的社会互动往往很弱，但真正的群体聚居提供了额外的好处。</p>
-<p><strong>缩写</strong>：Colonies provide benefits.</p>
-<p><strong>分析</strong>：语法上不难。但是陌生的概念、用词以及逻辑关系让人摸不着头脑。什么是协调的社会互动？为什么要用一个转折强调true？</p></li>
-<li><p>This behavior is especially valuable when the offsite food
-supplies are restricted or variable in location, as are swarms of aerial
-insects harvested by swallows.</p>
-<p><strong>译文</strong>：当食物供给有限或者位置发生变化时，这种行为尤其有价值，如燕子捕获成群的飞虫。</p>
-<p><strong>缩写</strong>：When foods are restricted, this behavior is
-valuable.</p>
-<p><strong>分析</strong>：as表示正如，引导一个被动的状语从句，正常语序应该是as
-swarms of aerial insects are harvested by swallows. 但是这里倒装了？<a
-target="_blank" rel="noopener" href="https://www.usingenglish.com/forum/threads/as-are.125928/">这里给出了另一个类似的句子</a>：</p>
-<ul>
-<li><em>The city center is also being revitalized, as are the main
-communication routes.</em></li>
-</ul></li>
-<li><p>On balance, the advantages of colonial nesting clearly outweigh
-the disadvantages, given the many times at which colonial nesting has
-evolved independently among different groups of birds.</p>
-<p><strong>译文</strong>：总得来说，考虑到群体筑巢已经在不同鸟类群体中独立的进化了很多次，群体筑巢的好处还是明显大于坏处。</p>
-<p><strong>缩写</strong>：many times evolution <span
-class="math inline">\(\rightarrow\)</span> colonial nesting adva- <span
-class="math inline">\(&gt;\)</span> disadva-</p>
-<p><strong>分析</strong>：这句话可能是想强调多次的独立进化，证实了上述观点，所以把at
-many times写成了一个从句。</p></li>
-<li><p>Still lacking, however, is a general framework for testing
-different hypotheses for the evolution of coloniality.</p>
-<p><strong>译文</strong>：然而，对于测验不同群体进化的假说，至今仍然缺乏一个通用的框架</p>
-<p><strong>缩写</strong>：different hypo- for evolu- of colon- lack a
-framework</p>
-<p><strong>分析</strong>：正确理解这句话的关键是要知道，lacking是一个形容词而不是什么动名词，因此这是一个倒装句。</p></li>
-<li><p>Hairy-footed gerbils live in vegetated islands in a sea of sand
-in the Namib Desert of southern Afria. Habitat use was determined by
-tracks in the sand and by how quickly they gave up feeding at stations
-containning seeds mixed with sand.</p>
-<p><strong>译文</strong>：毛足的gerbils(沙鼠)生活在非洲南部Namib沙漠一片植被覆盖的沙土上。通过gerbils在沙子上的踪迹和它们在放弃混有种子的沙地的速度确定它们的栖息地。</p>
-<p><strong>缩写</strong>：H.F. G. live in vegetated islands. Tracks
-&amp; <span class="math inline">\(\vec{v}\)</span> of giving up feeding
-<span class="math inline">\(\rightarrow\)</span> G.'s habitat.</p>
-<p><strong>分析</strong>：第二句话理解的困难之处在于，一个被动句，and并列两个谓语动词，但是在一个分句中的tracks让人摸不着头脑，如果是their
-tracks好像还好理解一些；and后句子的station，总是联想到“车站”，这里只是一个抽象的概念，类似于place；关键还是缺乏逻辑，这句话主要在说，研究栖息地的方法，这样下文才好进一步说明观察到沙鼠对于栖息地是如何选择的。</p></li>
-<li><p>A 2003 Mars Global Surveyor image shows what mission specialists
-think may be a delta—a fan-shaped network of channels and sediments
-where a river once flowed into a larger body of water, in this case a
-lake filling a crater in the southern highlands.</p>
-<p><strong>缩写</strong>：A image shows a network of channels and
-sediments. This image depict a river flowed into a large body of water,
-which results in a lake filling a crater in the southern highlands. This
-image is thought as a image of delta.</p>
-<p><strong>分析</strong>：难点在于理解多个从句分别修饰什么对象。what
-mission specialists think may be a
-delta说的是照片的内容，——后面的内容也正是照片的内容。where a river once
-flowed into a larger body of
-water说的是这个网状结构形成的位置上过去是什么，in this case a lake
-filling a crater in the southern
-highlands说的是河水流向水体后的结果。</p></li>
-<li><p>A computer-generated view of the Martian north polar region shows
-the extent of what may have been an ancient ocean covering much of the
-northern lowlands.</p>
-<p><strong>缩写</strong>：A computer-generated view shows the extent of
-something covering much of the northern lowlands.</p>
-<p><strong>分析</strong>：the extend of
-which这个定语从句的难点在于，对限定词extent的理解。extent表示某事物的范围，且the
-extent 本身就是宾语从句的主语，因此需要找到后续的动词covering。</p></li>
-<li><p>The teachers were taken through a program of talking about
-teaching events, moving on to reflecting about specific issues in a
-supported, and later an independent, manner.</p>
-<p><strong>缩写</strong>：The teachers were taken throught a program.
-This program included talking about events, moving on to reflecting
-about issues in a supported manner. Later, teachers will do this
-independently.</p>
-<p><strong>分析</strong>：in a manner
-本是一个固定搭配，表示以某种方式，文中即从supported到independent的方式。</p></li>
-<li><p>Further observation revealed the tendency of teachers to evaluate
-events rather than review the contributory factors in a considered
-manner by, in effect, standing outside the situation.</p>
-<p><strong>缩写</strong>：Further observation revealed that teachers
-tend to evalute events rather than review the factors in a considered
-manner (standing outside the situation).</p></li>
-<li><p>We need therefore to know how much the climate can vary of its
-own accord in order to interpret with confidence the extent to which
-recent changes are natural as opposed to being the result of human
-activities.</p>
-<p><strong>缩写</strong>：We need to know how much the climate can vary.
-In order to interpret the extent of natural changes in recent
-changes.</p></li>
-<li><p>The stone between the arms and the body and between the legs in
-standing figures or the legs and the seat in seated ones was not
-normally cut away.</p>
-<p><strong>分析</strong>：出现了很多and、or这样的连词，首先是两个between的并列关系，然后分别是arms和body的并列关系，以及站着或坐着的legs之前的并列关系；</p></li>
-<li><p>The shift from silent to sound film at the end of the 1920s
-marks, so far, the most important transformation in motion picture
-history. Despite all the highly visible technological developments in
-theatrical and home delivery of the moving image that have occurred over
-the decades since then, no single innovation has come close to being
-regarded as a similar kind of watershed.</p>
-<p><strong>缩写</strong>：The shift from silent to sound film marks the
-most important transformation. Despite all the developments of the
-moving image that have occured over the decades since then, no single
-innovations has been regarded as a similar kind of watershed.</p>
-<p><strong>分析</strong>：第一句动词是mark，从so far, the
-most等词中可以得到关键信息。对于第二个长句子，看到despite xxx since
-then, no xxx being regarded as
-xxx，基本上可以猜出这句话在强调，电影从无声到有声的转变，是迄今为止最重要的。</p></li>
-<li><p>Beyond that, the triumph of recorded sound has overshadowed the
-rich diversity of technological and aesthetic experiments with the
-visual image that were going forward simultaneously in the 1920s. New
-color processes, larger or differently shaped screen sizes,
-multiple-screen projections, even television, were among the
-developments invented or tried out during the period, sometimes with
-startling success. The high costs of converting to sound and the early
-limitations of sound technology were among the factors that suppressed
-innovations or retarded advancement in these other areas. The
-introduction of new screen formats was put off for a quarter century,
-and color, though utilized over the next two decades for special
-productions, also did not become a norm until the 1950s.</p>
-<p><strong>分析</strong>：首局先说明了声音记录与同期其他技术成就的关系：Beyond
-that, the triumph of recorded sound has overshadowed many exp- that were
-going forward simultaneously in the 1920s. 接着是一些对于technological
-and aesthetic
-experiments的举例子，强调了首句的定语从句的内容，即这些其他技术尽管也被发明了，有的有惊人的成功了，（但是还是被声音记录的成功掩盖了）：xxx
-were invented during the period.
-接下来解释为什么，在逻辑上有点绕弯的是，因为声音成本和技术上的问题，（重点都被放在声音上了），导致其他领域的技术发展受限。The
-high cost and limiations of tech- were among the factors that suppressed
-innovations in these other areas.
-最后说明造成的结果，其他领域技术的引入被推迟：The intro- of xxx was put
-off, and xxx also did not become a norm util 1950s.</p></li>
-<li><p>To be sure, their evaluation of the technical flaws in 1920s
-sound experiments was not so far off the mark, yet they neglected to
-take into account important new forces in the motion picture field that,
-in a sense, would not take no for an answer.</p>
-<p><strong>分析</strong>：这一句承上启下，前文说一些批评家认为有声电影的技术缺陷仍然存在；后文说new
-forces是什么。阻碍理解短语的包括：</p>
-<ul>
-<li>to be true，即诚然，不可否认的；</li>
-<li>be off the mark，不符合事实；</li>
-<li>take into account sth. =take sth. into account，考虑</li>
-<li>in a sense，在某种程度上 (partly true)</li>
-<li>take no for an answer 说“不”</li>
-</ul></li>
-</ol>
-<h2 id="sentences-with-question">Sentences with Question</h2>
-<h3 id="tpo-2.2">TPO 2.2</h3>
-<p><strong>P1:</strong> It should be obvious that cetaceans—whales,
-porpoises, and dolphins—are mammals. They breathe through lungs, not
-through gills, and give birth to live young. <u>Their streamlined
-bodies, the absence of hind legs, and the presence of a fluke1 and
-blowhole2 cannot disguise their affinities with land dwelling
-mammals</u>. <u>However, unlike the cases of sea otters and pinnipeds
-(seals, sea lions, and walruses, whose limbs are functional both on land
-and at sea), it is not easy to envision what the first whales looked
-like.</u> Extinct but already fully marine cetaceans are known from the
-fossil record. How was the gap between a walking mammal and a swimming
-whale bridged? Missing until recently were fossils clearly intermediate,
-or transitional, between land mammals and cetaceans.</p>
-<blockquote>
-<p><strong>Q1:</strong> In paragraph 1, what does the author say about
-the presence of a blowhole in cetaceans?</p>
-<p>A. It clearly indicates that cetaceans are mammals.</p>
-<p><u>B. It cannot conceal the fact that cetaceans are mammals.</u></p>
-<p>C. It is the main difference between cetaceans and land-dwelling
-mammals.</p>
-<p>D. It cannot yield clues about the origins of cetaceans.</p>
-</blockquote>
-<p>cannot disguise their
-affinities，不能伪装亲近关系，也就是前述证据不足以证明cetaceans are
-mammals。如果只注意到了cannot disguise
-并理解为这些证据使得cetaceans不能再伪装成mammals，则会得到完全相反的答案。</p>
-<blockquote>
-<p><strong>Q2:</strong> Which of the following can be inferred from
-paragraph 1 about early sea otters?</p>
-<p><u>A. It is not difficult to imagine what they looked like.</u></p>
-<p>B. There were great numbers of them.</p>
-<p>C. They lived in the sea only.</p>
-<p>D. They did not leave many fossil remains.</p>
-</blockquote>
-<p>注意题目中问的是sea otters，文中提到在unlike sea otters条件下，it is
-not easy to envision。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/29/SA-inductive-bias/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1249,7 +960,7 @@ not easy to envision。</p>
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/10/13/Linear-Structure-Within-Conv/">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/08/28/Lipschitz/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -1267,7 +978,7 @@ not easy to envision。</p>
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/10/13/Linear-Structure-Within-Conv/" class="post-title-link" itemprop="url">探索卷积网络的线性性质来进行推理时加速</a>
+          <a href="/2022/08/28/Lipschitz/" class="post-title-link" itemprop="url">度量空间与连续性</a>
         </h2>
 
         <div class="post-meta-container">
@@ -1278,7 +989,7 @@ not easy to envision。</p>
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-10-13 17:06:54" itemprop="dateCreated datePublished" datetime="2022-10-13T17:06:54+08:00">2022-10-13</time>
+      <time title="创建时间：2022-08-28 21:52:42" itemprop="dateCreated datePublished" datetime="2022-08-28T21:52:42+08:00">2022-08-28</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1293,7 +1004,7 @@ not easy to envision。</p>
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
         </span>
     </span>
 
@@ -1307,30 +1018,106 @@ not easy to envision。</p>
     
     
     <div class="post-body" itemprop="articleBody">
-          <img src="/2022/10/13/Linear-Structure-Within-Conv/image-20221017160950770.png" class="">
-<p><strong>论文：</strong><a
-target="_blank" rel="noopener" href="https://arxiv.org/pdf/1404.0736.pdf">Exploiting Linear Structure
-Within Convolutional Networks for Efficient Evaluation</a></p>
-<p><strong>作者：</strong> <em>Emily Denton</em>, <em>Wojciech
-Zaremba</em>, <em>Joan Bruna</em>, <em>Yann LeCun</em>, <em>Rob
-Fergus</em></p>
-<p><strong>录用情况：</strong>Neurips'2014</p>
-<p><strong>第一作者单位：</strong>Dept. of Computer Science, Courant
-Institute, New York University</p>
+          <p>前几日接触到一个新概念，Lipschitz
+Constant，本文是笔者在Wikipedia上递归搜索归纳的部分数学公里、定义、例子；抽象代数与拓扑几何的部分暂不在本文讨论；笔者不是数学专业，因此逻辑与表达多有不严谨之处，还请多多指正；</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/28/Lipschitz/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/08/13/probability/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/08/13/probability/" class="post-title-link" itemprop="url">概率论与数理统计要点总结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-08-13 12:14:22" itemprop="dateCreated datePublished" datetime="2022-08-13T12:14:22+08:00">2022-08-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-12 20:24:32" itemprop="dateModified" datetime="2023-02-12T20:24:32+08:00">2023-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本文是根据陈希儒版《概率论与数理统计》总结的干货。</p>
 <blockquote>
-<p>笔者最近在做一些用SVD分解卷积核的小实验，并且也在想该如何设计目标函数，让重参数化这件事变成可学习的？然后我发现早在14年就有人做了相关问题的研究；笔者看来，这篇文章的贡献为：</p>
-<ul>
-<li>给出了一种评估压缩后卷积核好坏的方式，并且通过在线学习的方式，修改了反向传播的梯度（不确定是不是这样）</li>
-<li>归纳并尝试了对于高维张量的两种分解方法：SVD分解和外积分解；</li>
-<li>结合聚类方法，针对浅层卷积和深层卷积的不同性质，设计了单色估计方法和双色估计方法；</li>
-<li>给出一种微调方式：从最浅层开始，压缩一层，然后微调其上所有层，直至性能恢复，如此循环，看能最多压缩多少层；</li>
-</ul>
-<p>作者在实验部分用了比较老的模型，仅4层卷积和3层全连接层，现在来看非常简单，但是很适合做一个demo，然而作者原始的<a
-href="">C++代码链接</a>已经失效了</p>
+<p>相关知识需要大量的例子和证明来补充，笔者发现总结干货并不容易</p>
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/10/13/Linear-Structure-Within-Conv/#more" rel="contents">
+              <a class="btn" href="/2022/08/13/probability/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1354,7 +1141,7 @@ href="">C++代码链接</a>已经失效了</p>
 
 
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
@@ -1366,7 +1153,7 @@ href="">C++代码链接</a>已经失效了</p>
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
