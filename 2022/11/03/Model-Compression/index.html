@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ashun989.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="模型压缩，包括低秩分解、剪枝、量化、蒸馏等技术，旨在精度损失很小的前提下，获得参数更小、推理速度更快的模型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模型压缩论文阅读列表">
+<meta property="og:url" content="https://ashun989.github.io/2022/11/03/Model-Compression/index.html">
+<meta property="og:site_name" content="Ashun&#39;s Blog">
+<meta property="og:description" content="模型压缩，包括低秩分解、剪枝、量化、蒸馏等技术，旨在精度损失很小的前提下，获得参数更小、推理速度更快的模型">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-03T11:13:26.000Z">
+<meta property="article:modified_time" content="2024-07-19T02:10:19.737Z">
+<meta property="article:author" content="ashun">
+<meta property="article:tag" content="模型压缩">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://ashun989.github.io/2022/11/03/Model-Compression/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ashun989.github.io/2022/11/03/Model-Compression/","path":"2022/11/03/Model-Compression/","title":"模型压缩论文阅读列表"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>模型压缩论文阅读列表 | Ashun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Ashun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">我的学习记录</p>
+      <img class="custom-logo-image" src="/uploads/a.png" alt="Ashun's Blog">
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">12</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">24</span></a></li><li class="menu-item menu-item-whisper"><a href="/whisper/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>whisper</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%8E%E7%A7%A9%E5%88%86%E8%A7%A3"><span class="nav-number">1.1.</span> <span class="nav-text">低秩分解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E5%8F%AF%E5%88%86%E7%A6%BB%E6%BB%A4%E6%B3%A2%E5%99%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">学习可分离滤波器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A2%E7%B4%A2%E5%8D%B7%E7%A7%AF%E6%A0%B8%E7%9A%84%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.2.</span> <span class="nav-text">探索卷积核的线性结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E4%BD%8E%E7%A7%A9%E6%89%A9%E5%B1%95%E5%8A%A0%E9%80%9F%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C"><span class="nav-number">1.1.3.</span> <span class="nav-text">用低秩扩展加速卷积神经网络</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E5%8D%B7%E7%A7%AF%E5%B1%82%E7%9A%84%E9%AB%98%E6%95%88%E5%92%8C%E7%B2%BE%E7%A1%AE%E4%BC%B0%E8%AE%A1"><span class="nav-number">1.1.4.</span> <span class="nav-text">非线性卷积层的高效和精确估计</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%AA%E6%9E%9D"><span class="nav-number">1.2.</span> <span class="nav-text">剪枝</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%89%AA%E6%9E%9D%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%BB%9C%E7%9A%84%E6%9D%83%E9%87%8D%E5%92%8C%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.2.1.</span> <span class="nav-text">模型剪枝：学习网络的权重和连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E5%89%AA%E6%9E%9D%E9%87%8F%E5%8C%96huffman"><span class="nav-number">1.2.2.</span> <span class="nav-text">模型压缩：剪枝+量化+Huffman</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%AA%E6%9E%9D%E5%8D%B7%E7%A7%AF%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E6%BB%A4%E6%B3%A2%E5%99%A8"><span class="nav-number">1.2.3.</span> <span class="nav-text">剪枝卷积网络中的滤波器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8F%E5%8C%96"><span class="nav-number">1.3.</span> <span class="nav-text">量化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">1.4.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%91%E5%9F%9F%E5%8E%8B%E7%BC%A9"><span class="nav-number">1.4.1.</span> <span class="nav-text">频域压缩</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">2.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ashun"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ashun</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ashun989" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ashun989" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ashun0606@gmail.com" title="E-Mail → mailto:ashun0606@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ashun989.github.io/2022/11/03/Model-Compression/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="ashun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ashun's Blog">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="模型压缩论文阅读列表 | Ashun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          模型压缩论文阅读列表
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-11-03 19:13:26" itemprop="dateCreated datePublished" datetime="2022-11-03T19:13:26+08:00">2022-11-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-07-19 10:10:19" itemprop="dateModified" datetime="2024-07-19T10:10:19+08:00">2024-07-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>模型压缩，包括低秩分解、剪枝、量化、蒸馏等技术，旨在精度损失很小的前提下，获得参数更小、推理速度更快的模型</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<h3 id="低秩分解">低秩分解</h3>
+<h4 id="学习可分离滤波器">学习可分离滤波器</h4>
+<p><a
+target="_blank" rel="noopener" href="http://openaccess.thecvf.com/content_cvpr_2013/html/Rigamonti_Learning_Separable_Filters_2013_CVPR_paper.html">Learning
+Separable Filters</a></p>
+<p>本文提出，通过学习可分离卷积核的方法降低卷积运算的复杂度。
+一种方法是，为卷积添加“可分离”的约束，但是作者发现先学习不可分离卷积，之后<strong>学习用可分离卷积线性组合得到不可分离卷积更好</strong>。</p>
+<p>可以抛开应用背景看，本文对卷积核的分解使用现在看来非常直观的方法：先在模型优化目标中引入卷积核矩阵的核范数，得到低秩的核之后，把核分解过程从模型优化过程解耦出来，找到次优的分解基和权重；</p>
+<p>对于3D卷积，由于SVD只能分解2D矩阵，核范数的优化不能实现，因此，在分解的过程作者使用了Canonical
+Polyadic Decomposition(CPD)的分解方法；</p>
+<h4 id="探索卷积核的线性结构">探索卷积核的线性结构</h4>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1404.0736.pdf">Exploiting Linear
+Structure Within Convolutional Networks for Efficient Evaluation</a></p>
+<p>见先前的<a
+href="https://ashun989.github.io/2022/10/13/Linear-Structure-Within-Conv/#more">文章</a></p>
+<p>这篇文章的方法，在保持分类误差不超过1%的前提下，只是将1个卷积层进行分解并且获得了大约1.6倍的加速比；</p>
+<h4 id="用低秩扩展加速卷积神经网络">用低秩扩展加速卷积神经网络</h4>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1405.3866">Speeding up convolutional
+neural networks with low rank expansions</a></p>
+<p>详细分析见<a href="">文章</a></p>
+<p>在空间维度上使用rank-1分解，在通道维度上使用基的线性组合，通过调整基组成的子空间的维度（基的个数）来权衡加速比和精度；作者基于这样的思想设计了两种分解模式；并对比最小化卷积核重建损失和数据重建损失的效果；</p>
+<h4 id="非线性卷积层的高效和精确估计">非线性卷积层的高效和精确估计</h4>
+<p><a
+target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Zhang_Efficient_and_Accurate_2015_CVPR_paper.html">Efficient
+and accurate approximations of nonlinear convolutional networks</a></p>
+<p>本文的主要目标是加速CNN的推理。</p>
+<h3 id="剪枝">剪枝</h3>
+<h4
+id="模型剪枝学习网络的权重和连接">模型剪枝：学习网络的权重和连接</h4>
+<p><a
+target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2015/hash/ae0eb3eed39d2bcef4622b2499a05fe6-Abstract.html">Learning
+both weights and connections for efficient neural network</a></p>
+<p>我们知道，dropout过程是一种在训练阶段随机剪裁神经元之间的连接，但是在推理时恢复所有连接的技术；而剪枝则是在训练时减去的连接，推理时也不再恢复；</p>
+<p>剪枝可以分为单步剪枝和迭代剪枝，本文使用迭代剪枝，减除更多参数；剪枝选择的策略也有很多，一种直观地策略是，去除那些绝对值小的神经元，本文的实验发现这种方法损害性能；本文中的一次迭代是：减去那些输入为0或者输出为0的神经元，之后微调模型；为了提高效率，以及避免网络在反向传播过程中梯度消失，如果做卷积层的剪枝则在微调时冻结全连接层，反之亦然；</p>
+<p>是什么保证了存在输入或输出为0的神经元？正则项；L1正则项更具有使得模型参数稀疏化的能力，而在使用微调后，L2正则项的表现更好；</p>
+<p>随着模型的稀疏，输出方差也在变小，这意味着减小过拟合，因此随着剪枝迭代的进行，dropout率应该减小；</p>
+<h4 id="模型压缩剪枝量化huffman">模型压缩：剪枝+量化+Huffman</h4>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1510.00149">Deep compression:
+Compressing deep neural networks with pruning, trained quantization and
+huffman coding</a></p>
+<p>一种结合剪枝、量化和霍夫曼编码的深度神经网络压缩技术，将AlexNet从240MB压缩到6.9MB，将VGG-16从552MB压缩到11.3MB；</p>
+<p>剪枝方法沿用作者先前的无损剪枝操作；量化方法使用K均值聚类，根据训练好的模型权重建立codebook以及原始权重在codebook中的索引，探索了三种聚类中心的初始化方式；</p>
+<p>观察到量化后的索引与聚类权重分布不均，使用霍夫曼编码进一步压缩存储；</p>
+<h4 id="剪枝卷积网络中的滤波器">剪枝卷积网络中的滤波器</h4>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1608.08710">Pruning filters for
+efficient convnets</a></p>
+<p>使用简单的magnitude
+based策略来分析滤波器权重，剪裁滤波器与响应的特征图，具体的剪裁方法很简单，记卷积层参数<span
+class="math inline">\(F\in \mathbb R^{C_2\times C_1\times H\times
+W}\)</span>，其中<span class="math inline">\(C_2\)</span>与<span
+class="math inline">\(C_1\)</span>分别为输出通道数和输入通道数，可以看成<span
+class="math inline">\(C_2\)</span>个卷积核，现在希望从中去除<span
+class="math inline">\(m\)</span>个卷积核：</p>
+<ol type="1">
+<li>计算<span class="math inline">\(C_2\)</span>个卷积核各自的L1
+norm，排序，选出最小的那几个卷积核，移除；</li>
+<li>由于输出通道数变为<span
+class="math inline">\(C_2-m\)</span>，那么接下来的一个卷积层的卷积核的对应输入通道也要移除<span
+class="math inline">\(m\)</span>个；</li>
+</ol>
+<p>作者还在文中做了一些其他讨论，比如</p>
+<ul>
+<li>各个卷积层的剪枝会影响到后续卷积层，这里存在一个简单的组合优化问题，每一个卷积层，是先完成前面层对其输入通道数的影响，再根据前文的策略缩减输出特征维度；如果考虑前面的影响，又该考虑前面几层影响，是最优的？作者实验了两种方案，各自独立剪裁，后传播影响；以及贪心策略；后者稍好一些</li>
+<li>存在残差连接的情况下，shortcut上的1x1卷积和主干上的第二层卷积层只能二选一剪枝（一个会影响另一个），作者选择以shortcut上的剪枝为主，因为shortcut更重要一些；</li>
+<li>一次性全剪枝完再微调，还是迭代地剪枝、微调；后者效果稍好，但是对于更深的网络，后者微调的时间更长一些；</li>
+<li>使用什么样的norm来表示卷积核的重要性</li>
+</ul>
+<h3 id="量化">量化</h3>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1412.6115">Compressing Deep
+Convolutional Networks using Vector Quantization</a></p>
+<h3 id="其他">其他</h3>
+<h4 id="频域压缩">频域压缩</h4>
+<p><a
+target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/abstract/document/8413170/">Packing
+convolutional neural networks in the frequency domain</a></p>
+<p>把卷积核视为图像，在频域中分解为公共部分和个体方差，之后丢弃这两者大部分的低频信号，同时不会带来严重的精度损失；作者还探索了数据驱动的消除冗余的方法；</p>
+<p>在CNNPackv1中，主要步骤为：</p>
+<ul>
+<li>对所有卷积核使用DCT变换，之后剪裁到固定的维度<span
+class="math inline">\(d\)</span>，（卷积核的高频信息在该过程被抛弃）；</li>
+<li>学习卷积核的k个聚类中心，并计算各个卷积核相对于聚类中心的残差，分别对聚类中心和残差进行稀疏化（L1
+norm）；</li>
+<li>固定已经完成剪枝和稀疏化的参数不变，微调网络，并量化残差，重复至收敛；最后再使用CSR保存参数的稀疏形式并使用Huffman编码；</li>
+</ul>
+<p>在CNNPackv2中，压缩过程使用上了输入数据，修改了目标函数；对于这个目标函数，作者还用相当的篇幅描述了如何优化；</p>
+<p>由于压缩、量化都是在频域中完成的，如果要在推理时使用原来空间域中卷积的方式，需要将频域中的卷积核转换回去，得到的空间域中的卷积核将不再稀疏，这就意味着，在推理时，模型参数在内存中的占用量远大于在磁盘上存储的大小；因此作者设计了在频域中完成卷积的加速方法；</p>
+<blockquote>
+<p>本文数学推导较多，需要DCT相关的背景知识，笔者将来有空时也许会单独开一篇关于本文的论文阅读；</p>
+</blockquote>
+<p>data-driven的CNNPackv2方法对AlexNet和VGG-16
+Net实现了43.5和49.1倍的压缩率，以及26.2和10.2倍的理论加速比；对于ResNet-50，压缩率为14.0，理论加速比为5.0；对于ResNeXt-50，压缩率为14.3，理论加速比为5,1；以上压缩造成的在imagenet上的top-1
+acc损失都在1%左右；</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1631704">腾讯云
+- 闲话模型压缩之网络剪枝（Network Pruning）</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/" rel="tag"><i class="fa fa-tag"></i> 模型压缩</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/10/13/Linear-Structure-Within-Conv/" rel="prev" title="探索卷积网络的线性性质来进行推理时加速">
+                  <i class="fa fa-chevron-left"></i> 探索卷积网络的线性性质来进行推理时加速
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/11/07/DBB/" rel="next" title="Diverse Branch Block论文阅读">
+                  Diverse Branch Block论文阅读 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ashun</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ashun989","repo":"ashun989.github.io","client_id":"987971263864eebace39","client_secret":"57175a12b83a806d519086800d02bf809f59c14c","admin_user":"ashun989","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"1841e53934ed0a31dcd734cffe00af68"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

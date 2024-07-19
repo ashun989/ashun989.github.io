@@ -355,6 +355,174 @@ Block中只有一个非线性函数，因此在每个残差块中仅保留一个
       </categories>
   </entry>
   <entry>
+    <title>字典学习卷积模块以加速网络推理</title>
+    <url>/2023/01/19/LCNN/</url>
+    <content><![CDATA[<img src="/2023/01/19/LCNN/fig1.png" class="">
+<p><strong>论文</strong>：<a
+href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Bagherinezhad_LCNN_Lookup-Based_Convolutional_CVPR_2017_paper.pdf"><strong>LCNN:
+Lookup-based Convolutional Neural Network</strong></a></p>
+<p><strong>作者</strong>：<em>Hessam Bagherinezhad, Mohammad Rastegari,
+Ali Farhadi</em></p>
+<p><strong>一作单位</strong>：University of Washington, XNOR.AI</p>
+<p><strong>录用情况</strong>：CVPR'2017</p>
+<blockquote>
+<p>本文将卷积运算替换为学习一个字典和一组线性组合的权重，并提出了直接从头开始训练的方式，除了一般的分类实验，本文还证明了这种方法在few
+shot
+learning的提升，以及对网络初始迭代时收敛水平的提升等；在AlexNet的架构上的修改，该方法获得了55.1%的ImageNet
+top1准确率以及3.2倍的加速比；</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<h3
+id="在不同卷积核之间不同空间位置上建立共享的字典">在不同卷积核之间、不同空间位置上建立共享的字典</h3>
+<p>本文将 <span class="math inline">\(n\)</span> 个 <span
+class="math inline">\(m\times k_w\times k_h\)</span> 的视为 <span
+class="math inline">\(nk_wk_h\)</span> 个长度为 <span
+class="math inline">\(m\)</span> 的向量，并希望学习一个的字典 <span
+class="math inline">\(D\in\mathbb{R}^{k\times m}\)</span>，以及在每个
+(t, r, c) 位置使用的 <span class="math inline">\(s\)</span>
+个字典向量索引 <span class="math inline">\(I_{[t,r,c]}\)</span>
+和对应的权重 <span
+class="math inline">\(C_{[t,r,c]}\)</span>，从而能够将一个卷积 <span
+class="math inline">\(W\in \mathbb{R}^{m\times k_w\times k_h}\)</span>
+的 <span class="math inline">\(r\)</span> 行 <span
+class="math inline">\(c\)</span>
+列的权重表示为如下字典向量的线性组合的形式：</p>
+<p><span class="math display">\[
+W_{[:, r, c]} = \sum_{t=1}^s C_{[t,r,c]} \cdot D_{[I_{[t,r,c]},:]} \quad
+\forall r, c
+\]</span></p>
+<p>为了将这种表示下的卷积核应用到卷积计算中（在卷积运算中拆出 <span
+class="math inline">\(W_{[:, r, c]}\)</span>
+一项），作者从卷积核每个位置与输入做了怎样的运算的视角来看，整个卷积相当于输入与这些位置上卷积向量做1x1卷积后，经过位置相关的偏移操作，将结果求和；表达为如下形式：</p>
+<p><span class="math display">\[
+\begin{split}
+  X*W &amp;= \sum_{r,c}^{k_h, k_w}\operatorname{shift}_{r,c}(X * W_{[:,
+r, c]})\\
+  &amp;= \sum_{r,c}^{k_h, k_w}\operatorname{shift}_{r,c}(X *
+(\sum_{t=1}^s C_{[t,r,c]} \cdot D_{[I_{[t,r,c]},:]}))\\
+  &amp;= \sum_{r,c}^{k_h, k_w}\operatorname{shift}_{r,c}(\sum_{t=1}^s
+C_{[t,r,c]} (X * D_{[I_{[t,r,c]},:]}))\\
+  &amp;= \sum_{r,c}^{k_h,
+k_w}\operatorname{shift}_{r,c}\left(\sum_{t=1}^s C_{[t,r,c]}
+S_{I_{[t,r,c]}}\right )\\
+\end{split}
+\]</span></p>
+<p>这意味着，对于共享同一个字典中的同一个层的所有卷积，我们可以先计算出
+<span class="math inline">\(X\)</span> 与字典中所有向量的1x1卷积结果
+<span
+class="math inline">\(S_{[i,:,:]}=X*D_{i,:}\)</span>，之后只需要索引到需要的结果，加权求和，放到需要的位置即可；</p>
+<p>至此，只要 <span class="math inline">\(s\)</span>, <span
+class="math inline">\(k\)</span>
+设置得当，理论上计算量相比原来的卷积运算已经大大减少；</p>
+<p>但是，我们关心的第一个问题是，<strong>如何将索引、加权和以及shift的过程向量化，从而极大地利用现有的高度并行化的算子，从而真正提升前向传播速度？</strong></p>
+<p>第二个问题是，在使用了向量化的算子之后，并应用了其默认的梯度下降优化，那么<strong>如何在优化过程中建立并保持稀疏性？</strong>
+（<span class="math inline">\(s\ll k\)</span>）</p>
+<h3 id="训练lcnn">训练LCNN</h3>
+<p>利用如下事实：</p>
+<p>假设 <span class="math inline">\(T\in \mathbb{R}^{k\times k_w\times
+k_h}\)</span> 是独热张量，只在 <span
+class="math inline">\(T_{[t,r,c]}=1\)</span>，其余位置均为0，那么有
+<span class="math inline">\(S*T =
+\operatorname{shift}_{r,c}(S_{[t,:,:]})\)</span>；</p>
+<p>我们可以在前向传播过程中学习一个稀疏张量 <span
+class="math inline">\(P\in\mathbb{R}^{k\times w\times
+h}\)</span>，其中，<span class="math inline">\(P_{[:,r,c]}\)</span>
+表示了在r,c位置的稀疏权重：</p>
+<p><span class="math display">\[
+P_{j,r,c} = \left \{
+\begin{matrix}
+  C_{t,r,c}, &amp;\exists t: I_{t,r,c} = j\\
+  0, &amp;\text{otherwise}
+\end{matrix}
+\right .
+\]</span></p>
+<p>这样一来，我们可以使用卷积来表示索引、加权和、偏移求和的过程，下式和图二说明了这一点：</p>
+<p><span class="math display">\[
+\begin{split}
+  X*W &amp;= \sum_{r,c}^{k_h,
+k_w}\operatorname{shift}_{r,c}\left(\sum_{t=1}^s C_{[t,r,c]}
+S_{I_{[t,r,c]}}\right )\\
+  &amp;= \sum_{r,c}^{k_h, k_w}\operatorname{shift}_{r,c} (S *
+P_{[:,r,c]})\\
+  &amp;= S*P
+\end{split}
+\]</span></p>
+<p><img src="fig2.png" /></p>
+<p>并且，如果我们能够在训练时得到稀疏的 <span
+class="math inline">\(P\)</span>，就可以通过寻找非零元素的方式得到 <span
+class="math inline">\(I\)</span> 和 <span
+class="math inline">\(C\)</span>，用于高效的推理；</p>
+<p>接下来，作者通过添加正则项使得 <span class="math inline">\(P\)</span>
+稀疏，按照对 <span class="math inline">\(P\)</span> 的定义，应该有 <span
+class="math inline">\(\lVert P_{[:,r,c]}\rVert _{\mathcal{L}_0} =
+s\)</span>；但是 <span class="math inline">\(\mathcal{L}_0\)</span>
+norm（非零元素的数量）是不连续的函数，不可导，因此作者将 <span
+class="math inline">\(P_{[:,r,c]}\)</span> 的从大到小排列后，第 <span
+class="math inline">\(s\)</span> 个之后的元素记为0，并计算 <span
+class="math inline">\(\mathcal{L}_1\)</span>
+norm（元素绝对值之和）；期望通过将前 <span
+class="math inline">\(s\)</span> 个元素的绝对值变小，来让被在zero
+out的那部分元素很接近0；</p>
+<p>至此并没有完全达到稀疏化的目的，因为当 <span
+class="math inline">\(P_{[t,r,c]}\)</span>
+缩小到0时，其梯度不一定为0，这样在下一次迭代过程中其绝对值又会变大；</p>
+<p>我们可以为 <span class="math inline">\(P\)</span>
+包裹一层阈值函数，当 <span class="math inline">\(|P_{[t,r,c]}|\)</span>
+的值小于 <span class="math inline">\(\epsilon\)</span>
+时，该位置直接置0，意味着回传的梯度也是0，那么这里就永远保持在0；</p>
+<h3 id="few-shot-learning">Few-shot learning</h3>
+<p>对于普通的CNN，将预训练的模型的分类头替换成没有任何先验知识的分类头（参数量很多，容易过拟合），对少样本的类别进行学习；</p>
+<p>对于LCNN，可以使用预训练模型分类层的字典，因此只用学习权重和索引，且对于其他层，可以固定索引，只微调权重；</p>
+<h3 id="few-iteration-learning">Few-iteration learning</h3>
+<p>浅层网络学习到的字典 <span
+class="math inline">\(D\in\mathbb{R}^{k\times
+m}\)</span>，可以与通道数为 <span class="math inline">\(m\)</span>
+的深层网络共享；加速在段周期内的收敛过程；</p>
+<h2 id="实验">实验</h2>
+<p>通过调整字典大小 <span class="math inline">\(k\)</span>，正则化参数
+<span class="math inline">\(\lambda\)</span> 和阈值 <span
+class="math inline">\(\epsilon\)</span>
+来调整模型学习后的稀疏率，从而调整推理时加速比；</p>
+<blockquote>
+<p>s 是间接调整的</p>
+</blockquote>
+<p>每一层的阈值和正则化参数与该层初始化方差成正比，是为了让每层的系数水平相近；</p>
+<p>对于第一层而言，由于输入通道是3通道的（字典向量长度为3）因此字典最多只需要3个向量（再多就一定有线性相关了）；</p>
+<p>对于线性层，将其视为1x1卷积后，输入通道比较大，因此字典大小也很大；其他层的字典大小作者凭借经验设定一组候选值进行实验；</p>
+<p>实验结果与分析详见原文；</p>
+<h2 id="总结">总结</h2>
+<p>基于本文的工作，笔者有一些朴素的思考：</p>
+<p>本文通过将传统卷积视为1x1卷积结果的shift和，认为这 <span
+class="math inline">\(nk_wk_h\)</span> 个 <span
+class="math inline">\(\mathbb{R}^m\)</span> 空间的卷积向量可以表示为
+<span class="math inline">\(\mathbb{R}^k\)</span>
+子空间的坐标（字典向量是基，权重是坐标），该过程利用了输入 <span
+class="math inline">\(m\)</span>
+个通道的冗余性；接着，作者假设，这些坐标是稀疏的，每个坐标的非零元素不超过
+<span class="math inline">\(s\)</span> 个，这些利用的是 <span
+class="math inline">\(nk_wk_h\)</span> 个向量的表示可以划分到 <span
+class="math inline">\(\begin{pmatrix} nk_wk_h\\s \end{pmatrix}\)</span>
+个簇中，这样一看，我们似乎可以找到一种从已经训练好的卷积核初始化字典的方法：</p>
+<ol type="1">
+<li>找到卷积核的低维投影（如PCA等）；</li>
+<li>在低维空间使用聚类，并限制这些类中心坐标是稀疏的；</li>
+</ol>
+<p>在此之前，需要验证一下本文得到的字典的秩是否为 <span
+class="math inline">\(k\)</span>？关于2中提到的聚类中心坐标稀疏的限制如何实现？以及，我们是否可以换别的维度进行第1步的降维？</p>
+<blockquote>
+<p>机器学习中有个经典方向：字典学习，笔者应该回去补一补了；</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>论文阅读</category>
+      </categories>
+      <tags>
+        <tag>模型压缩</tag>
+        <tag>字典学习</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>凸优化学习笔记(一)</title>
     <url>/2022/11/14/Convex-Optimization/</url>
     <content><![CDATA[<blockquote>
@@ -3274,174 +3442,6 @@ alternatives) 表明两者有且只有一个是可行的；</p>
       </tags>
   </entry>
   <entry>
-    <title>字典学习卷积模块以加速网络推理</title>
-    <url>/2023/01/19/LCNN/</url>
-    <content><![CDATA[<img src="/2023/01/19/LCNN/fig1.png" class="">
-<p><strong>论文</strong>：<a
-href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Bagherinezhad_LCNN_Lookup-Based_Convolutional_CVPR_2017_paper.pdf"><strong>LCNN:
-Lookup-based Convolutional Neural Network</strong></a></p>
-<p><strong>作者</strong>：<em>Hessam Bagherinezhad, Mohammad Rastegari,
-Ali Farhadi</em></p>
-<p><strong>一作单位</strong>：University of Washington, XNOR.AI</p>
-<p><strong>录用情况</strong>：CVPR'2017</p>
-<blockquote>
-<p>本文将卷积运算替换为学习一个字典和一组线性组合的权重，并提出了直接从头开始训练的方式，除了一般的分类实验，本文还证明了这种方法在few
-shot
-learning的提升，以及对网络初始迭代时收敛水平的提升等；在AlexNet的架构上的修改，该方法获得了55.1%的ImageNet
-top1准确率以及3.2倍的加速比；</p>
-</blockquote>
-<span id="more"></span>
-<h2 id="方法">方法</h2>
-<h3
-id="在不同卷积核之间不同空间位置上建立共享的字典">在不同卷积核之间、不同空间位置上建立共享的字典</h3>
-<p>本文将 <span class="math inline">\(n\)</span> 个 <span
-class="math inline">\(m\times k_w\times k_h\)</span> 的视为 <span
-class="math inline">\(nk_wk_h\)</span> 个长度为 <span
-class="math inline">\(m\)</span> 的向量，并希望学习一个的字典 <span
-class="math inline">\(D\in\mathbb{R}^{k\times m}\)</span>，以及在每个
-(t, r, c) 位置使用的 <span class="math inline">\(s\)</span>
-个字典向量索引 <span class="math inline">\(I_{[t,r,c]}\)</span>
-和对应的权重 <span
-class="math inline">\(C_{[t,r,c]}\)</span>，从而能够将一个卷积 <span
-class="math inline">\(W\in \mathbb{R}^{m\times k_w\times k_h}\)</span>
-的 <span class="math inline">\(r\)</span> 行 <span
-class="math inline">\(c\)</span>
-列的权重表示为如下字典向量的线性组合的形式：</p>
-<p><span class="math display">\[
-W_{[:, r, c]} = \sum_{t=1}^s C_{[t,r,c]} \cdot D_{[I_{[t,r,c]},:]} \quad
-\forall r, c
-\]</span></p>
-<p>为了将这种表示下的卷积核应用到卷积计算中（在卷积运算中拆出 <span
-class="math inline">\(W_{[:, r, c]}\)</span>
-一项），作者从卷积核每个位置与输入做了怎样的运算的视角来看，整个卷积相当于输入与这些位置上卷积向量做1x1卷积后，经过位置相关的偏移操作，将结果求和；表达为如下形式：</p>
-<p><span class="math display">\[
-\begin{split}
-  X*W &amp;= \sum_{r,c}^{k_h, k_w}\operatorname{shift}_{r,c}(X * W_{[:,
-r, c]})\\
-  &amp;= \sum_{r,c}^{k_h, k_w}\operatorname{shift}_{r,c}(X *
-(\sum_{t=1}^s C_{[t,r,c]} \cdot D_{[I_{[t,r,c]},:]}))\\
-  &amp;= \sum_{r,c}^{k_h, k_w}\operatorname{shift}_{r,c}(\sum_{t=1}^s
-C_{[t,r,c]} (X * D_{[I_{[t,r,c]},:]}))\\
-  &amp;= \sum_{r,c}^{k_h,
-k_w}\operatorname{shift}_{r,c}\left(\sum_{t=1}^s C_{[t,r,c]}
-S_{I_{[t,r,c]}}\right )\\
-\end{split}
-\]</span></p>
-<p>这意味着，对于共享同一个字典中的同一个层的所有卷积，我们可以先计算出
-<span class="math inline">\(X\)</span> 与字典中所有向量的1x1卷积结果
-<span
-class="math inline">\(S_{[i,:,:]}=X*D_{i,:}\)</span>，之后只需要索引到需要的结果，加权求和，放到需要的位置即可；</p>
-<p>至此，只要 <span class="math inline">\(s\)</span>, <span
-class="math inline">\(k\)</span>
-设置得当，理论上计算量相比原来的卷积运算已经大大减少；</p>
-<p>但是，我们关心的第一个问题是，<strong>如何将索引、加权和以及shift的过程向量化，从而极大地利用现有的高度并行化的算子，从而真正提升前向传播速度？</strong></p>
-<p>第二个问题是，在使用了向量化的算子之后，并应用了其默认的梯度下降优化，那么<strong>如何在优化过程中建立并保持稀疏性？</strong>
-（<span class="math inline">\(s\ll k\)</span>）</p>
-<h3 id="训练lcnn">训练LCNN</h3>
-<p>利用如下事实：</p>
-<p>假设 <span class="math inline">\(T\in \mathbb{R}^{k\times k_w\times
-k_h}\)</span> 是独热张量，只在 <span
-class="math inline">\(T_{[t,r,c]}=1\)</span>，其余位置均为0，那么有
-<span class="math inline">\(S*T =
-\operatorname{shift}_{r,c}(S_{[t,:,:]})\)</span>；</p>
-<p>我们可以在前向传播过程中学习一个稀疏张量 <span
-class="math inline">\(P\in\mathbb{R}^{k\times w\times
-h}\)</span>，其中，<span class="math inline">\(P_{[:,r,c]}\)</span>
-表示了在r,c位置的稀疏权重：</p>
-<p><span class="math display">\[
-P_{j,r,c} = \left \{
-\begin{matrix}
-  C_{t,r,c}, &amp;\exists t: I_{t,r,c} = j\\
-  0, &amp;\text{otherwise}
-\end{matrix}
-\right .
-\]</span></p>
-<p>这样一来，我们可以使用卷积来表示索引、加权和、偏移求和的过程，下式和图二说明了这一点：</p>
-<p><span class="math display">\[
-\begin{split}
-  X*W &amp;= \sum_{r,c}^{k_h,
-k_w}\operatorname{shift}_{r,c}\left(\sum_{t=1}^s C_{[t,r,c]}
-S_{I_{[t,r,c]}}\right )\\
-  &amp;= \sum_{r,c}^{k_h, k_w}\operatorname{shift}_{r,c} (S *
-P_{[:,r,c]})\\
-  &amp;= S*P
-\end{split}
-\]</span></p>
-<p><img src="fig2.png" /></p>
-<p>并且，如果我们能够在训练时得到稀疏的 <span
-class="math inline">\(P\)</span>，就可以通过寻找非零元素的方式得到 <span
-class="math inline">\(I\)</span> 和 <span
-class="math inline">\(C\)</span>，用于高效的推理；</p>
-<p>接下来，作者通过添加正则项使得 <span class="math inline">\(P\)</span>
-稀疏，按照对 <span class="math inline">\(P\)</span> 的定义，应该有 <span
-class="math inline">\(\lVert P_{[:,r,c]}\rVert _{\mathcal{L}_0} =
-s\)</span>；但是 <span class="math inline">\(\mathcal{L}_0\)</span>
-norm（非零元素的数量）是不连续的函数，不可导，因此作者将 <span
-class="math inline">\(P_{[:,r,c]}\)</span> 的从大到小排列后，第 <span
-class="math inline">\(s\)</span> 个之后的元素记为0，并计算 <span
-class="math inline">\(\mathcal{L}_1\)</span>
-norm（元素绝对值之和）；期望通过将前 <span
-class="math inline">\(s\)</span> 个元素的绝对值变小，来让被在zero
-out的那部分元素很接近0；</p>
-<p>至此并没有完全达到稀疏化的目的，因为当 <span
-class="math inline">\(P_{[t,r,c]}\)</span>
-缩小到0时，其梯度不一定为0，这样在下一次迭代过程中其绝对值又会变大；</p>
-<p>我们可以为 <span class="math inline">\(P\)</span>
-包裹一层阈值函数，当 <span class="math inline">\(|P_{[t,r,c]}|\)</span>
-的值小于 <span class="math inline">\(\epsilon\)</span>
-时，该位置直接置0，意味着回传的梯度也是0，那么这里就永远保持在0；</p>
-<h3 id="few-shot-learning">Few-shot learning</h3>
-<p>对于普通的CNN，将预训练的模型的分类头替换成没有任何先验知识的分类头（参数量很多，容易过拟合），对少样本的类别进行学习；</p>
-<p>对于LCNN，可以使用预训练模型分类层的字典，因此只用学习权重和索引，且对于其他层，可以固定索引，只微调权重；</p>
-<h3 id="few-iteration-learning">Few-iteration learning</h3>
-<p>浅层网络学习到的字典 <span
-class="math inline">\(D\in\mathbb{R}^{k\times
-m}\)</span>，可以与通道数为 <span class="math inline">\(m\)</span>
-的深层网络共享；加速在段周期内的收敛过程；</p>
-<h2 id="实验">实验</h2>
-<p>通过调整字典大小 <span class="math inline">\(k\)</span>，正则化参数
-<span class="math inline">\(\lambda\)</span> 和阈值 <span
-class="math inline">\(\epsilon\)</span>
-来调整模型学习后的稀疏率，从而调整推理时加速比；</p>
-<blockquote>
-<p>s 是间接调整的</p>
-</blockquote>
-<p>每一层的阈值和正则化参数与该层初始化方差成正比，是为了让每层的系数水平相近；</p>
-<p>对于第一层而言，由于输入通道是3通道的（字典向量长度为3）因此字典最多只需要3个向量（再多就一定有线性相关了）；</p>
-<p>对于线性层，将其视为1x1卷积后，输入通道比较大，因此字典大小也很大；其他层的字典大小作者凭借经验设定一组候选值进行实验；</p>
-<p>实验结果与分析详见原文；</p>
-<h2 id="总结">总结</h2>
-<p>基于本文的工作，笔者有一些朴素的思考：</p>
-<p>本文通过将传统卷积视为1x1卷积结果的shift和，认为这 <span
-class="math inline">\(nk_wk_h\)</span> 个 <span
-class="math inline">\(\mathbb{R}^m\)</span> 空间的卷积向量可以表示为
-<span class="math inline">\(\mathbb{R}^k\)</span>
-子空间的坐标（字典向量是基，权重是坐标），该过程利用了输入 <span
-class="math inline">\(m\)</span>
-个通道的冗余性；接着，作者假设，这些坐标是稀疏的，每个坐标的非零元素不超过
-<span class="math inline">\(s\)</span> 个，这些利用的是 <span
-class="math inline">\(nk_wk_h\)</span> 个向量的表示可以划分到 <span
-class="math inline">\(\begin{pmatrix} nk_wk_h\\s \end{pmatrix}\)</span>
-个簇中，这样一看，我们似乎可以找到一种从已经训练好的卷积核初始化字典的方法：</p>
-<ol type="1">
-<li>找到卷积核的低维投影（如PCA等）；</li>
-<li>在低维空间使用聚类，并限制这些类中心坐标是稀疏的；</li>
-</ol>
-<p>在此之前，需要验证一下本文得到的字典的秩是否为 <span
-class="math inline">\(k\)</span>？关于2中提到的聚类中心坐标稀疏的限制如何实现？以及，我们是否可以换别的维度进行第1步的降维？</p>
-<blockquote>
-<p>机器学习中有个经典方向：字典学习，笔者应该回去补一补了；</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>论文阅读</category>
-      </categories>
-      <tags>
-        <tag>模型压缩</tag>
-        <tag>字典学习</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>探索卷积网络的线性性质来进行推理时加速</title>
     <url>/2022/10/13/Linear-Structure-Within-Conv/</url>
     <content><![CDATA[<img src="/2022/10/13/Linear-Structure-Within-Conv/image-20221017160950770.png" class="">
@@ -4323,6 +4323,117 @@ loss的求导过程；</p>
 ]]></content>
   </entry>
   <entry>
+    <title>模型压缩论文阅读列表</title>
+    <url>/2022/11/03/Model-Compression/</url>
+    <content><![CDATA[<blockquote>
+<p>模型压缩，包括低秩分解、剪枝、量化、蒸馏等技术，旨在精度损失很小的前提下，获得参数更小、推理速度更快的模型</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<h3 id="低秩分解">低秩分解</h3>
+<h4 id="学习可分离滤波器">学习可分离滤波器</h4>
+<p><a
+href="http://openaccess.thecvf.com/content_cvpr_2013/html/Rigamonti_Learning_Separable_Filters_2013_CVPR_paper.html">Learning
+Separable Filters</a></p>
+<p>本文提出，通过学习可分离卷积核的方法降低卷积运算的复杂度。
+一种方法是，为卷积添加“可分离”的约束，但是作者发现先学习不可分离卷积，之后<strong>学习用可分离卷积线性组合得到不可分离卷积更好</strong>。</p>
+<p>可以抛开应用背景看，本文对卷积核的分解使用现在看来非常直观的方法：先在模型优化目标中引入卷积核矩阵的核范数，得到低秩的核之后，把核分解过程从模型优化过程解耦出来，找到次优的分解基和权重；</p>
+<p>对于3D卷积，由于SVD只能分解2D矩阵，核范数的优化不能实现，因此，在分解的过程作者使用了Canonical
+Polyadic Decomposition(CPD)的分解方法；</p>
+<h4 id="探索卷积核的线性结构">探索卷积核的线性结构</h4>
+<p><a href="https://arxiv.org/pdf/1404.0736.pdf">Exploiting Linear
+Structure Within Convolutional Networks for Efficient Evaluation</a></p>
+<p>见先前的<a
+href="https://ashun989.github.io/2022/10/13/Linear-Structure-Within-Conv/#more">文章</a></p>
+<p>这篇文章的方法，在保持分类误差不超过1%的前提下，只是将1个卷积层进行分解并且获得了大约1.6倍的加速比；</p>
+<h4 id="用低秩扩展加速卷积神经网络">用低秩扩展加速卷积神经网络</h4>
+<p><a href="https://arxiv.org/abs/1405.3866">Speeding up convolutional
+neural networks with low rank expansions</a></p>
+<p>详细分析见<a href="">文章</a></p>
+<p>在空间维度上使用rank-1分解，在通道维度上使用基的线性组合，通过调整基组成的子空间的维度（基的个数）来权衡加速比和精度；作者基于这样的思想设计了两种分解模式；并对比最小化卷积核重建损失和数据重建损失的效果；</p>
+<h4 id="非线性卷积层的高效和精确估计">非线性卷积层的高效和精确估计</h4>
+<p><a
+href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Zhang_Efficient_and_Accurate_2015_CVPR_paper.html">Efficient
+and accurate approximations of nonlinear convolutional networks</a></p>
+<p>本文的主要目标是加速CNN的推理。</p>
+<h3 id="剪枝">剪枝</h3>
+<h4
+id="模型剪枝学习网络的权重和连接">模型剪枝：学习网络的权重和连接</h4>
+<p><a
+href="https://proceedings.neurips.cc/paper/2015/hash/ae0eb3eed39d2bcef4622b2499a05fe6-Abstract.html">Learning
+both weights and connections for efficient neural network</a></p>
+<p>我们知道，dropout过程是一种在训练阶段随机剪裁神经元之间的连接，但是在推理时恢复所有连接的技术；而剪枝则是在训练时减去的连接，推理时也不再恢复；</p>
+<p>剪枝可以分为单步剪枝和迭代剪枝，本文使用迭代剪枝，减除更多参数；剪枝选择的策略也有很多，一种直观地策略是，去除那些绝对值小的神经元，本文的实验发现这种方法损害性能；本文中的一次迭代是：减去那些输入为0或者输出为0的神经元，之后微调模型；为了提高效率，以及避免网络在反向传播过程中梯度消失，如果做卷积层的剪枝则在微调时冻结全连接层，反之亦然；</p>
+<p>是什么保证了存在输入或输出为0的神经元？正则项；L1正则项更具有使得模型参数稀疏化的能力，而在使用微调后，L2正则项的表现更好；</p>
+<p>随着模型的稀疏，输出方差也在变小，这意味着减小过拟合，因此随着剪枝迭代的进行，dropout率应该减小；</p>
+<h4 id="模型压缩剪枝量化huffman">模型压缩：剪枝+量化+Huffman</h4>
+<p><a href="https://arxiv.org/abs/1510.00149">Deep compression:
+Compressing deep neural networks with pruning, trained quantization and
+huffman coding</a></p>
+<p>一种结合剪枝、量化和霍夫曼编码的深度神经网络压缩技术，将AlexNet从240MB压缩到6.9MB，将VGG-16从552MB压缩到11.3MB；</p>
+<p>剪枝方法沿用作者先前的无损剪枝操作；量化方法使用K均值聚类，根据训练好的模型权重建立codebook以及原始权重在codebook中的索引，探索了三种聚类中心的初始化方式；</p>
+<p>观察到量化后的索引与聚类权重分布不均，使用霍夫曼编码进一步压缩存储；</p>
+<h4 id="剪枝卷积网络中的滤波器">剪枝卷积网络中的滤波器</h4>
+<p><a href="https://arxiv.org/abs/1608.08710">Pruning filters for
+efficient convnets</a></p>
+<p>使用简单的magnitude
+based策略来分析滤波器权重，剪裁滤波器与响应的特征图，具体的剪裁方法很简单，记卷积层参数<span
+class="math inline">\(F\in \mathbb R^{C_2\times C_1\times H\times
+W}\)</span>，其中<span class="math inline">\(C_2\)</span>与<span
+class="math inline">\(C_1\)</span>分别为输出通道数和输入通道数，可以看成<span
+class="math inline">\(C_2\)</span>个卷积核，现在希望从中去除<span
+class="math inline">\(m\)</span>个卷积核：</p>
+<ol type="1">
+<li>计算<span class="math inline">\(C_2\)</span>个卷积核各自的L1
+norm，排序，选出最小的那几个卷积核，移除；</li>
+<li>由于输出通道数变为<span
+class="math inline">\(C_2-m\)</span>，那么接下来的一个卷积层的卷积核的对应输入通道也要移除<span
+class="math inline">\(m\)</span>个；</li>
+</ol>
+<p>作者还在文中做了一些其他讨论，比如</p>
+<ul>
+<li>各个卷积层的剪枝会影响到后续卷积层，这里存在一个简单的组合优化问题，每一个卷积层，是先完成前面层对其输入通道数的影响，再根据前文的策略缩减输出特征维度；如果考虑前面的影响，又该考虑前面几层影响，是最优的？作者实验了两种方案，各自独立剪裁，后传播影响；以及贪心策略；后者稍好一些</li>
+<li>存在残差连接的情况下，shortcut上的1x1卷积和主干上的第二层卷积层只能二选一剪枝（一个会影响另一个），作者选择以shortcut上的剪枝为主，因为shortcut更重要一些；</li>
+<li>一次性全剪枝完再微调，还是迭代地剪枝、微调；后者效果稍好，但是对于更深的网络，后者微调的时间更长一些；</li>
+<li>使用什么样的norm来表示卷积核的重要性</li>
+</ul>
+<h3 id="量化">量化</h3>
+<p><a href="https://arxiv.org/abs/1412.6115">Compressing Deep
+Convolutional Networks using Vector Quantization</a></p>
+<h3 id="其他">其他</h3>
+<h4 id="频域压缩">频域压缩</h4>
+<p><a
+href="https://ieeexplore.ieee.org/abstract/document/8413170/">Packing
+convolutional neural networks in the frequency domain</a></p>
+<p>把卷积核视为图像，在频域中分解为公共部分和个体方差，之后丢弃这两者大部分的低频信号，同时不会带来严重的精度损失；作者还探索了数据驱动的消除冗余的方法；</p>
+<p>在CNNPackv1中，主要步骤为：</p>
+<ul>
+<li>对所有卷积核使用DCT变换，之后剪裁到固定的维度<span
+class="math inline">\(d\)</span>，（卷积核的高频信息在该过程被抛弃）；</li>
+<li>学习卷积核的k个聚类中心，并计算各个卷积核相对于聚类中心的残差，分别对聚类中心和残差进行稀疏化（L1
+norm）；</li>
+<li>固定已经完成剪枝和稀疏化的参数不变，微调网络，并量化残差，重复至收敛；最后再使用CSR保存参数的稀疏形式并使用Huffman编码；</li>
+</ul>
+<p>在CNNPackv2中，压缩过程使用上了输入数据，修改了目标函数；对于这个目标函数，作者还用相当的篇幅描述了如何优化；</p>
+<p>由于压缩、量化都是在频域中完成的，如果要在推理时使用原来空间域中卷积的方式，需要将频域中的卷积核转换回去，得到的空间域中的卷积核将不再稀疏，这就意味着，在推理时，模型参数在内存中的占用量远大于在磁盘上存储的大小；因此作者设计了在频域中完成卷积的加速方法；</p>
+<blockquote>
+<p>本文数学推导较多，需要DCT相关的背景知识，笔者将来有空时也许会单独开一篇关于本文的论文阅读；</p>
+</blockquote>
+<p>data-driven的CNNPackv2方法对AlexNet和VGG-16
+Net实现了43.5和49.1倍的压缩率，以及26.2和10.2倍的理论加速比；对于ResNet-50，压缩率为14.0，理论加速比为5.0；对于ResNeXt-50，压缩率为14.3，理论加速比为5,1；以上压缩造成的在imagenet上的top-1
+acc损失都在1%左右；</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a href="https://cloud.tencent.com/developer/article/1631704">腾讯云
+- 闲话模型压缩之网络剪枝（Network Pruning）</a></p>
+]]></content>
+      <categories>
+        <category>论文阅读</category>
+      </categories>
+      <tags>
+        <tag>模型压缩</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>卷积分解：考虑非线性函数、多层误差累积以及秩选择</title>
     <url>/2023/01/13/Non-linear-Conv-Decomp/</url>
     <content><![CDATA[<img src="/2023/01/13/Non-linear-Conv-Decomp/fig1.png" class="">
@@ -4672,6 +4783,213 @@ Block，证明了性能的优越并不是靠在训练时堆参数得到的。</p
       </tags>
   </entry>
   <entry>
+    <title>《Attention is not all you need》阅读笔记</title>
+    <url>/2022/08/29/SA-inductive-bias/</url>
+    <content><![CDATA[<p>本文是<a
+href="https://scholar.google.com/citations?view_op=view_citation&amp;hl=en&amp;user=AjX6hisAAAAJ&amp;citation_for_view=AjX6hisAAAAJ:5nxA0vEk-isC">Attention
+is not all you need: Pure attention loses rank doubly exponentially with
+depth</a>的阅读笔记，主要贡献为：</p>
+<ul>
+<li>提出了一种路径分解(path decomposition)的方式来理解自注意力网络(SA or
+SANs)；</li>
+<li>从理论和实验上证明了如果没有skip
+connections和MLP，纯SANs将随着深度的增加，将以双倍指数的速度退化到一个秩为1的矩阵（重复的token），称为秩坍缩(rank
+collapse)，也可以说SA具有很强的token uniformity的偏执假设;</li>
+<li>结合skip-connection的有效性和路径分解的解释，可以将Transformer结构理解为浅层网络的集成；</li>
+</ul>
+<span id="more"></span>
+<blockquote>
+<p>这篇文章的公式很多，查了查作者是数学科班出身，笔者能力有限，文中还有很多推导和表述不能理解；阅读过程中我也参考了一位大佬很详细的解读：<a
+href="https://zhuanlan.zhihu.com/p/356956903">知乎 - 迷途小书僮</a></p>
+</blockquote>
+<p>首先，需要对后续公式的记号做个说明：</p>
+<ul>
+<li><p>加粗的字母表示列向量（小写）或者矩阵（大写），<span
+class="math inline">\(\mathbf{1}\)</span>表示一个全为1的列向量；</p></li>
+<li><p><span class="math inline">\([H]=(1,\dots,H)\)</span>；</p></li>
+<li><p>作者定义了一种<span
+class="math inline">\(l_1,l_\infty\)</span>混合的矩阵范数： <span
+class="math display">\[
+||X||_{1,\infty}=\sqrt{||X||_1||X||_\infty}
+\]</span> 该范数不满足三角不等式，但是是正定的，齐次的；</p></li>
+</ul>
+<h2 id="理论部分">理论部分</h2>
+<h3 id="路径分解">路径分解</h3>
+<p>记输入为<span class="math inline">\(n\times d_{in}\)</span>矩阵<span
+class="math inline">\(X\)</span>，有<span
+class="math inline">\(L\)</span>层self-attention层，每层有<span
+class="math inline">\(H\)</span>个头，输出序列的长度为<span
+class="math inline">\(m\)</span>，第<span
+class="math inline">\(h\)</span>个SA的输出可以记为：</p>
+<p><img src="image-20220829182555652.png" /></p>
+<p>其中，<span class="math inline">\(W_{V,h}\)</span>是一个<span
+class="math inline">\(n\times d_v\)</span>的Value变换区镇，<span
+class="math inline">\(P_h\)</span>是一个<span
+class="math inline">\(n\times n\)</span>的行随机矩阵：</p>
+<p><img src="image-20220829182917579.png" /></p>
+<p>其中<span class="math inline">\(W_{K,h}\)</span>和<span
+class="math inline">\(W_{Q,h}\)</span>都是<span
+class="math inline">\(d_{in}\times d_{qk}\)</span>的变换矩阵，<span
+class="math inline">\(W_{QK,h}=W_{Q,h}W_{K,h}^T\)</span></p>
+<blockquote>
+<p><span
+class="math inline">\(P_h\)</span>是使用softmax归一化处理的Attention
+Map，但是为什么称row-stochastic不太清楚；</p>
+</blockquote>
+<p><span
+class="math inline">\(P_h\)</span>在展开后为什么少了两项？这里需要注意softmax的两个性质：</p>
+<ol type="1">
+<li><p>平移不变性 <span class="math display">\[
+\sigma(x+C)_i =
+\frac{e^{x_i}e^C}{\sum_je^{x_j}e^C}=\frac{e^{x_i}}{\sum_je^{x_j}}=\sigma({x})_i
+\]</span> 因此，展开后与<span
+class="math inline">\(X\)</span>无关的常数项<span
+class="math inline">\(\mathbf{1b_{Q,h}^T
+b_{K,h}1^T}\)</span>可以省略；</p></li>
+<li><p>这里softmax是逐行归一化的，因此对于一个由相同的列向量组成的矩阵（每行都是同一个值），softmax对每行的权重都是平均分，整体上不改变结果；因此类似于右乘了一个<span
+class="math inline">\(\mathbf{1}^T\)</span>的项，都可以在softmax内省略；</p></li>
+</ol>
+<p>接下来将多个头合并，给出一个多头注意力模块的简洁的表达式（不包含skip-connection）：</p>
+<p><img src="image-20220829184907635.png" /></p>
+<p>其中，<span
+class="math inline">\([\text{SA}_1(X),\dotsm,\text{SA}_H(X)]\)</span>是<span
+class="math inline">\(n\times Hd_v\)</span>的，<span
+class="math inline">\([W_{O,1}^T,\dots,W_{O,H}^T]^T\)</span>是<span
+class="math inline">\(Hd_v\times
+d_h\)</span>的，偏移项写得好像有点问题（？不过不重要），之后使用矩阵的分块乘法法则得到第二行的求和式，其中<span
+class="math inline">\(W_h=W_{V,h}W_{O,h}^T\)</span></p>
+<blockquote>
+<p>偏移项可以通过改写<span class="math inline">\(X\)</span>和<span
+class="math inline">\(W\)</span>而消除，因此在后面的推导中不再使用偏移项</p>
+</blockquote>
+<p>当多个SA堆叠时，我们便可以通过如下的递推式：</p>
+<p><img src="image-20220829191051128.png" /></p>
+<p>得到一个第<span class="math inline">\(L\)</span>层输出<span
+class="math inline">\(X^{L}\)</span>关于输入<span
+class="math inline">\(X\)</span>的表达式</p>
+<p><img src="image-20220829191440509.png" /></p>
+<p>对于这个式子，可以看成是从输入到第L层的一个有向图，每一层有<span
+class="math inline">\(H\)</span>条路；</p>
+<p><img src="image-20220829192520446.png" /></p>
+<p><span class="math inline">\(P_{path}\)</span>与输入有关，<span
+class="math inline">\(W_{path}\)</span>与输入无关；</p>
+<p><img src="image-20220829192613228.png" /></p>
+<p>如图，整个SAN被分解为了若干条路径的组合；</p>
+<h3 id="san收敛到rank-1矩阵">SAN收敛到rank-1矩阵</h3>
+<h4 id="单头注意力的情况">单头注意力的情况</h4>
+<p>假设要证明的收敛目标是<span
+class="math inline">\(1\mathbf{x}^T\)</span>，这是一个所有行都相同的rank-1矩阵，那么只要证明第<span
+class="math inline">\(h\)</span>层的输出<span
+class="math inline">\(X\)</span>，与<span
+class="math inline">\(1\mathbf{x}^T\)</span>的距离有一个上界，并且这个上界随着<span
+class="math inline">\(h\)</span>的增加越来越小；</p>
+<p>作者给出了如下目标函数，残差（期望与观测的差）：</p>
+<p><img src="image-20220829193554480.png" /></p>
+<p>在<span class="math inline">\(H=1\)</span>，<span
+class="math inline">\(L\)</span>层，且满足</p>
+<p><img src="image-20220829193800445.png" /></p>
+<p>的条件下，作者证明（在附录中给出）：</p>
+<p><img src="image-20220829193830091.png" /></p>
+<p>那么只要<span
+class="math inline">\(4\beta&lt;\sqrt{d_{qk}}\)</span>，不等式右边就会随着<span
+class="math inline">\(L\)</span>的增加快速收敛到0；作者的实验证明这是一个很宽松的条件；</p>
+<blockquote>
+<p>附录中有简略的证明，<a
+href="https://zhuanlan.zhihu.com/p/356956903">知乎 -
+迷途小书僮</a>对大部分的推导过程给出了详细的阐述，我就不再赘述了</p>
+</blockquote>
+<h4 id="多头注意力的情况">多头注意力的情况</h4>
+<p>推广到有<span
+class="math inline">\(H\)</span>个头，得到残差的上界：</p>
+<p><img src="image-20220829194442073.png" /></p>
+<p>那么只要<span class="math inline">\(4\beta
+H&lt;\sqrt{d_{qk}}\)</span>，不等式右边就会随着<span
+class="math inline">\(L\)</span>的增加快速收敛到0；</p>
+<h3 id="抵消秩崩塌的方式">抵消秩崩塌的方式</h3>
+<h4 id="skip-connections很有用">Skip connections很有用</h4>
+<p>我们可以将选择Skip-connections的路径记为<span
+class="math inline">\(h=0\)</span>，同时有<span
+class="math inline">\(P_0=I\)</span>，<span
+class="math inline">\(W_0=I\)</span>，则之前的式子可以重新写成：</p>
+<p><img src="image-20220829200030809.png" /></p>
+<p>作者在附录中同样给出了在这个式子下的res(X)的上限，但是这个上限非常大，Skip-connections增加了路径分布的多样性（路径参数组合的多样性）：因为skip-connection算一条路径长度为0的路，因此对于<span
+class="math inline">\(L\)</span>层SA，长度为<span
+class="math inline">\(l\)</span>的路径数量为： <span
+class="math display">\[
+\mathcal{|P_l|}=
+\left(
+\begin{array}{c}
+L\\l
+\end{array}
+\right)
+H^l
+\]</span></p>
+<p>相反地，还可以给出一个目标函数的下界，说明加入Skip-connections之后SANs结果不会收敛到rank-1矩阵：
+<span class="math display">\[
+||res(X^L)||\ge||res(X)||
+\]</span> 当对于所有层都有<span
+class="math inline">\(W_v^l=0\)</span>时，上式取等；即使在<span
+class="math inline">\(L\rightarrow \infty\)</span>，<span
+class="math inline">\(\beta\)</span>很小时，上式也成立；</p>
+<blockquote>
+<p>原文里有一句 for any parametrization that renders the contribution of
+the SAN layers orthogonal to the input，我不太理解</p>
+</blockquote>
+<p>有此也可以得出结论，SANs是浅层网络的集成，只不过在各个组件之间不是完全解耦的，因为一个head可能出现在多个path中；</p>
+<h4 id="mlp有用">MLP有用</h4>
+<p>且不看严谨的证明，在weight和bias都是随机初始化的时候，并且输入的token也各不相同的前提下，也能直观地感觉到，反复使用MLP能够避免收敛到rank-1矩阵；</p>
+<p>作者同样给出了加入MLP后，res(X)的上界：</p>
+<p><img src="image-20220829201840986.png" /></p>
+<p>主要是通过让收敛变慢来避免秩坍缩；</p>
+<h4 id="layernorm没用">LayerNorm没用</h4>
+<p>这里的无用是针对解决秩坍缩问题而言的，因为应用LN后，SA(X)仍然能改写成与原来相同的形式，之后也就可以得到同样形式的上界：</p>
+<p><img src="image-20220829202101795.png" /></p>
+<p><img src="image-20220829202137282.png" /></p>
+<h2 id="实验部分">实验部分</h2>
+<h3 id="导致秩坍缩的验证">导致秩坍缩的验证</h3>
+<p>作者首先在几个常见的Transformer结构上进行了实验，BERT，Albert，XLNet，挥着了相对残差<span
+class="math inline">\(||res(SAN(X^l))||_{1,\infty}/||SAN(X^l)||_{1，\infty}\)</span>随着层数增加的变化，使用在维基百科上的传记摘录的的32个样本训练模型，<span
+class="math inline">\(d_{in}=128\)</span></p>
+<p><img src="image-20220829202527114.png" /></p>
+<blockquote>
+<p>主要还是skip-connections对于避免秩坍缩的作用更明显</p>
+</blockquote>
+<h3 id="避免秩坍缩的验证">避免秩坍缩的验证</h3>
+<p>之后，作者训练单层Transformer来学习两对圆弧序列，训练时时teacher
+forcing的，那么如果在完全自回归的推理时，两条弧线收敛到同一点，而不是延续训练的轨迹，则认为发生了秩坍缩：</p>
+<p><img src="image-20220829203753205.png" /></p>
+<p>实验结果表明：</p>
+<ul>
+<li>skip-connections和MLP有效避免了秩坍缩；</li>
+<li>当维度增大时，对于<span
+class="math inline">\(4\beta&lt;\sqrt{d_{qk}}\)</span>的条件，看似是不等式右边增加使得收敛条件更宽，实际上<span
+class="math inline">\(\beta\)</span>作为<span
+class="math inline">\(|||W^l_{QK}||_1||W_V^l||_{1,\infty}\)</span>的上界也在增加，使得收敛条件更紧；</li>
+</ul>
+<h3 id="路径有效性">路径有效性</h3>
+<p>下面的实验试图验证，随着路径长度的增加，即使所涉及的非线性操作数增加（可以理解为路径数量），路径有效性也在降低：</p>
+<p>作者分别在序列记忆、学习排序和凸包预测任务上训练Transformer模型；</p>
+<p>在上文中我们提到，路径之间不是完全解耦的，如何找到某一个路径的显示表示，如何衡量其单独的贡献？</p>
+<p>对于前一个问题，没办法确定一个训练好的Transformer具体是哪些路径的组合，作者就从全体路径中，按照给定的长度随机采样一个路径集合的子集，用该子集中路径的贡献的归一化总和（平均贡献？）；</p>
+<p>衡量任意一条给定路径序列<span class="math inline">\(h_1,\dots,h_L \in
+[H\cup0]^L\)</span>，使用下面式子的结果作为该路径的输出： <span
+class="math display">\[
+(P_{h_L}^L\dots P_{h_1}^1)X(W_{h_1}^1\dots W_{h_L}^L)
+\]</span> <img src="image-20220829210557076.png" /></p>
+<p>记忆和排序任务都验证了路径越长效果越差的假设，凸包任务有明显的类别不平衡问题，上述假设体现不明显，但是随着路径的增加，模型预测结果准确率的方差在变大；</p>
+<h2 id="小结">小结</h2>
+<p>至此位置，论文理解只有一半，剩下一半几乎都是附录中的证明，这篇文章的理论性很充足，一般人学不来啊；</p>
+<p>之前总是讲CNN的归纳偏置是局部性和平移不变性，这篇文章让我们知道了Transformer的token一致性的归纳偏置，以及纯SA竟然这么拉（如果证明严谨无误并且没有比秩坍缩更严重的问题的话）？那么是不是靠着MLP+skip
+connection+别的什么结构会有更好的结果？</p>
+]]></content>
+      <categories>
+        <category>论文阅读</category>
+      </categories>
+      <tags>
+        <tag>Transformer</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法</title>
     <url>/2023/02/01/SCNN/</url>
     <content><![CDATA[<img src="/2023/02/01/SCNN/fig1.png" class="">
@@ -4864,68 +5182,6 @@ class="math inline">\(B\)</span>
       </tags>
   </entry>
   <entry>
-    <title>SegFormer论文阅读</title>
-    <url>/2022/09/07/SegFormer/</url>
-    <content><![CDATA[<p>标题：《<strong>SegFormer: Simple and Efficient Design for Semantic
-Segmentation with Transformers</strong>》</p>
-<p>作者：<em>Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandkumar, Jose
-M. Alvarez, Ping Luo</em></p>
-<p>录用情况：NeurIPS'2021</p>
-<p>开源代码：在MMSegmentation中已有实现</p>
-<p>这篇文章提出了一个简单高效的语义分割模型，使用了多尺度的Transformer结构做为Encoder，和使用MLP实现的简单的Decoder；在Transformer-Based中，作者没有使用显式的位置编码，而使用CNN建模位置信息；并且还使用了一些策略将attention计算的复杂度从<span
-class="math inline">\(O(N^2)\)</span>降低到<span
-class="math inline">\(O(N^2/R)\)</span>；</p>
-<img src="/2022/09/07/SegFormer/image-20220907185126016.png" class="" title="Figure1">
-<blockquote>
-<p>本文的很多方法都不是原创，但是在作者的组合、改进下，取得了性能与参数量平衡的结果；</p>
-</blockquote>
-<span id="more"></span>
-<h2 id="模型结构">模型结构</h2>
-<h3 id="整体">整体</h3>
-<p><img src="image-20220907185427672.png" /></p>
-<h3 id="overlapped-patch-merging">Overlapped Patch Merging</h3>
-<p>将SA的输出重新reshape为<span class="math inline">\(B\times H \times W
-\times C\)</span>，之后让patch与patch之间有overlapped的思想在T2T
-ViT中就出现了，在实现时可以统一用一个带有<code>stride</code>的卷积操作实现；</p>
-<h3 id="efficient-self-attention">Efficient Self-Attention</h3>
-<p>作者借用了Pyramid Vision Transformer中的策略，将key,
-value矩阵应用如下的映射，从而将attention计算的复杂度从<span
-class="math inline">\(O(N^2)\)</span>降低到<span
-class="math inline">\(O(N^2/R)\)</span>； <span class="math display">\[
-\begin{aligned}
-\hat{K}&amp;=\text{Reshape}(\frac{N}{R},C\cdot R)(K)\\
-K&amp;=\text{Linear}(C\cdot R, C)(\hat{K})
-\end{aligned}
-\]</span>
-在实现时，对key，value使用步长为R的RxR卷积，即同时完成了上述两步；</p>
-<h3 id="mix-ffn">Mix FFN</h3>
-<p>借鉴Conditional Positional Encodings for Vision
-Transformers中的经验，作者将原来Transformer中使用MLP的FFN模块改为了使用3x3卷积的模块，不再使用显式得PE：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">fc1 = Conv2d(</span><br><span class="line">    in_channels=in_channels,</span><br><span class="line">    out_channels=feedforward_channels,</span><br><span class="line">    kernel_size=<span class="number">1</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    bias=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># 3x3 depth wise conv to provide positional encode information</span></span><br><span class="line">pe_conv = Conv2d(</span><br><span class="line">    in_channels=feedforward_channels,</span><br><span class="line">    out_channels=feedforward_channels,</span><br><span class="line">    kernel_size=<span class="number">3</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    padding=(<span class="number">3</span> - <span class="number">1</span>) // <span class="number">2</span>,</span><br><span class="line">    bias=<span class="literal">True</span>,</span><br><span class="line">    groups=feedforward_channels)</span><br><span class="line">fc2 = Conv2d(</span><br><span class="line">    in_channels=feedforward_channels,</span><br><span class="line">    out_channels=in_channels,</span><br><span class="line">    kernel_size=<span class="number">1</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    bias=<span class="literal">True</span>)</span><br><span class="line">drop = nn.Dropout(ffn_drop)</span><br><span class="line">layers = [fc1, pe_conv, self.activate, drop, fc2, drop]</span><br></pre></td></tr></table></figure>
-<h3 id="all-mlp-decoder">All-MLP Decoder</h3>
-<p>作者称，他敢使用这么简单的一个Decoder的原因是，他分析到之前设计的Encoder已经拥有了足够大的感受野，不再需要设计像ASPP那样heavy的结构，如下图所示：</p>
-<p><img src="image-20220907192316099.png" /></p>
-<p>MLP结构为：</p>
-<p><img src="image-20220907192434172.png" /></p>
-<h2 id="实验结果">实验结果</h2>
-<p>作者修改4个Stage中各种参数（见论文附录），得到了6种配置，在3个数据集上的效果如下：</p>
-<p><img src="image-20220907192703069.png" /></p>
-<p>与先前模型的对比：</p>
-<p><img src="image-20220907192900552.png" /></p>
-<p>更多实验见原文；</p>
-<h2 id="小结">小结</h2>
-<p>作者提出了一种简单的语义分割方法，并且得到了一个3.7M的小模型；抛开作者讲的故事，单看整体的模型结构，像是Transformer结构与CNN的穿插使用；另外，作者在消融实验中似乎没有比较使用原始self
-attention和efficient self
-attention的性能与成本差距，或者说，在之前的论文中已经做了相似的实验，这需要我继续阅读相关论文；</p>
-]]></content>
-      <categories>
-        <category>论文阅读</category>
-      </categories>
-      <tags>
-        <tag>语义分割</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>稳定的数值计算</title>
     <url>/2022/08/30/Stable-Calculations/</url>
     <content><![CDATA[<p>本文将介绍在实现softmax和交叉熵损失计算时需要注意的一些数学问题，并且回顾相关函数的定义与性质；代码来源于<a
@@ -5046,6 +5302,68 @@ class="math inline">\(m = \log e^m\)</span></p>
       <categories>
         <category>基础知识</category>
       </categories>
+  </entry>
+  <entry>
+    <title>SegFormer论文阅读</title>
+    <url>/2022/09/07/SegFormer/</url>
+    <content><![CDATA[<p>标题：《<strong>SegFormer: Simple and Efficient Design for Semantic
+Segmentation with Transformers</strong>》</p>
+<p>作者：<em>Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandkumar, Jose
+M. Alvarez, Ping Luo</em></p>
+<p>录用情况：NeurIPS'2021</p>
+<p>开源代码：在MMSegmentation中已有实现</p>
+<p>这篇文章提出了一个简单高效的语义分割模型，使用了多尺度的Transformer结构做为Encoder，和使用MLP实现的简单的Decoder；在Transformer-Based中，作者没有使用显式的位置编码，而使用CNN建模位置信息；并且还使用了一些策略将attention计算的复杂度从<span
+class="math inline">\(O(N^2)\)</span>降低到<span
+class="math inline">\(O(N^2/R)\)</span>；</p>
+<img src="/2022/09/07/SegFormer/image-20220907185126016.png" class="" title="Figure1">
+<blockquote>
+<p>本文的很多方法都不是原创，但是在作者的组合、改进下，取得了性能与参数量平衡的结果；</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="模型结构">模型结构</h2>
+<h3 id="整体">整体</h3>
+<p><img src="image-20220907185427672.png" /></p>
+<h3 id="overlapped-patch-merging">Overlapped Patch Merging</h3>
+<p>将SA的输出重新reshape为<span class="math inline">\(B\times H \times W
+\times C\)</span>，之后让patch与patch之间有overlapped的思想在T2T
+ViT中就出现了，在实现时可以统一用一个带有<code>stride</code>的卷积操作实现；</p>
+<h3 id="efficient-self-attention">Efficient Self-Attention</h3>
+<p>作者借用了Pyramid Vision Transformer中的策略，将key,
+value矩阵应用如下的映射，从而将attention计算的复杂度从<span
+class="math inline">\(O(N^2)\)</span>降低到<span
+class="math inline">\(O(N^2/R)\)</span>； <span class="math display">\[
+\begin{aligned}
+\hat{K}&amp;=\text{Reshape}(\frac{N}{R},C\cdot R)(K)\\
+K&amp;=\text{Linear}(C\cdot R, C)(\hat{K})
+\end{aligned}
+\]</span>
+在实现时，对key，value使用步长为R的RxR卷积，即同时完成了上述两步；</p>
+<h3 id="mix-ffn">Mix FFN</h3>
+<p>借鉴Conditional Positional Encodings for Vision
+Transformers中的经验，作者将原来Transformer中使用MLP的FFN模块改为了使用3x3卷积的模块，不再使用显式得PE：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">fc1 = Conv2d(</span><br><span class="line">    in_channels=in_channels,</span><br><span class="line">    out_channels=feedforward_channels,</span><br><span class="line">    kernel_size=<span class="number">1</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    bias=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># 3x3 depth wise conv to provide positional encode information</span></span><br><span class="line">pe_conv = Conv2d(</span><br><span class="line">    in_channels=feedforward_channels,</span><br><span class="line">    out_channels=feedforward_channels,</span><br><span class="line">    kernel_size=<span class="number">3</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    padding=(<span class="number">3</span> - <span class="number">1</span>) // <span class="number">2</span>,</span><br><span class="line">    bias=<span class="literal">True</span>,</span><br><span class="line">    groups=feedforward_channels)</span><br><span class="line">fc2 = Conv2d(</span><br><span class="line">    in_channels=feedforward_channels,</span><br><span class="line">    out_channels=in_channels,</span><br><span class="line">    kernel_size=<span class="number">1</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    bias=<span class="literal">True</span>)</span><br><span class="line">drop = nn.Dropout(ffn_drop)</span><br><span class="line">layers = [fc1, pe_conv, self.activate, drop, fc2, drop]</span><br></pre></td></tr></table></figure>
+<h3 id="all-mlp-decoder">All-MLP Decoder</h3>
+<p>作者称，他敢使用这么简单的一个Decoder的原因是，他分析到之前设计的Encoder已经拥有了足够大的感受野，不再需要设计像ASPP那样heavy的结构，如下图所示：</p>
+<p><img src="image-20220907192316099.png" /></p>
+<p>MLP结构为：</p>
+<p><img src="image-20220907192434172.png" /></p>
+<h2 id="实验结果">实验结果</h2>
+<p>作者修改4个Stage中各种参数（见论文附录），得到了6种配置，在3个数据集上的效果如下：</p>
+<p><img src="image-20220907192703069.png" /></p>
+<p>与先前模型的对比：</p>
+<p><img src="image-20220907192900552.png" /></p>
+<p>更多实验见原文；</p>
+<h2 id="小结">小结</h2>
+<p>作者提出了一种简单的语义分割方法，并且得到了一个3.7M的小模型；抛开作者讲的故事，单看整体的模型结构，像是Transformer结构与CNN的穿插使用；另外，作者在消融实验中似乎没有比较使用原始self
+attention和efficient self
+attention的性能与成本差距，或者说，在之前的论文中已经做了相似的实验，这需要我继续阅读相关论文；</p>
+]]></content>
+      <categories>
+        <category>论文阅读</category>
+      </categories>
+      <tags>
+        <tag>语义分割</tag>
+      </tags>
   </entry>
   <entry>
     <title>学习结构化稀疏：精度与速度的双赢？</title>
@@ -5283,213 +5601,6 @@ kernel的构造基的方式，使得运算被简化成sum-pooling和更小的卷
       </tags>
   </entry>
   <entry>
-    <title>《Attention is not all you need》阅读笔记</title>
-    <url>/2022/08/29/SA-inductive-bias/</url>
-    <content><![CDATA[<p>本文是<a
-href="https://scholar.google.com/citations?view_op=view_citation&amp;hl=en&amp;user=AjX6hisAAAAJ&amp;citation_for_view=AjX6hisAAAAJ:5nxA0vEk-isC">Attention
-is not all you need: Pure attention loses rank doubly exponentially with
-depth</a>的阅读笔记，主要贡献为：</p>
-<ul>
-<li>提出了一种路径分解(path decomposition)的方式来理解自注意力网络(SA or
-SANs)；</li>
-<li>从理论和实验上证明了如果没有skip
-connections和MLP，纯SANs将随着深度的增加，将以双倍指数的速度退化到一个秩为1的矩阵（重复的token），称为秩坍缩(rank
-collapse)，也可以说SA具有很强的token uniformity的偏执假设;</li>
-<li>结合skip-connection的有效性和路径分解的解释，可以将Transformer结构理解为浅层网络的集成；</li>
-</ul>
-<span id="more"></span>
-<blockquote>
-<p>这篇文章的公式很多，查了查作者是数学科班出身，笔者能力有限，文中还有很多推导和表述不能理解；阅读过程中我也参考了一位大佬很详细的解读：<a
-href="https://zhuanlan.zhihu.com/p/356956903">知乎 - 迷途小书僮</a></p>
-</blockquote>
-<p>首先，需要对后续公式的记号做个说明：</p>
-<ul>
-<li><p>加粗的字母表示列向量（小写）或者矩阵（大写），<span
-class="math inline">\(\mathbf{1}\)</span>表示一个全为1的列向量；</p></li>
-<li><p><span class="math inline">\([H]=(1,\dots,H)\)</span>；</p></li>
-<li><p>作者定义了一种<span
-class="math inline">\(l_1,l_\infty\)</span>混合的矩阵范数： <span
-class="math display">\[
-||X||_{1,\infty}=\sqrt{||X||_1||X||_\infty}
-\]</span> 该范数不满足三角不等式，但是是正定的，齐次的；</p></li>
-</ul>
-<h2 id="理论部分">理论部分</h2>
-<h3 id="路径分解">路径分解</h3>
-<p>记输入为<span class="math inline">\(n\times d_{in}\)</span>矩阵<span
-class="math inline">\(X\)</span>，有<span
-class="math inline">\(L\)</span>层self-attention层，每层有<span
-class="math inline">\(H\)</span>个头，输出序列的长度为<span
-class="math inline">\(m\)</span>，第<span
-class="math inline">\(h\)</span>个SA的输出可以记为：</p>
-<p><img src="image-20220829182555652.png" /></p>
-<p>其中，<span class="math inline">\(W_{V,h}\)</span>是一个<span
-class="math inline">\(n\times d_v\)</span>的Value变换区镇，<span
-class="math inline">\(P_h\)</span>是一个<span
-class="math inline">\(n\times n\)</span>的行随机矩阵：</p>
-<p><img src="image-20220829182917579.png" /></p>
-<p>其中<span class="math inline">\(W_{K,h}\)</span>和<span
-class="math inline">\(W_{Q,h}\)</span>都是<span
-class="math inline">\(d_{in}\times d_{qk}\)</span>的变换矩阵，<span
-class="math inline">\(W_{QK,h}=W_{Q,h}W_{K,h}^T\)</span></p>
-<blockquote>
-<p><span
-class="math inline">\(P_h\)</span>是使用softmax归一化处理的Attention
-Map，但是为什么称row-stochastic不太清楚；</p>
-</blockquote>
-<p><span
-class="math inline">\(P_h\)</span>在展开后为什么少了两项？这里需要注意softmax的两个性质：</p>
-<ol type="1">
-<li><p>平移不变性 <span class="math display">\[
-\sigma(x+C)_i =
-\frac{e^{x_i}e^C}{\sum_je^{x_j}e^C}=\frac{e^{x_i}}{\sum_je^{x_j}}=\sigma({x})_i
-\]</span> 因此，展开后与<span
-class="math inline">\(X\)</span>无关的常数项<span
-class="math inline">\(\mathbf{1b_{Q,h}^T
-b_{K,h}1^T}\)</span>可以省略；</p></li>
-<li><p>这里softmax是逐行归一化的，因此对于一个由相同的列向量组成的矩阵（每行都是同一个值），softmax对每行的权重都是平均分，整体上不改变结果；因此类似于右乘了一个<span
-class="math inline">\(\mathbf{1}^T\)</span>的项，都可以在softmax内省略；</p></li>
-</ol>
-<p>接下来将多个头合并，给出一个多头注意力模块的简洁的表达式（不包含skip-connection）：</p>
-<p><img src="image-20220829184907635.png" /></p>
-<p>其中，<span
-class="math inline">\([\text{SA}_1(X),\dotsm,\text{SA}_H(X)]\)</span>是<span
-class="math inline">\(n\times Hd_v\)</span>的，<span
-class="math inline">\([W_{O,1}^T,\dots,W_{O,H}^T]^T\)</span>是<span
-class="math inline">\(Hd_v\times
-d_h\)</span>的，偏移项写得好像有点问题（？不过不重要），之后使用矩阵的分块乘法法则得到第二行的求和式，其中<span
-class="math inline">\(W_h=W_{V,h}W_{O,h}^T\)</span></p>
-<blockquote>
-<p>偏移项可以通过改写<span class="math inline">\(X\)</span>和<span
-class="math inline">\(W\)</span>而消除，因此在后面的推导中不再使用偏移项</p>
-</blockquote>
-<p>当多个SA堆叠时，我们便可以通过如下的递推式：</p>
-<p><img src="image-20220829191051128.png" /></p>
-<p>得到一个第<span class="math inline">\(L\)</span>层输出<span
-class="math inline">\(X^{L}\)</span>关于输入<span
-class="math inline">\(X\)</span>的表达式</p>
-<p><img src="image-20220829191440509.png" /></p>
-<p>对于这个式子，可以看成是从输入到第L层的一个有向图，每一层有<span
-class="math inline">\(H\)</span>条路；</p>
-<p><img src="image-20220829192520446.png" /></p>
-<p><span class="math inline">\(P_{path}\)</span>与输入有关，<span
-class="math inline">\(W_{path}\)</span>与输入无关；</p>
-<p><img src="image-20220829192613228.png" /></p>
-<p>如图，整个SAN被分解为了若干条路径的组合；</p>
-<h3 id="san收敛到rank-1矩阵">SAN收敛到rank-1矩阵</h3>
-<h4 id="单头注意力的情况">单头注意力的情况</h4>
-<p>假设要证明的收敛目标是<span
-class="math inline">\(1\mathbf{x}^T\)</span>，这是一个所有行都相同的rank-1矩阵，那么只要证明第<span
-class="math inline">\(h\)</span>层的输出<span
-class="math inline">\(X\)</span>，与<span
-class="math inline">\(1\mathbf{x}^T\)</span>的距离有一个上界，并且这个上界随着<span
-class="math inline">\(h\)</span>的增加越来越小；</p>
-<p>作者给出了如下目标函数，残差（期望与观测的差）：</p>
-<p><img src="image-20220829193554480.png" /></p>
-<p>在<span class="math inline">\(H=1\)</span>，<span
-class="math inline">\(L\)</span>层，且满足</p>
-<p><img src="image-20220829193800445.png" /></p>
-<p>的条件下，作者证明（在附录中给出）：</p>
-<p><img src="image-20220829193830091.png" /></p>
-<p>那么只要<span
-class="math inline">\(4\beta&lt;\sqrt{d_{qk}}\)</span>，不等式右边就会随着<span
-class="math inline">\(L\)</span>的增加快速收敛到0；作者的实验证明这是一个很宽松的条件；</p>
-<blockquote>
-<p>附录中有简略的证明，<a
-href="https://zhuanlan.zhihu.com/p/356956903">知乎 -
-迷途小书僮</a>对大部分的推导过程给出了详细的阐述，我就不再赘述了</p>
-</blockquote>
-<h4 id="多头注意力的情况">多头注意力的情况</h4>
-<p>推广到有<span
-class="math inline">\(H\)</span>个头，得到残差的上界：</p>
-<p><img src="image-20220829194442073.png" /></p>
-<p>那么只要<span class="math inline">\(4\beta
-H&lt;\sqrt{d_{qk}}\)</span>，不等式右边就会随着<span
-class="math inline">\(L\)</span>的增加快速收敛到0；</p>
-<h3 id="抵消秩崩塌的方式">抵消秩崩塌的方式</h3>
-<h4 id="skip-connections很有用">Skip connections很有用</h4>
-<p>我们可以将选择Skip-connections的路径记为<span
-class="math inline">\(h=0\)</span>，同时有<span
-class="math inline">\(P_0=I\)</span>，<span
-class="math inline">\(W_0=I\)</span>，则之前的式子可以重新写成：</p>
-<p><img src="image-20220829200030809.png" /></p>
-<p>作者在附录中同样给出了在这个式子下的res(X)的上限，但是这个上限非常大，Skip-connections增加了路径分布的多样性（路径参数组合的多样性）：因为skip-connection算一条路径长度为0的路，因此对于<span
-class="math inline">\(L\)</span>层SA，长度为<span
-class="math inline">\(l\)</span>的路径数量为： <span
-class="math display">\[
-\mathcal{|P_l|}=
-\left(
-\begin{array}{c}
-L\\l
-\end{array}
-\right)
-H^l
-\]</span></p>
-<p>相反地，还可以给出一个目标函数的下界，说明加入Skip-connections之后SANs结果不会收敛到rank-1矩阵：
-<span class="math display">\[
-||res(X^L)||\ge||res(X)||
-\]</span> 当对于所有层都有<span
-class="math inline">\(W_v^l=0\)</span>时，上式取等；即使在<span
-class="math inline">\(L\rightarrow \infty\)</span>，<span
-class="math inline">\(\beta\)</span>很小时，上式也成立；</p>
-<blockquote>
-<p>原文里有一句 for any parametrization that renders the contribution of
-the SAN layers orthogonal to the input，我不太理解</p>
-</blockquote>
-<p>有此也可以得出结论，SANs是浅层网络的集成，只不过在各个组件之间不是完全解耦的，因为一个head可能出现在多个path中；</p>
-<h4 id="mlp有用">MLP有用</h4>
-<p>且不看严谨的证明，在weight和bias都是随机初始化的时候，并且输入的token也各不相同的前提下，也能直观地感觉到，反复使用MLP能够避免收敛到rank-1矩阵；</p>
-<p>作者同样给出了加入MLP后，res(X)的上界：</p>
-<p><img src="image-20220829201840986.png" /></p>
-<p>主要是通过让收敛变慢来避免秩坍缩；</p>
-<h4 id="layernorm没用">LayerNorm没用</h4>
-<p>这里的无用是针对解决秩坍缩问题而言的，因为应用LN后，SA(X)仍然能改写成与原来相同的形式，之后也就可以得到同样形式的上界：</p>
-<p><img src="image-20220829202101795.png" /></p>
-<p><img src="image-20220829202137282.png" /></p>
-<h2 id="实验部分">实验部分</h2>
-<h3 id="导致秩坍缩的验证">导致秩坍缩的验证</h3>
-<p>作者首先在几个常见的Transformer结构上进行了实验，BERT，Albert，XLNet，挥着了相对残差<span
-class="math inline">\(||res(SAN(X^l))||_{1,\infty}/||SAN(X^l)||_{1，\infty}\)</span>随着层数增加的变化，使用在维基百科上的传记摘录的的32个样本训练模型，<span
-class="math inline">\(d_{in}=128\)</span></p>
-<p><img src="image-20220829202527114.png" /></p>
-<blockquote>
-<p>主要还是skip-connections对于避免秩坍缩的作用更明显</p>
-</blockquote>
-<h3 id="避免秩坍缩的验证">避免秩坍缩的验证</h3>
-<p>之后，作者训练单层Transformer来学习两对圆弧序列，训练时时teacher
-forcing的，那么如果在完全自回归的推理时，两条弧线收敛到同一点，而不是延续训练的轨迹，则认为发生了秩坍缩：</p>
-<p><img src="image-20220829203753205.png" /></p>
-<p>实验结果表明：</p>
-<ul>
-<li>skip-connections和MLP有效避免了秩坍缩；</li>
-<li>当维度增大时，对于<span
-class="math inline">\(4\beta&lt;\sqrt{d_{qk}}\)</span>的条件，看似是不等式右边增加使得收敛条件更宽，实际上<span
-class="math inline">\(\beta\)</span>作为<span
-class="math inline">\(|||W^l_{QK}||_1||W_V^l||_{1,\infty}\)</span>的上界也在增加，使得收敛条件更紧；</li>
-</ul>
-<h3 id="路径有效性">路径有效性</h3>
-<p>下面的实验试图验证，随着路径长度的增加，即使所涉及的非线性操作数增加（可以理解为路径数量），路径有效性也在降低：</p>
-<p>作者分别在序列记忆、学习排序和凸包预测任务上训练Transformer模型；</p>
-<p>在上文中我们提到，路径之间不是完全解耦的，如何找到某一个路径的显示表示，如何衡量其单独的贡献？</p>
-<p>对于前一个问题，没办法确定一个训练好的Transformer具体是哪些路径的组合，作者就从全体路径中，按照给定的长度随机采样一个路径集合的子集，用该子集中路径的贡献的归一化总和（平均贡献？）；</p>
-<p>衡量任意一条给定路径序列<span class="math inline">\(h_1,\dots,h_L \in
-[H\cup0]^L\)</span>，使用下面式子的结果作为该路径的输出： <span
-class="math display">\[
-(P_{h_L}^L\dots P_{h_1}^1)X(W_{h_1}^1\dots W_{h_L}^L)
-\]</span> <img src="image-20220829210557076.png" /></p>
-<p>记忆和排序任务都验证了路径越长效果越差的假设，凸包任务有明显的类别不平衡问题，上述假设体现不明显，但是随着路径的增加，模型预测结果准确率的方差在变大；</p>
-<h2 id="小结">小结</h2>
-<p>至此位置，论文理解只有一半，剩下一半几乎都是附录中的证明，这篇文章的理论性很充足，一般人学不来啊；</p>
-<p>之前总是讲CNN的归纳偏置是局部性和平移不变性，这篇文章让我们知道了Transformer的token一致性的归纳偏置，以及纯SA竟然这么拉（如果证明严谨无误并且没有比秩坍缩更严重的问题的话）？那么是不是靠着MLP+skip
-connection+别的什么结构会有更好的结果？</p>
-]]></content>
-      <categories>
-        <category>论文阅读</category>
-      </categories>
-      <tags>
-        <tag>Transformer</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Swin Transformer 系列论文与代码阅读</title>
     <url>/2022/09/01/Swin-Transformer/</url>
     <content><![CDATA[<p>Swin Transformer是一种基于位移窗口的多尺度Vision
@@ -5699,593 +5810,6 @@ href="https://github.com/microsoft/Swin-Transformer">github代码</a></p>
       </categories>
       <tags>
         <tag>Transformer</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>概率论与数理统计要点总结</title>
-    <url>/2022/08/13/probability/</url>
-    <content><![CDATA[<p>本文是根据陈希儒版《概率论与数理统计》总结的干货。</p>
-<blockquote>
-<p>相关知识需要大量的例子和证明来补充，笔者发现总结干货并不容易</p>
-</blockquote>
-<span id="more"></span>
-<h2 id="一事件的概率">一、事件的概率</h2>
-<p>第一章首先对概率论中使用的名词含义与生活中的相关名词含义进行了区分，小结如下：</p>
-<ul>
-<li><p><strong>概率</strong>是某一时间发生的数量指标，介于<span
-class="math inline">\([0,1]\)</span>之间；生活中我们常常提到发生什么事的概率，通常是我们的主观推断，不是一个科学的概念；</p></li>
-<li><p><strong>事件</strong>是对某种情况的描述，而不是已发生的情况，是否发生取决于试验后的结果，这样强调的目的是为了避免在理解一些和事件的概率时，与条件概率产生理解上的混淆；事件一般有一个明确界定的<strong>试验</strong>，即有一个可以罗列出的总体，或者总体的一个范围，并且事件是其中一个可以确定的试验的结果；把单一的试验结果称为<strong>基本事件</strong></p></li>
-<li><p><strong>古典概率</strong>，是一种简单的概率模型，它假设全部试验结果是有限个的，且等可能成立的；另外还有<strong>几何概率</strong>，是古典概率到无限个试验结果的引申；</p></li>
-<li><p><strong>概率的统计定义</strong>，就是通过大量多次的试验来使用频率去拟合概率，这不是概率的定义，而是一种估计方法，也可以作为假设检验的方法；</p></li>
-<li><p><strong>概率的公理化定义</strong>（柯氏公理）：基本事件的集合为<span
-class="math inline">\(\Omega\)</span>，考虑一个集类<span
-class="math inline">\(\mathcal{F}\)</span>，其元素由<span
-class="math inline">\(\Omega\)</span>的子集组成（包括<span
-class="math inline">\(\empty\)</span>和<span
-class="math inline">\(\Omega\)</span>自己），<span
-class="math inline">\(\mathcal{F}\)</span>的每个元素<span
-class="math inline">\(A\)</span>即称为事件，事件的概率<span
-class="math inline">\(P(A)\)</span>满足三条公理：</p>
-<ul>
-<li><span class="math inline">\(0 \le P(A) \le 1\)</span></li>
-<li><span class="math inline">\(P(\Omega)=1\)</span>，<span
-class="math inline">\(P(\empty)=0\)</span></li>
-<li>加法公理：若干个互斥事件和的概率，等于各个事件的概率之和</li>
-</ul></li>
-<li><p>排列组合：</p>
-<ul>
-<li><p><span class="math inline">\(n\)</span>个不同的物品取出<span
-class="math inline">\(r\)</span>个的不同排列总数(<span
-class="math inline">\(1\le r \le n\)</span>) <span
-class="math display">\[
-P_r^n=n(n-1)\dots(n-r+1)
-\]</span></p></li>
-<li><p><span class="math inline">\(n\)</span>个不同物品取出<span
-class="math inline">\(r\)</span>个的不同组合总数(<span
-class="math inline">\(1\le r \le n\)</span>) <span
-class="math display">\[
-C_r^n=\left(\begin{array}{c}
-n\\r
-\end{array}
-\right)
-=P_r^n/r!=n!/(r!(n-r)!)
-\]</span></p></li>
-<li><p>组合数又是二项展开式的系数： <span class="math display">\[
-(a+b)^n=\sum_{i=0}^{n}\left(\begin{array}{c}n\\i\end{array}\right)a^ib^{n-i}
-\]</span></p></li>
-<li><p><span class="math inline">\(n\)</span>个不同物品分成<span
-class="math inline">\(k\)</span>堆，各堆物品数分别为<span
-class="math inline">\(r_1,\dots,r_k\)</span>的分法（堆和堆是有序的）：
-<span class="math display">\[
-n!/(r_1!\dots r_k!)
-\]</span> 上式是多项展开式<span
-class="math inline">\((x_1+\dots+x_k)^n\)</span>的<span
-class="math inline">\(x_1^{r_1}\dots x_k^{r_k}\)</span>的系数</p></li>
-</ul></li>
-<li><p>按照上述事件的公理化定义，事件本身就是集合，一些集合中的关系可以引申到事件中的关系来，包括蕴含、包含、相等、互斥（不交）、对立（补）、和（并）、积（交）、差等，比较简单，按下不表；</p></li>
-<li><p><strong>条件概率</strong>，在<span
-class="math inline">\(B\)</span>发生下<span
-class="math inline">\(A\)</span>发生的概率，<span
-class="math inline">\(P(A|B)=P(AB)/P(B)\)</span></p></li>
-<li><p>事件<span class="math inline">\(A\)</span>与<span
-class="math inline">\(B\)</span>是独立的，当且仅当<span
-class="math inline">\(P(AB)=P(A)P(B)\)</span>，这也是<strong>概率的乘法定理</strong>，进而可以推广到多个事件互相独立：设<span
-class="math inline">\(A_1,A_2,\dots\)</span>为有限或者无限的时间，如果从其中任意取出有限个事件，都满足事件积的概率等于事件概率的积，则这些时间<strong>相互独立</strong>；相互独立可以推出两两独立，但是两两独立不一定相互独立</p>
-<blockquote>
-<p>就向判断一堆列向量线性无关一样，两两线性无关也不能保证总体线性无关</p>
-</blockquote></li>
-<li><p><strong>全概率公式</strong>：设<span
-class="math inline">\(B_1,B_2,\dots\)</span>为有限个或无限个事件，两两互斥，每次试验中至少发生一个，则
-<span class="math display">\[
-\begin{aligned}
-P(A)&amp;=P(AB_1)+P(AB_2)+\dots\\
-&amp;=P(B_1)P(A|B_1)+P(B_2)P(A|B_2)+\dots
-\end{aligned}
-\]</span></p></li>
-<li><p><strong>贝叶斯公式</strong>：<span
-class="math inline">\(P(B_i|A)=P(AB_i)/P(A)=P(B_i)P(A|B_i)/\sum_jP(B_j)P(A|B_j)\)</span></p>
-<blockquote>
-<p>贝叶斯公式看起来就是移了个项，但是解释起来就牛逼多了：</p>
-<p>把<span class="math inline">\(B_1,B_2,\dots\)</span>看成原因，把<span
-class="math inline">\(A\)</span>看成结果，全概率公式计算在不同原因下的加权概率和，由因及果，而贝叶斯公式计算在已知结果发生下，是哪个原因导致该结果的概率；</p>
-<p>人们原来对事件<span
-class="math inline">\(B_i\)</span>的发生有一个经验概率（先验）<span
-class="math inline">\(P(B_i)\)</span>，现在事件<span
-class="math inline">\(A\)</span>发生了，那么我们使用贝叶斯公式，得到了<span
-class="math inline">\(B_i\)</span>发生的新的概率（后验）<span
-class="math inline">\(P(B_i|A)\)</span></p>
-</blockquote></li>
-</ul>
-<h2 id="二随机变量及概率分布">二、随机变量及概率分布</h2>
-<p>随机变量的概念比随机实践的概念更广，更利于研究，比如之前抛硬币，有两个基本事件，现在可以记为一个变量，有两种取值，每种值有一定的概率；</p>
-<p>本章介绍了大量连续型概率分布和离散型概率分布的例子，说实话本人目前只在应用中接触过正态分布，对于大多数第一次在概率论课上接触的分布，想什么指数分布、泊松分布、<span
-class="math inline">\(t\)</span>分布等等，在课后就没再见过，掌握的也不深；</p>
-<ul>
-<li><p>可以根据变量的取值特点分为离散型随机变量和连续型随机变量；</p></li>
-<li><p><strong>分布函数</strong>，设<span
-class="math inline">\(X\)</span>为一随机变量 <span
-class="math display">\[
-P(X\le x)=F(x), \ \ -\infty &lt; x &lt; \infty
-\]</span> 该函数时单调非减的；并且在<span
-class="math inline">\(x\rightarrow -\infty\)</span>时，<span
-class="math inline">\(F(x)\rightarrow 0\)</span>，<span
-class="math inline">\(x\rightarrow \infty\)</span>时，<span
-class="math inline">\(F(x)\rightarrow 1\)</span>；</p></li>
-<li><p><strong>二项分布</strong>：事件<span
-class="math inline">\(A\)</span>单次发生的概率为<span
-class="math inline">\(p\)</span>，经过<span
-class="math inline">\(n\)</span>次独立试验之后，<span
-class="math inline">\(A\)</span>发生<span
-class="math inline">\(i\)</span>次记为事件<span
-class="math inline">\(X\)</span>，记为<span class="math inline">\(X
-\thicksim B(n, p)\)</span>，概率为： <span class="math display">\[
-P(X=i)=b(i;n,p)=\left(\begin{array}{c}n\\i\end{array}\right)p^i(1-p)^{n-i},
-i=0,1,\dots, n
-\]</span></p></li>
-<li><p><strong>泊松分布</strong>：二项分布的极限形式，当<span
-class="math inline">\(n\)</span>很大，<span
-class="math inline">\(p\)</span>很小而<span
-class="math inline">\(np=\lambda\)</span>不太大时，<span
-class="math inline">\(X\thicksim P(\lambda)\)</span>，概率为： <span
-class="math display">\[
-P(X=i) = e^{-\lambda}\lambda^i/i!
-\]</span></p></li>
-<li><p><strong>超几何分布</strong>：<span
-class="math inline">\(X\)</span>为从<span
-class="math inline">\(N\)</span>个商品中，随机抽出<span
-class="math inline">\(n\)</span>个里面包含的废品数（总废品数<span
-class="math inline">\(M\)</span>），与二项分布的差别是，这是不放回抽样：
-<span class="math display">\[
-  P(X=m)=
-  \left(
-  \begin{array}{}
-  M\\m
-  \end{array}
-  \right)
-  \left(
-  \begin{array}{}
-  N-M\\n-m
-  \end{array}
-  \right) /
-  \left(
-  \begin{array}{}
-  N\\n
-  \end{array}
-  \right)
-  \]</span> 当<span class="math inline">\(n\)</span>固定，<span
-class="math inline">\(M/N=p\)</span>固定，<span
-class="math inline">\(N\rightarrow \infty\)</span>时，<span
-class="math inline">\(X\)</span>近似服从二项分布<span
-class="math inline">\(B(n,p)\)</span></p></li>
-<li><p><strong>负二项分布</strong>：</p></li>
-<li><p>对于连续型随机分布，定义概率密度函数<span
-class="math inline">\(f(x)=F&#39;(x)\)</span></p>
-<ul>
-<li><span class="math inline">\(f(x)\ge 0\)</span></li>
-<li><span class="math inline">\(\int_{-\infty}^{+\infty}f(x)dx =
-1\)</span></li>
-<li><span class="math inline">\(P(a \le x \le b) = F(b) - F(a) =
-\int_{a}^{b}f(x)dx\)</span></li>
-</ul></li>
-<li><p><strong>正态分布</strong>：<span class="math inline">\(X \sim
-N(\mu, \sigma)\)</span> <span class="math display">\[
-f(x) = (\sqrt{2\pi}\sigma)^{-1}e^{-(x-\mu)^2/2\sigma^2}, -\infty &lt; x
-&lt; \infty
-\]</span> <span
-class="math inline">\(N(0,1)\)</span>为标准正态分布</p></li>
-<li><p><strong>指数分布</strong>：其中<span
-class="math inline">\(\lambda&gt;0\)</span> <span
-class="math display">\[
-f(x) = \left\{
-\begin{array}{rc}
-\lambda e^{-\lambda x},&amp;x&gt;0\\
-0,&amp;x\le 0
-\end{array}
-\right.
-\]</span></p>
-<p><span class="math display">\[
-F(x) = \left\{
-\begin{array}{rc}
-0,&amp;x\le 0\\
-1 - e^{-\lambda x},&amp;x&gt;0\\
-\end{array}
-\right.
-\]</span></p>
-<blockquote>
-<p>原件寿命的分布，<span
-class="math inline">\(\lambda\)</span>为失效率，<span
-class="math inline">\(\lambda^{-1}\)</span>即平均寿命</p>
-</blockquote></li>
-<li><p><strong>韦伯分布</strong>：</p></li>
-<li><p><strong>均匀分布</strong>：</p></li>
-</ul>
-<p>以下是多维随机变量分布：</p>
-<ul>
-<li><p><strong>多项分布</strong>：</p></li>
-<li><p><strong>二维正态分布</strong>： <span class="math display">\[
-f(x_1,x_2)=(2\pi\sigma_1\sigma_2\sqrt{1-\rho^2}\exp(-\frac{1}{2(1-\rho^2)}\left(\frac{(x_1-a)^2}{\sigma_1^2}-\frac{2\rho(x_1-a)(x_2-b)}{\sigma_1\sigma_2}+\frac{(x_2-b)^2}{\sigma^2}\right))
-\]</span></p></li>
-<li><p><strong>边缘分布</strong>：<span
-class="math inline">\(X=(X_1,\dots, X_n)\)</span>是一个<span
-class="math inline">\(n\)</span>维随机变量，其分布<span
-class="math inline">\(F\)</span>为一个<span
-class="math inline">\(n\)</span>维分布，对于<span
-class="math inline">\(X\)</span>的每一个分量<span
-class="math inline">\(X_i\)</span>其一维分布<span
-class="math inline">\(F_i\)</span>即称为边缘分布；边缘分布也不一定是对于一个分量的一维分布；<span
-class="math inline">\(N(a,b,\sigma_1^2, \sigma_2^2,
-\rho)\)</span>的两个边缘分布是<span class="math inline">\(N(a,
-\sigma_1^2)\)</span>和<span
-class="math inline">\(N(b,\sigma_2^2)\)</span></p></li>
-<li><p><strong>条件分布</strong>：</p>
-<p>离散型随机变量条件分布的概率密度很好写出，设<span
-class="math inline">\((X_1,X_2)\)</span>是二维离散型随机变量，<span
-class="math inline">\(X_1\)</span>的全部可能值为<span
-class="math inline">\(a_1, a_2,\dots\)</span>, <span
-class="math inline">\(X_2\)</span>的全部可能值为<span
-class="math inline">\(b_1, b_2, \dots\)</span>，即联合概率分布 <span
-class="math display">\[
-p_{ij}=P(X_1=a_i, X_2=b_j), i,j = 1,2,\dots
-\]</span> 则条件分布 <span class="math display">\[
-P(X_1=a_i|X_2=b_j)=p_{ij}/P(X_2=b_j)=p_{ij}/\sum_kp_{kj}
-\]</span>
-连续性随机变量的条件分布也有比较直观的结论（推导过程稍微复杂）： <span
-class="math display">\[
-f(x_1,x_2)=f_2(x_2)f_1(x_1|x_2)
-\]</span> 将上式两边对<span class="math inline">\(x_2\)</span>积分，有
-<span class="math display">\[
-f_1(x_1)=\int_{-\infty}^{+\infty}f_1(x_1|x_2)f_2(x_2)
-\]</span> 解释为<span
-class="math inline">\(X_1\)</span>的无条件密度，是<span
-class="math inline">\(X_1\)</span>在<span
-class="math inline">\(X_2\)</span>条件按<span
-class="math inline">\(X_2\)</span>密度的加权平均，这也是全概率公式的概率密度的表现形式；</p>
-<p>对弈二维正态分布<span class="math inline">\(N(a,b,\sigma_1^2,
-\sigma_2^2, \rho)\)</span>，其<span
-class="math inline">\(X=x_1\)</span>条件下，<span
-class="math inline">\(X_2\)</span>满足<span
-class="math inline">\(N(b+\rho\sigma_2\sigma_1^{-1}(x_1-a),
-\sigma^2_2(1-\rho^2))\)</span>分布，可以定性的看出<span
-class="math inline">\(\rho&gt;0\)</span>，随着<span
-class="math inline">\(X_1\)</span>增加，<span
-class="math inline">\(X_2\)</span>数据中心也增加，这称为正相关，反之，<span
-class="math inline">\(\rho&lt;0\)</span>有负相关；</p></li>
-<li><p><strong>随机变量的独立性</strong>，当且仅当 <span
-class="math display">\[
-f(x_1, \dots, x_n)=f(x_1)\dots f(x_n)
-\]</span></p></li>
-<li><p><strong>随机变量函数的分布</strong>，研究这个问题的目的是，为了知道观测变量的统计量(例如均值、方差)的分布；</p>
-<p>设<span class="math inline">\(X\)</span>有密度函数<span
-class="math inline">\(f(x)\)</span>，设<span
-class="math inline">\(Y=g(X)\)</span>，<span
-class="math inline">\(g\)</span>严格单调，反函数<span
-class="math inline">\(h=g^{-1}\)</span>是可导的，则<span
-class="math inline">\(Y\)</span>的概率密度函数为 <span
-class="math display">\[
-l(y)=f(h(y))|h&#39;(y)|
-\]</span> 设<span
-class="math inline">\((X_1,X_2)\)</span>的密度函数为<span
-class="math inline">\(f(x_1, x_2)\)</span>，<span
-class="math inline">\(Y_1=g_1(X_1,X_2)\)</span>，<span
-class="math inline">\(Y_2=g_2(X_1, X_2)\)</span>，设<span
-class="math inline">\(g_1,g_2\)</span>是一一变换，有<span
-class="math inline">\(X_1=h_1(Y_1,Y_2)\)</span>，<span
-class="math inline">\(X_2=h_2(Y_1,Y_2)\)</span>，均有一阶连续偏导，雅克比行列式<span
-class="math inline">\(J(y_1,y_2)\)</span>不为0，则 <span
-class="math display">\[
-l(y_1,y_2)=f(h_1(y_1,y_2),h_2(y_1, y_2))|J(y_1,y_2)|
-\]</span></p></li>
-</ul>
-<h2 id="三随机变量的数字特征">三、随机变量的数字特征</h2>
-<ul>
-<li><p><strong>期望</strong>：</p>
-<p><span class="math inline">\(X\)</span>若为离散型随机变量，取<span
-class="math inline">\(a_1, a_2,\dots\)</span>，对应的概率为<span
-class="math inline">\(p_1,p_2,\dots\)</span>，则期望 <span
-class="math display">\[
-E(X)=\sum_{i=1}^{\infty}a_ip_i
-\]</span> 其中，该级数必须绝对收敛，才存在期望；</p>
-<p><span
-class="math inline">\(X\)</span>若为连续型随机变量，密度函数为<span
-class="math inline">\(f(x)\)</span>，则 <span class="math display">\[
-E(x) = \int_{-\infty}^{+\infty}xf(x)dx
-\]</span> 同样要求<span
-class="math inline">\(\int_{-\infty}^{+\infty}|x|f(x)dx &lt;
-\infty\)</span></p></li>
-<li><p>期望有如下性质：</p>
-<ul>
-<li><span
-class="math inline">\(E(X_1+\dots+X_n)=E(X_1)+\dots+E(X_n)\)</span></li>
-<li>若<span class="math inline">\(X_1,X_n\)</span>独立，则<span
-class="math inline">\(E(X_1\dots X_n)=E(X_1)\dots E(X_n)\)</span></li>
-</ul>
-<p>计算随机变量函数的期望，不需要知道函数的分布： <span
-class="math display">\[
-E(g(X))=\int_{-\infty}^{+\infty}g(x)f(x)dx
-\]</span></p></li>
-<li><p><strong>条件期望</strong>：<span
-class="math inline">\(E(Y|X=x)=E(Y|x)=\int_{-\infty}^{+\infty}yf(y|x)dy\)</span></p>
-<p>全概率公式的期望形式： <span class="math display">\[
-E(Y)=\int_{-\infty}^{+\infty}E(Y|x)f_1(x)dx=E[E(Y|x)]
-\]</span></p></li>
-<li><p><strong>方差</strong>： <span class="math display">\[
-\text{Var}(X)=E(X-EX)^2=E(X^2)-(EX)^2
-\]</span></p>
-<ul>
-<li><span
-class="math inline">\(\text{Var}(CX)=C^2\text{Var}(X)\)</span></li>
-<li><span
-class="math inline">\(\text{Var}(C+X)=\text{Var}(X)\)</span></li>
-<li><span class="math inline">\(\text{Var}(aX+bY)=a^2\text{Var}(X) +
-b^2\text{Var}(Y)+2ab\text{Cov}(X,Y)\)</span></li>
-</ul></li>
-<li><p><strong>矩</strong>：设<span
-class="math inline">\(X\)</span>为随机变量，<span
-class="math inline">\(c\)</span>为常数，<span
-class="math inline">\(k\)</span>为正整数，则<span
-class="math inline">\(E[(X-c)^k]\)</span>称为<span
-class="math inline">\(X\)</span>关于<span
-class="math inline">\(c\)</span>点的<span
-class="math inline">\(k\)</span>阶矩，其中在<span
-class="math inline">\(c=0\)</span>时称为原点矩，<span
-class="math inline">\(c=EX\)</span>时称为中心矩；</p></li>
-<li><p><strong>协方差</strong>：<span
-class="math inline">\(\text{Cov}(X,Y)=E[(X-m_1)(Y-m_2)]\)</span>，其中<span
-class="math inline">\(m_1,m_2\)</span>表示<span
-class="math inline">\(X,Y\)</span>的期望</p>
-<ul>
-<li><span
-class="math inline">\(\text{Cov}(c_1X+c_2,c_3Y+c_4)=c_1c_3\text{Cov}(X,Y)\)</span></li>
-<li><span
-class="math inline">\(\text{Cov}(X,Y)=E(XY)-m_1m_2\)</span></li>
-<li>若<span class="math inline">\(X,Y\)</span>独立，则<span
-class="math inline">\(\text{Cov}(X,Y)=0\)</span></li>
-<li><span class="math inline">\([\text{Cov}(X,Y)]^2\le
-\sigma_1^2\sigma_2^2\)</span></li>
-</ul></li>
-<li><p><strong>相关系数</strong>：<span
-class="math inline">\(\text{Corr}(X,Y)=\text{Cov}(X,Y)/(\sigma_1\sigma_2)\)</span>，可以视为标准尺度下（方差为1）的协方差</p>
-<ul>
-<li>若<span class="math inline">\(X,Y\)</span>独立，则<span
-class="math inline">\(\text{Corr}(X,Y)=0\)</span>，但是<strong>反之不成立</strong></li>
-<li><span class="math inline">\(|\text{Corr}(X, Y)|=0\)</span></li>
-<li><span class="math inline">\(|\text{Corr}(X,Y)|\le
-1\)</span>，线性关系越强，相关系数越大</li>
-</ul></li>
-<li><p><strong>最小二乘</strong>：选择常数<span
-class="math inline">\(a,b\)</span>使得<span
-class="math inline">\(E[(Y-a-bX)^2]\)</span>最小：</p>
-<p>记<span
-class="math inline">\(m_1=EX,m_2=EY,\sigma_1^2=\text{Var}(X),\sigma_2^2=\text{Var}(Y),\rho=\text{Corr}(X,Y),c=a-(m_2-bm_1)\)</span>：
-<span class="math display">\[
-\begin{aligned}
-E[(Y-a-bX)^2]&amp;=E[(Y-m_2)-b(X-m_1)-c]^2\\
-&amp;=\sigma_2^2 + b^2\sigma_1^2 -2b\text{Cov}(X,Y) + c^2
-\end{aligned}
-\]</span> 令<span
-class="math inline">\(c=0,b=\text{Cov}(X,Y)/\sigma_1^2=\sigma_1^{-1}\sigma_2\rho\)</span>得到线性逼近：
-<span class="math display">\[
-L(X)=m_2 - \sigma_1^{-1}\sigma_2\rho m_1 + \sigma_1^{-1}\sigma_2\rho X
-\]</span> 这一逼近的剩余是： <span class="math display">\[
-E[Y-L(X)]^2=\sigma_2^2(1-\rho^2)
-\]</span> 可以看出当<span
-class="math inline">\(|\rho|=1\)</span>时，完美的线性关系，而<span
-class="math inline">\(\rho=0\)</span>时，剩余为<span
-class="math inline">\(\sigma_2\)</span>，毫无线性关系（可能满足其他的非线性关系）；</p>
-<ul>
-<li>若<span
-class="math inline">\((X,Y)\)</span>为二维正态，则任何函数<span
-class="math inline">\(M(X)\)</span>，以<span
-class="math inline">\(E[Y-M(X)]^2\)</span>最小化为目标都可以得到上述的<span
-class="math inline">\(L(X)\)</span></li>
-<li>若<span class="math inline">\((X,Y)\)</span>为二维正态，则<span
-class="math inline">\(\rho=0\)</span>可以推出<span
-class="math inline">\(X,Y\)</span>独立</li>
-</ul></li>
-<li><p><strong>大数定理</strong>：（独立同分布的）<span
-class="math inline">\(\overline{X}\)</span>依概率收敛到<span
-class="math inline">\(EX\)</span>；</p></li>
-<li><p><strong>马尔科夫不等式</strong>：若<span
-class="math inline">\(Y\)</span>为只取非负值的随机变量，则对于任意的常数<span
-class="math inline">\(\epsilon &gt; 0\)</span>有<span
-class="math inline">\(P(Y&gt;\epsilon)\le EY/\epsilon\)</span></p></li>
-<li><p><strong>车比雪夫不等式</strong>：用<span
-class="math inline">\((Y-EY)^2\)</span>代替<span
-class="math inline">\(Y\)</span>，<span
-class="math inline">\(\epsilon^2\)</span>代替<span
-class="math inline">\(\epsilon\)</span>，得到：若<span
-class="math inline">\(\text{Var}(Y)\)</span>存在，则： <span
-class="math display">\[
-P(|Y-EY|\ge\epsilon)\le \text{Var}(X)/\epsilon^2
-\]</span></p></li>
-<li><p><strong>中心极限定理</strong>：（独立同分布的）随机变量的和的分布收敛于正态分布；</p></li>
-</ul>
-<h2 id="四参数估计">四、参数估计</h2>
-<p>在有限总体的情况下，样本的分布取决于总体分布和抽样方式（有放回还是无放回）；对于无限总体或者有放回抽样，总体分布完全决定样本分布；</p>
-<p>统计量是指完全由样本决定的量；样本均值、样本矩与随机变量的均值和矩的形式一样；但是要注意样本方差<span
-class="math inline">\(S^2=\frac{n}{n-1}m^2\)</span>，<span
-class="math inline">\(m^2\)</span>是样本的二阶中心矩；</p>
-<p>参数估计可以分为点估计和区间估计；点估计即用一个点（值）去估计参数，区间估计则是用一个区间去估计参数，相当于把误差范围显式地表示出来了；</p>
-<h3 id="矩估计">矩估计</h3>
-<p>设总体分布为<span
-class="math inline">\(f(x,\theta_1,\dots,\theta_k)\)</span>，基本思想是让一系列的样本矩（原点矩或中心距都行）<span
-class="math inline">\(a_m\)</span>等于对应的随机变量矩<span
-class="math inline">\(\alpha_m\)</span>；以原点矩为例，一边有 <span
-class="math display">\[
-\alpha_m=\int_{-\infty}^{\infty}x^mf(x,\theta_1,\dots,\theta_k)dx
-\]</span> 另一边有： <span class="math display">\[
-a_m=\sum_{i=1}^nX_i^m/n
-\]</span> 列出<span class="math inline">\(k\)</span>个方程求解参数<span
-class="math inline">\(\theta_1,\dots,\theta_k\)</span>；</p>
-<h3 id="极大似然估计">极大似然估计</h3>
-<p>设总体分布为<span
-class="math inline">\(f(X;\theta_1,\dots,\theta_k)\)</span>，<span
-class="math inline">\(X_1,\dots,X_n\)</span>为样本，则样本的密度函数为
-<span class="math display">\[
-L(X_1,\dots,X_n;\theta_1,\dots,\theta_k)=f(X_1;\theta_1,\dots,\theta_k)\dots
-f(X_n;\theta_1,\dots,\theta_k)
-\]</span> 上式子<span
-class="math inline">\(X_1,\dots,X_n\)</span>固定，把<span
-class="math inline">\(L\)</span>看做<span
-class="math inline">\(\theta_1,\dots,\theta_k\)</span>的参数，即称为似然函数；想法就是使用使得似然函数最大的点作为参数的估计值：
-<span class="math display">\[
-L(X_1,\dots,X_n;\theta_1^*,\dots,\theta_k^*)=\max_{\theta_1,\dots,\theta_k}L(X_1,\dots,X_n;\theta_1,\dots,\theta_k)
-\]</span> 合适时，可以使用一阶导为0或者对数的一阶导为0求得极大值点；</p>
-<h3 id="贝叶斯估计">贝叶斯估计</h3>
-<p>上面两种方法，在抽样之前，对于参数<span
-class="math inline">\(\theta\)</span>没有任何的了解，所有信息来自于样本；贝叶斯学派认为应该对于<span
-class="math inline">\(\theta\)</span>有某种先验知识，并且以<span
-class="math inline">\(\theta\)</span>的某种概率密度表现出来<span
-class="math inline">\(h(\theta)\)</span>；</p>
-<p>设总体有概率密度<span
-class="math inline">\(f(X,\theta)\)</span>，<span
-class="math inline">\(X_1,\dots,X_n\)</span>为样本，则<span
-class="math inline">\((\theta, X_1, \dots, X_n)\)</span>的联合密度为：
-<span class="math display">\[
-h(\theta)f(X_1,\theta)\dots f(X_n,\theta)
-\]</span> <span
-class="math inline">\((X_1,\dots,X_n)\)</span>的边缘密度为 <span
-class="math display">\[
-p(X_1,\dots,X_n)=\int h(\theta)f(X_1,\theta)\dots f(X_n,\theta) d\theta
-\]</span></p>
-<blockquote>
-<p>积分的限取决于参数</p>
-</blockquote>
-<p>后验/<span class="math inline">\(\theta\)</span>的条件密度为： <span
-class="math display">\[
-h(\theta|X_1,\dots,X_n)=h(\theta)f(X_1,\theta)\dots
-f(X_n,\theta)/p(X_1,\dots,X_n)
-\]</span>
-后验分布如何使用不是一个固定的事情；一种常见的做法是，取后验分布的均值作为<span
-class="math inline">\(\theta\)</span>的估计</p>
-<blockquote>
-<p>广义的先验密度<span
-class="math inline">\(h(\theta)\)</span>不一定满足积分为1，甚至可能是<span
-class="math inline">\(\infty\)</span></p>
-<p>初始化的<span
-class="math inline">\(h(x)\)</span>可以基于“同等无知”原则，即均匀分布；基于这个原则，不同的人可能得到不同的初始化结果，例如对<span
-class="math inline">\(p\)</span>同等无知，我们令<span
-class="math inline">\(h(p)=1, 0\le p\le 1\)</span>；同样的对<span
-class="math inline">\(p^2\)</span>也同等无知，我们令<span
-class="math inline">\(h(p^2)=1, 0\le p\le1\)</span>又得到<span
-class="math inline">\(h(p)=2p,0\le p \le 1\)</span>；</p>
-</blockquote>
-<h3 id="点估计的优良性准则">点估计的优良性准则</h3>
-<p>如何比较上述几种点估计方法？这取决于抽样。不同的样本，一种估计方法可能很好，也可能不太好；我们希望有整体上的评价方式；</p>
-<p><strong>无偏性</strong>：设<span
-class="math inline">\(\hat{g}(X_1,\dots,
-X_n)\)</span>是一个估计量，如果对于任何可能的<span
-class="math inline">\(\theta_1,\dots,\theta_k\)</span>都有 <span
-class="math display">\[
-E_{\theta_1,\dots,\theta_k}[\hat{g}(X_1,\dots,X_n)]=g(\theta_1,\dots,\theta_k)
-\]</span> 则称<span class="math inline">\(\hat{g}\)</span>是<span
-class="math inline">\(g\)</span>的一个无偏估计量；</p>
-<p>无偏性体现了，尽管一部分样本估计偏低，另一部分估计偏高，可是将正负误差在概率上平均起来应该为0，即没有系统误差；</p>
-<p>样本均值是总体均值的无偏估计： <span class="math display">\[
-E(\overline{X})=E(\sum_{i=1}^nX_i/n)=\sum_{i=1}^nE(X_i)/n=n\theta/n=\theta
-\]</span> 样本方差是总体方差的无偏估计，即<span
-class="math inline">\(E(X_i)=a\)</span>，由上可知也有<span
-class="math inline">\(E(\overline{X})=a\)</span> <span
-class="math display">\[
-\begin{aligned}
-E(\sum_{i=1}^n(X_i-\overline{X})^2)&amp;=E\sum_{i=1}^n[(X_i-a)-(\overline{X}-a)]^2\\
-&amp;=E(\sum_{i=1}^n(X_i-a)^2-n(\overline{X}-a)^2)\\
-&amp;=\sum_{i=1}^n\text{Var}(X_i)-n\text{Var}(\sum_{i=1}^nX_i/n)\\
-&amp;=n\sigma^2-n\sigma^2/n^2\\
-&amp;=(n-1)\sigma^2
-\end{aligned}
-\]</span> 因此样本方差是总体方差的无偏估计： <span
-class="math display">\[
-E(S^2)=E(\sum_{i=1}^n(X_i-\overline{X})^2/(n-1))=\sigma^2
-\]</span> 从自由度的角度解释，<span
-class="math inline">\(\sum_{i=0}^n(X_i-\overline{X})^2\)</span>的自由度为<span
-class="math inline">\(n-1\)</span>，因为存在一个约束是<span
-class="math inline">\(\overline{X}=\sum_{i=1}^nX_i/n\)</span>；当我们知道总体分布的均值为<span
-class="math inline">\(a\)</span>而不是使用样本均值时，对方差的估计可以表示为<span
-class="math inline">\(\sum_{i=1}^n(X_i-a)^2/n\)</span></p>
-<p>下式表明，用<span
-class="math inline">\(S\)</span>估计总体分布的标准差不是无偏估计！估计得要小一点；
-<span class="math display">\[
-\sigma^2=E(S^2)=\text{Var}(S)+(ES)^2
-\]</span>
-矩估计和极大似然估计对正态分布的方差的估计求出的都是样本二阶中心矩，不是无偏的；</p>
-<p><strong>最小方差无偏估计</strong>（MVU）：一个参数可能有多个无偏估计，需要一些指标来评价哪种估计更好；</p>
-<ul>
-<li><p>均方误差：<span
-class="math inline">\(M_{\hat{\theta}}(\theta)=E_{\theta}[\hat{\theta}(X_1,\dotsm,X_n)-\theta]^2\)</span></p>
-<p><span
-class="math inline">\(M_{\hat{\theta}}(\theta)=\text{Var}(\hat{\theta})+[E_{\theta}(\hat{\theta})-\theta]^2\)</span>，由该式子，得到均方误差由估计的参数的方差和系统偏差组成，如果<span
-class="math inline">\(\hat{\theta}\)</span>为<span
-class="math inline">\(\theta\)</span>的无偏估计，则第二项为0，即对于无偏估计，方差最小者最优；</p>
-<blockquote>
-<p>这里是有<span
-class="math inline">\(\text{Var}(\hat{\theta}-\theta)=\text{Var}(\hat{\theta})\)</span>？把<span
-class="math inline">\(\theta\)</span>当成常量了</p>
-</blockquote></li>
-</ul>
-<p>之前的方法只能判断现有的无偏估计那个更好，却不能求出最小的无偏估计，可以使用克拉美-劳不等式确定下界，证明昝略：</p>
-<p>只考虑单个参数的情况，记 <span class="math display">\[
-I(\theta)=\int\left[\left(\frac{\part f(x,\theta)}{\part
-\theta}\right)^2/f(x,\theta)\right]dx
-\]</span></p>
-<blockquote>
-<p>积分的界取决于<span class="math inline">\(x\)</span>可取的范围；<span
-class="math inline">\(I(\theta)\)</span>又称费歇尔信息量</p>
-</blockquote>
-<p>则有 <span class="math display">\[
-\text{Var}_{\theta}(\hat{g})\ge(g&#39;(\theta))^2/(nI(\theta))
-\]</span> 其中<span class="math inline">\(n\)</span>是样本大小；</p>
-<blockquote>
-<p>信息量越大，方差的下界越小，估计越准</p>
-</blockquote>
-<p><strong>相合性</strong>：类似于大数定理，随着样本量的增加，估计量应该趋于真值：
-<span class="math display">\[
-\lim_{n\rightarrow
-\infty}P_{\theta_1,\dotsm,\theta_k}(|\hat{g}-g|\ge\epsilon) = 0
-\]</span> 则称<span class="math inline">\(\hat{g}\)</span>是<span
-class="math inline">\(g\)</span>的相合估计；</p>
-<p><strong>渐进正态性</strong>：当<span
-class="math inline">\(n\)</span>逐渐增大时，样本的和的分布趋近于正态分布；</p>
-<h3 id="区间估计">区间估计</h3>
-<p>一方面，期望<span class="math inline">\(\theta\)</span>落在区间<span
-class="math inline">\([\theta_1,\theta_2]\)</span>的可靠性尽量高，另一方面<span
-class="math inline">\([\theta_1,\theta_2]\)</span>的范围尽量小；这两个要求是矛盾的，通常先保证可靠度（给定置信系数求区间）；</p>
-<p>给定一个很小的数<span
-class="math inline">\(\alpha&gt;0\)</span>，若<span
-class="math inline">\(P_\theta(\hat{\theta_1}\le\theta\le\hat{\theta_2})=1-\alpha\)</span>，则称区间估计<span
-class="math inline">\([\theta_1,\theta_2]\)</span>的置信系数为<span
-class="math inline">\(1-\alpha\)</span>；</p>
-<p>这里只讨论如何构造置信区间，但是其优良性比较暂不考虑；</p>
-<p>定义<strong>上<span class="math inline">\(\beta\)</span>分位点<span
-class="math inline">\(u_\beta\)</span></strong>为满足<span
-class="math inline">\(F(u_\beta)=1-\beta\)</span>的位置；</p>
-<p><strong>枢轴法</strong>（正态分布区间估计为例）：</p>
-<ol type="1">
-<li>找到与估计的参数<span
-class="math inline">\(g(\theta)\)</span>有关的统计量<span
-class="math inline">\(T\)</span>，一般是其良好的点估计（例如<span
-class="math inline">\(T=\overline{X}\)</span>；</li>
-<li>找到一个<span class="math inline">\(T与\)</span><span
-class="math inline">\(g(\theta)\)</span>组成的函数<span
-class="math inline">\(S\)</span>，使得<span
-class="math inline">\(S\)</span>的分布与带估计参数无关<span
-class="math inline">\(\theta\)</span>，例如<span
-class="math inline">\(\sqrt{n}(\overline{X}-\mu)/\sigma\)</span>服从标准正态分布<span
-class="math inline">\(\Phi\)</span></li>
-<li><span class="math inline">\(a\le S(T,g(\theta))\le
-b\)</span>能够改写成<span class="math inline">\(A \le g(\theta) \le
-B\)</span>，令<span
-class="math inline">\(a=u_{1-\alpha/2}\)</span>，<span
-class="math inline">\(b=u_{\alpha/2}\)</span>，则<span
-class="math inline">\([A,B]\)</span>即为所求的<span
-class="math inline">\(1-\alpha\)</span>的置信区间</li>
-</ol>
-]]></content>
-      <categories>
-        <category>基础知识</category>
-      </categories>
-      <tags>
-        <tag>概率与统计</tag>
       </tags>
   </entry>
   <entry>
@@ -7504,6 +7028,593 @@ href="https://statisticaloddsandends.wordpress.com/2018/05/24/derivative-of-log-
       </categories>
       <tags>
         <tag>线性代数</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>概率论与数理统计要点总结</title>
+    <url>/2022/08/13/probability/</url>
+    <content><![CDATA[<p>本文是根据陈希儒版《概率论与数理统计》总结的干货。</p>
+<blockquote>
+<p>相关知识需要大量的例子和证明来补充，笔者发现总结干货并不容易</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="一事件的概率">一、事件的概率</h2>
+<p>第一章首先对概率论中使用的名词含义与生活中的相关名词含义进行了区分，小结如下：</p>
+<ul>
+<li><p><strong>概率</strong>是某一时间发生的数量指标，介于<span
+class="math inline">\([0,1]\)</span>之间；生活中我们常常提到发生什么事的概率，通常是我们的主观推断，不是一个科学的概念；</p></li>
+<li><p><strong>事件</strong>是对某种情况的描述，而不是已发生的情况，是否发生取决于试验后的结果，这样强调的目的是为了避免在理解一些和事件的概率时，与条件概率产生理解上的混淆；事件一般有一个明确界定的<strong>试验</strong>，即有一个可以罗列出的总体，或者总体的一个范围，并且事件是其中一个可以确定的试验的结果；把单一的试验结果称为<strong>基本事件</strong></p></li>
+<li><p><strong>古典概率</strong>，是一种简单的概率模型，它假设全部试验结果是有限个的，且等可能成立的；另外还有<strong>几何概率</strong>，是古典概率到无限个试验结果的引申；</p></li>
+<li><p><strong>概率的统计定义</strong>，就是通过大量多次的试验来使用频率去拟合概率，这不是概率的定义，而是一种估计方法，也可以作为假设检验的方法；</p></li>
+<li><p><strong>概率的公理化定义</strong>（柯氏公理）：基本事件的集合为<span
+class="math inline">\(\Omega\)</span>，考虑一个集类<span
+class="math inline">\(\mathcal{F}\)</span>，其元素由<span
+class="math inline">\(\Omega\)</span>的子集组成（包括<span
+class="math inline">\(\empty\)</span>和<span
+class="math inline">\(\Omega\)</span>自己），<span
+class="math inline">\(\mathcal{F}\)</span>的每个元素<span
+class="math inline">\(A\)</span>即称为事件，事件的概率<span
+class="math inline">\(P(A)\)</span>满足三条公理：</p>
+<ul>
+<li><span class="math inline">\(0 \le P(A) \le 1\)</span></li>
+<li><span class="math inline">\(P(\Omega)=1\)</span>，<span
+class="math inline">\(P(\empty)=0\)</span></li>
+<li>加法公理：若干个互斥事件和的概率，等于各个事件的概率之和</li>
+</ul></li>
+<li><p>排列组合：</p>
+<ul>
+<li><p><span class="math inline">\(n\)</span>个不同的物品取出<span
+class="math inline">\(r\)</span>个的不同排列总数(<span
+class="math inline">\(1\le r \le n\)</span>) <span
+class="math display">\[
+P_r^n=n(n-1)\dots(n-r+1)
+\]</span></p></li>
+<li><p><span class="math inline">\(n\)</span>个不同物品取出<span
+class="math inline">\(r\)</span>个的不同组合总数(<span
+class="math inline">\(1\le r \le n\)</span>) <span
+class="math display">\[
+C_r^n=\left(\begin{array}{c}
+n\\r
+\end{array}
+\right)
+=P_r^n/r!=n!/(r!(n-r)!)
+\]</span></p></li>
+<li><p>组合数又是二项展开式的系数： <span class="math display">\[
+(a+b)^n=\sum_{i=0}^{n}\left(\begin{array}{c}n\\i\end{array}\right)a^ib^{n-i}
+\]</span></p></li>
+<li><p><span class="math inline">\(n\)</span>个不同物品分成<span
+class="math inline">\(k\)</span>堆，各堆物品数分别为<span
+class="math inline">\(r_1,\dots,r_k\)</span>的分法（堆和堆是有序的）：
+<span class="math display">\[
+n!/(r_1!\dots r_k!)
+\]</span> 上式是多项展开式<span
+class="math inline">\((x_1+\dots+x_k)^n\)</span>的<span
+class="math inline">\(x_1^{r_1}\dots x_k^{r_k}\)</span>的系数</p></li>
+</ul></li>
+<li><p>按照上述事件的公理化定义，事件本身就是集合，一些集合中的关系可以引申到事件中的关系来，包括蕴含、包含、相等、互斥（不交）、对立（补）、和（并）、积（交）、差等，比较简单，按下不表；</p></li>
+<li><p><strong>条件概率</strong>，在<span
+class="math inline">\(B\)</span>发生下<span
+class="math inline">\(A\)</span>发生的概率，<span
+class="math inline">\(P(A|B)=P(AB)/P(B)\)</span></p></li>
+<li><p>事件<span class="math inline">\(A\)</span>与<span
+class="math inline">\(B\)</span>是独立的，当且仅当<span
+class="math inline">\(P(AB)=P(A)P(B)\)</span>，这也是<strong>概率的乘法定理</strong>，进而可以推广到多个事件互相独立：设<span
+class="math inline">\(A_1,A_2,\dots\)</span>为有限或者无限的时间，如果从其中任意取出有限个事件，都满足事件积的概率等于事件概率的积，则这些时间<strong>相互独立</strong>；相互独立可以推出两两独立，但是两两独立不一定相互独立</p>
+<blockquote>
+<p>就向判断一堆列向量线性无关一样，两两线性无关也不能保证总体线性无关</p>
+</blockquote></li>
+<li><p><strong>全概率公式</strong>：设<span
+class="math inline">\(B_1,B_2,\dots\)</span>为有限个或无限个事件，两两互斥，每次试验中至少发生一个，则
+<span class="math display">\[
+\begin{aligned}
+P(A)&amp;=P(AB_1)+P(AB_2)+\dots\\
+&amp;=P(B_1)P(A|B_1)+P(B_2)P(A|B_2)+\dots
+\end{aligned}
+\]</span></p></li>
+<li><p><strong>贝叶斯公式</strong>：<span
+class="math inline">\(P(B_i|A)=P(AB_i)/P(A)=P(B_i)P(A|B_i)/\sum_jP(B_j)P(A|B_j)\)</span></p>
+<blockquote>
+<p>贝叶斯公式看起来就是移了个项，但是解释起来就牛逼多了：</p>
+<p>把<span class="math inline">\(B_1,B_2,\dots\)</span>看成原因，把<span
+class="math inline">\(A\)</span>看成结果，全概率公式计算在不同原因下的加权概率和，由因及果，而贝叶斯公式计算在已知结果发生下，是哪个原因导致该结果的概率；</p>
+<p>人们原来对事件<span
+class="math inline">\(B_i\)</span>的发生有一个经验概率（先验）<span
+class="math inline">\(P(B_i)\)</span>，现在事件<span
+class="math inline">\(A\)</span>发生了，那么我们使用贝叶斯公式，得到了<span
+class="math inline">\(B_i\)</span>发生的新的概率（后验）<span
+class="math inline">\(P(B_i|A)\)</span></p>
+</blockquote></li>
+</ul>
+<h2 id="二随机变量及概率分布">二、随机变量及概率分布</h2>
+<p>随机变量的概念比随机实践的概念更广，更利于研究，比如之前抛硬币，有两个基本事件，现在可以记为一个变量，有两种取值，每种值有一定的概率；</p>
+<p>本章介绍了大量连续型概率分布和离散型概率分布的例子，说实话本人目前只在应用中接触过正态分布，对于大多数第一次在概率论课上接触的分布，想什么指数分布、泊松分布、<span
+class="math inline">\(t\)</span>分布等等，在课后就没再见过，掌握的也不深；</p>
+<ul>
+<li><p>可以根据变量的取值特点分为离散型随机变量和连续型随机变量；</p></li>
+<li><p><strong>分布函数</strong>，设<span
+class="math inline">\(X\)</span>为一随机变量 <span
+class="math display">\[
+P(X\le x)=F(x), \ \ -\infty &lt; x &lt; \infty
+\]</span> 该函数时单调非减的；并且在<span
+class="math inline">\(x\rightarrow -\infty\)</span>时，<span
+class="math inline">\(F(x)\rightarrow 0\)</span>，<span
+class="math inline">\(x\rightarrow \infty\)</span>时，<span
+class="math inline">\(F(x)\rightarrow 1\)</span>；</p></li>
+<li><p><strong>二项分布</strong>：事件<span
+class="math inline">\(A\)</span>单次发生的概率为<span
+class="math inline">\(p\)</span>，经过<span
+class="math inline">\(n\)</span>次独立试验之后，<span
+class="math inline">\(A\)</span>发生<span
+class="math inline">\(i\)</span>次记为事件<span
+class="math inline">\(X\)</span>，记为<span class="math inline">\(X
+\thicksim B(n, p)\)</span>，概率为： <span class="math display">\[
+P(X=i)=b(i;n,p)=\left(\begin{array}{c}n\\i\end{array}\right)p^i(1-p)^{n-i},
+i=0,1,\dots, n
+\]</span></p></li>
+<li><p><strong>泊松分布</strong>：二项分布的极限形式，当<span
+class="math inline">\(n\)</span>很大，<span
+class="math inline">\(p\)</span>很小而<span
+class="math inline">\(np=\lambda\)</span>不太大时，<span
+class="math inline">\(X\thicksim P(\lambda)\)</span>，概率为： <span
+class="math display">\[
+P(X=i) = e^{-\lambda}\lambda^i/i!
+\]</span></p></li>
+<li><p><strong>超几何分布</strong>：<span
+class="math inline">\(X\)</span>为从<span
+class="math inline">\(N\)</span>个商品中，随机抽出<span
+class="math inline">\(n\)</span>个里面包含的废品数（总废品数<span
+class="math inline">\(M\)</span>），与二项分布的差别是，这是不放回抽样：
+<span class="math display">\[
+  P(X=m)=
+  \left(
+  \begin{array}{}
+  M\\m
+  \end{array}
+  \right)
+  \left(
+  \begin{array}{}
+  N-M\\n-m
+  \end{array}
+  \right) /
+  \left(
+  \begin{array}{}
+  N\\n
+  \end{array}
+  \right)
+  \]</span> 当<span class="math inline">\(n\)</span>固定，<span
+class="math inline">\(M/N=p\)</span>固定，<span
+class="math inline">\(N\rightarrow \infty\)</span>时，<span
+class="math inline">\(X\)</span>近似服从二项分布<span
+class="math inline">\(B(n,p)\)</span></p></li>
+<li><p><strong>负二项分布</strong>：</p></li>
+<li><p>对于连续型随机分布，定义概率密度函数<span
+class="math inline">\(f(x)=F&#39;(x)\)</span></p>
+<ul>
+<li><span class="math inline">\(f(x)\ge 0\)</span></li>
+<li><span class="math inline">\(\int_{-\infty}^{+\infty}f(x)dx =
+1\)</span></li>
+<li><span class="math inline">\(P(a \le x \le b) = F(b) - F(a) =
+\int_{a}^{b}f(x)dx\)</span></li>
+</ul></li>
+<li><p><strong>正态分布</strong>：<span class="math inline">\(X \sim
+N(\mu, \sigma)\)</span> <span class="math display">\[
+f(x) = (\sqrt{2\pi}\sigma)^{-1}e^{-(x-\mu)^2/2\sigma^2}, -\infty &lt; x
+&lt; \infty
+\]</span> <span
+class="math inline">\(N(0,1)\)</span>为标准正态分布</p></li>
+<li><p><strong>指数分布</strong>：其中<span
+class="math inline">\(\lambda&gt;0\)</span> <span
+class="math display">\[
+f(x) = \left\{
+\begin{array}{rc}
+\lambda e^{-\lambda x},&amp;x&gt;0\\
+0,&amp;x\le 0
+\end{array}
+\right.
+\]</span></p>
+<p><span class="math display">\[
+F(x) = \left\{
+\begin{array}{rc}
+0,&amp;x\le 0\\
+1 - e^{-\lambda x},&amp;x&gt;0\\
+\end{array}
+\right.
+\]</span></p>
+<blockquote>
+<p>原件寿命的分布，<span
+class="math inline">\(\lambda\)</span>为失效率，<span
+class="math inline">\(\lambda^{-1}\)</span>即平均寿命</p>
+</blockquote></li>
+<li><p><strong>韦伯分布</strong>：</p></li>
+<li><p><strong>均匀分布</strong>：</p></li>
+</ul>
+<p>以下是多维随机变量分布：</p>
+<ul>
+<li><p><strong>多项分布</strong>：</p></li>
+<li><p><strong>二维正态分布</strong>： <span class="math display">\[
+f(x_1,x_2)=(2\pi\sigma_1\sigma_2\sqrt{1-\rho^2}\exp(-\frac{1}{2(1-\rho^2)}\left(\frac{(x_1-a)^2}{\sigma_1^2}-\frac{2\rho(x_1-a)(x_2-b)}{\sigma_1\sigma_2}+\frac{(x_2-b)^2}{\sigma^2}\right))
+\]</span></p></li>
+<li><p><strong>边缘分布</strong>：<span
+class="math inline">\(X=(X_1,\dots, X_n)\)</span>是一个<span
+class="math inline">\(n\)</span>维随机变量，其分布<span
+class="math inline">\(F\)</span>为一个<span
+class="math inline">\(n\)</span>维分布，对于<span
+class="math inline">\(X\)</span>的每一个分量<span
+class="math inline">\(X_i\)</span>其一维分布<span
+class="math inline">\(F_i\)</span>即称为边缘分布；边缘分布也不一定是对于一个分量的一维分布；<span
+class="math inline">\(N(a,b,\sigma_1^2, \sigma_2^2,
+\rho)\)</span>的两个边缘分布是<span class="math inline">\(N(a,
+\sigma_1^2)\)</span>和<span
+class="math inline">\(N(b,\sigma_2^2)\)</span></p></li>
+<li><p><strong>条件分布</strong>：</p>
+<p>离散型随机变量条件分布的概率密度很好写出，设<span
+class="math inline">\((X_1,X_2)\)</span>是二维离散型随机变量，<span
+class="math inline">\(X_1\)</span>的全部可能值为<span
+class="math inline">\(a_1, a_2,\dots\)</span>, <span
+class="math inline">\(X_2\)</span>的全部可能值为<span
+class="math inline">\(b_1, b_2, \dots\)</span>，即联合概率分布 <span
+class="math display">\[
+p_{ij}=P(X_1=a_i, X_2=b_j), i,j = 1,2,\dots
+\]</span> 则条件分布 <span class="math display">\[
+P(X_1=a_i|X_2=b_j)=p_{ij}/P(X_2=b_j)=p_{ij}/\sum_kp_{kj}
+\]</span>
+连续性随机变量的条件分布也有比较直观的结论（推导过程稍微复杂）： <span
+class="math display">\[
+f(x_1,x_2)=f_2(x_2)f_1(x_1|x_2)
+\]</span> 将上式两边对<span class="math inline">\(x_2\)</span>积分，有
+<span class="math display">\[
+f_1(x_1)=\int_{-\infty}^{+\infty}f_1(x_1|x_2)f_2(x_2)
+\]</span> 解释为<span
+class="math inline">\(X_1\)</span>的无条件密度，是<span
+class="math inline">\(X_1\)</span>在<span
+class="math inline">\(X_2\)</span>条件按<span
+class="math inline">\(X_2\)</span>密度的加权平均，这也是全概率公式的概率密度的表现形式；</p>
+<p>对弈二维正态分布<span class="math inline">\(N(a,b,\sigma_1^2,
+\sigma_2^2, \rho)\)</span>，其<span
+class="math inline">\(X=x_1\)</span>条件下，<span
+class="math inline">\(X_2\)</span>满足<span
+class="math inline">\(N(b+\rho\sigma_2\sigma_1^{-1}(x_1-a),
+\sigma^2_2(1-\rho^2))\)</span>分布，可以定性的看出<span
+class="math inline">\(\rho&gt;0\)</span>，随着<span
+class="math inline">\(X_1\)</span>增加，<span
+class="math inline">\(X_2\)</span>数据中心也增加，这称为正相关，反之，<span
+class="math inline">\(\rho&lt;0\)</span>有负相关；</p></li>
+<li><p><strong>随机变量的独立性</strong>，当且仅当 <span
+class="math display">\[
+f(x_1, \dots, x_n)=f(x_1)\dots f(x_n)
+\]</span></p></li>
+<li><p><strong>随机变量函数的分布</strong>，研究这个问题的目的是，为了知道观测变量的统计量(例如均值、方差)的分布；</p>
+<p>设<span class="math inline">\(X\)</span>有密度函数<span
+class="math inline">\(f(x)\)</span>，设<span
+class="math inline">\(Y=g(X)\)</span>，<span
+class="math inline">\(g\)</span>严格单调，反函数<span
+class="math inline">\(h=g^{-1}\)</span>是可导的，则<span
+class="math inline">\(Y\)</span>的概率密度函数为 <span
+class="math display">\[
+l(y)=f(h(y))|h&#39;(y)|
+\]</span> 设<span
+class="math inline">\((X_1,X_2)\)</span>的密度函数为<span
+class="math inline">\(f(x_1, x_2)\)</span>，<span
+class="math inline">\(Y_1=g_1(X_1,X_2)\)</span>，<span
+class="math inline">\(Y_2=g_2(X_1, X_2)\)</span>，设<span
+class="math inline">\(g_1,g_2\)</span>是一一变换，有<span
+class="math inline">\(X_1=h_1(Y_1,Y_2)\)</span>，<span
+class="math inline">\(X_2=h_2(Y_1,Y_2)\)</span>，均有一阶连续偏导，雅克比行列式<span
+class="math inline">\(J(y_1,y_2)\)</span>不为0，则 <span
+class="math display">\[
+l(y_1,y_2)=f(h_1(y_1,y_2),h_2(y_1, y_2))|J(y_1,y_2)|
+\]</span></p></li>
+</ul>
+<h2 id="三随机变量的数字特征">三、随机变量的数字特征</h2>
+<ul>
+<li><p><strong>期望</strong>：</p>
+<p><span class="math inline">\(X\)</span>若为离散型随机变量，取<span
+class="math inline">\(a_1, a_2,\dots\)</span>，对应的概率为<span
+class="math inline">\(p_1,p_2,\dots\)</span>，则期望 <span
+class="math display">\[
+E(X)=\sum_{i=1}^{\infty}a_ip_i
+\]</span> 其中，该级数必须绝对收敛，才存在期望；</p>
+<p><span
+class="math inline">\(X\)</span>若为连续型随机变量，密度函数为<span
+class="math inline">\(f(x)\)</span>，则 <span class="math display">\[
+E(x) = \int_{-\infty}^{+\infty}xf(x)dx
+\]</span> 同样要求<span
+class="math inline">\(\int_{-\infty}^{+\infty}|x|f(x)dx &lt;
+\infty\)</span></p></li>
+<li><p>期望有如下性质：</p>
+<ul>
+<li><span
+class="math inline">\(E(X_1+\dots+X_n)=E(X_1)+\dots+E(X_n)\)</span></li>
+<li>若<span class="math inline">\(X_1,X_n\)</span>独立，则<span
+class="math inline">\(E(X_1\dots X_n)=E(X_1)\dots E(X_n)\)</span></li>
+</ul>
+<p>计算随机变量函数的期望，不需要知道函数的分布： <span
+class="math display">\[
+E(g(X))=\int_{-\infty}^{+\infty}g(x)f(x)dx
+\]</span></p></li>
+<li><p><strong>条件期望</strong>：<span
+class="math inline">\(E(Y|X=x)=E(Y|x)=\int_{-\infty}^{+\infty}yf(y|x)dy\)</span></p>
+<p>全概率公式的期望形式： <span class="math display">\[
+E(Y)=\int_{-\infty}^{+\infty}E(Y|x)f_1(x)dx=E[E(Y|x)]
+\]</span></p></li>
+<li><p><strong>方差</strong>： <span class="math display">\[
+\text{Var}(X)=E(X-EX)^2=E(X^2)-(EX)^2
+\]</span></p>
+<ul>
+<li><span
+class="math inline">\(\text{Var}(CX)=C^2\text{Var}(X)\)</span></li>
+<li><span
+class="math inline">\(\text{Var}(C+X)=\text{Var}(X)\)</span></li>
+<li><span class="math inline">\(\text{Var}(aX+bY)=a^2\text{Var}(X) +
+b^2\text{Var}(Y)+2ab\text{Cov}(X,Y)\)</span></li>
+</ul></li>
+<li><p><strong>矩</strong>：设<span
+class="math inline">\(X\)</span>为随机变量，<span
+class="math inline">\(c\)</span>为常数，<span
+class="math inline">\(k\)</span>为正整数，则<span
+class="math inline">\(E[(X-c)^k]\)</span>称为<span
+class="math inline">\(X\)</span>关于<span
+class="math inline">\(c\)</span>点的<span
+class="math inline">\(k\)</span>阶矩，其中在<span
+class="math inline">\(c=0\)</span>时称为原点矩，<span
+class="math inline">\(c=EX\)</span>时称为中心矩；</p></li>
+<li><p><strong>协方差</strong>：<span
+class="math inline">\(\text{Cov}(X,Y)=E[(X-m_1)(Y-m_2)]\)</span>，其中<span
+class="math inline">\(m_1,m_2\)</span>表示<span
+class="math inline">\(X,Y\)</span>的期望</p>
+<ul>
+<li><span
+class="math inline">\(\text{Cov}(c_1X+c_2,c_3Y+c_4)=c_1c_3\text{Cov}(X,Y)\)</span></li>
+<li><span
+class="math inline">\(\text{Cov}(X,Y)=E(XY)-m_1m_2\)</span></li>
+<li>若<span class="math inline">\(X,Y\)</span>独立，则<span
+class="math inline">\(\text{Cov}(X,Y)=0\)</span></li>
+<li><span class="math inline">\([\text{Cov}(X,Y)]^2\le
+\sigma_1^2\sigma_2^2\)</span></li>
+</ul></li>
+<li><p><strong>相关系数</strong>：<span
+class="math inline">\(\text{Corr}(X,Y)=\text{Cov}(X,Y)/(\sigma_1\sigma_2)\)</span>，可以视为标准尺度下（方差为1）的协方差</p>
+<ul>
+<li>若<span class="math inline">\(X,Y\)</span>独立，则<span
+class="math inline">\(\text{Corr}(X,Y)=0\)</span>，但是<strong>反之不成立</strong></li>
+<li><span class="math inline">\(|\text{Corr}(X, Y)|=0\)</span></li>
+<li><span class="math inline">\(|\text{Corr}(X,Y)|\le
+1\)</span>，线性关系越强，相关系数越大</li>
+</ul></li>
+<li><p><strong>最小二乘</strong>：选择常数<span
+class="math inline">\(a,b\)</span>使得<span
+class="math inline">\(E[(Y-a-bX)^2]\)</span>最小：</p>
+<p>记<span
+class="math inline">\(m_1=EX,m_2=EY,\sigma_1^2=\text{Var}(X),\sigma_2^2=\text{Var}(Y),\rho=\text{Corr}(X,Y),c=a-(m_2-bm_1)\)</span>：
+<span class="math display">\[
+\begin{aligned}
+E[(Y-a-bX)^2]&amp;=E[(Y-m_2)-b(X-m_1)-c]^2\\
+&amp;=\sigma_2^2 + b^2\sigma_1^2 -2b\text{Cov}(X,Y) + c^2
+\end{aligned}
+\]</span> 令<span
+class="math inline">\(c=0,b=\text{Cov}(X,Y)/\sigma_1^2=\sigma_1^{-1}\sigma_2\rho\)</span>得到线性逼近：
+<span class="math display">\[
+L(X)=m_2 - \sigma_1^{-1}\sigma_2\rho m_1 + \sigma_1^{-1}\sigma_2\rho X
+\]</span> 这一逼近的剩余是： <span class="math display">\[
+E[Y-L(X)]^2=\sigma_2^2(1-\rho^2)
+\]</span> 可以看出当<span
+class="math inline">\(|\rho|=1\)</span>时，完美的线性关系，而<span
+class="math inline">\(\rho=0\)</span>时，剩余为<span
+class="math inline">\(\sigma_2\)</span>，毫无线性关系（可能满足其他的非线性关系）；</p>
+<ul>
+<li>若<span
+class="math inline">\((X,Y)\)</span>为二维正态，则任何函数<span
+class="math inline">\(M(X)\)</span>，以<span
+class="math inline">\(E[Y-M(X)]^2\)</span>最小化为目标都可以得到上述的<span
+class="math inline">\(L(X)\)</span></li>
+<li>若<span class="math inline">\((X,Y)\)</span>为二维正态，则<span
+class="math inline">\(\rho=0\)</span>可以推出<span
+class="math inline">\(X,Y\)</span>独立</li>
+</ul></li>
+<li><p><strong>大数定理</strong>：（独立同分布的）<span
+class="math inline">\(\overline{X}\)</span>依概率收敛到<span
+class="math inline">\(EX\)</span>；</p></li>
+<li><p><strong>马尔科夫不等式</strong>：若<span
+class="math inline">\(Y\)</span>为只取非负值的随机变量，则对于任意的常数<span
+class="math inline">\(\epsilon &gt; 0\)</span>有<span
+class="math inline">\(P(Y&gt;\epsilon)\le EY/\epsilon\)</span></p></li>
+<li><p><strong>车比雪夫不等式</strong>：用<span
+class="math inline">\((Y-EY)^2\)</span>代替<span
+class="math inline">\(Y\)</span>，<span
+class="math inline">\(\epsilon^2\)</span>代替<span
+class="math inline">\(\epsilon\)</span>，得到：若<span
+class="math inline">\(\text{Var}(Y)\)</span>存在，则： <span
+class="math display">\[
+P(|Y-EY|\ge\epsilon)\le \text{Var}(X)/\epsilon^2
+\]</span></p></li>
+<li><p><strong>中心极限定理</strong>：（独立同分布的）随机变量的和的分布收敛于正态分布；</p></li>
+</ul>
+<h2 id="四参数估计">四、参数估计</h2>
+<p>在有限总体的情况下，样本的分布取决于总体分布和抽样方式（有放回还是无放回）；对于无限总体或者有放回抽样，总体分布完全决定样本分布；</p>
+<p>统计量是指完全由样本决定的量；样本均值、样本矩与随机变量的均值和矩的形式一样；但是要注意样本方差<span
+class="math inline">\(S^2=\frac{n}{n-1}m^2\)</span>，<span
+class="math inline">\(m^2\)</span>是样本的二阶中心矩；</p>
+<p>参数估计可以分为点估计和区间估计；点估计即用一个点（值）去估计参数，区间估计则是用一个区间去估计参数，相当于把误差范围显式地表示出来了；</p>
+<h3 id="矩估计">矩估计</h3>
+<p>设总体分布为<span
+class="math inline">\(f(x,\theta_1,\dots,\theta_k)\)</span>，基本思想是让一系列的样本矩（原点矩或中心距都行）<span
+class="math inline">\(a_m\)</span>等于对应的随机变量矩<span
+class="math inline">\(\alpha_m\)</span>；以原点矩为例，一边有 <span
+class="math display">\[
+\alpha_m=\int_{-\infty}^{\infty}x^mf(x,\theta_1,\dots,\theta_k)dx
+\]</span> 另一边有： <span class="math display">\[
+a_m=\sum_{i=1}^nX_i^m/n
+\]</span> 列出<span class="math inline">\(k\)</span>个方程求解参数<span
+class="math inline">\(\theta_1,\dots,\theta_k\)</span>；</p>
+<h3 id="极大似然估计">极大似然估计</h3>
+<p>设总体分布为<span
+class="math inline">\(f(X;\theta_1,\dots,\theta_k)\)</span>，<span
+class="math inline">\(X_1,\dots,X_n\)</span>为样本，则样本的密度函数为
+<span class="math display">\[
+L(X_1,\dots,X_n;\theta_1,\dots,\theta_k)=f(X_1;\theta_1,\dots,\theta_k)\dots
+f(X_n;\theta_1,\dots,\theta_k)
+\]</span> 上式子<span
+class="math inline">\(X_1,\dots,X_n\)</span>固定，把<span
+class="math inline">\(L\)</span>看做<span
+class="math inline">\(\theta_1,\dots,\theta_k\)</span>的参数，即称为似然函数；想法就是使用使得似然函数最大的点作为参数的估计值：
+<span class="math display">\[
+L(X_1,\dots,X_n;\theta_1^*,\dots,\theta_k^*)=\max_{\theta_1,\dots,\theta_k}L(X_1,\dots,X_n;\theta_1,\dots,\theta_k)
+\]</span> 合适时，可以使用一阶导为0或者对数的一阶导为0求得极大值点；</p>
+<h3 id="贝叶斯估计">贝叶斯估计</h3>
+<p>上面两种方法，在抽样之前，对于参数<span
+class="math inline">\(\theta\)</span>没有任何的了解，所有信息来自于样本；贝叶斯学派认为应该对于<span
+class="math inline">\(\theta\)</span>有某种先验知识，并且以<span
+class="math inline">\(\theta\)</span>的某种概率密度表现出来<span
+class="math inline">\(h(\theta)\)</span>；</p>
+<p>设总体有概率密度<span
+class="math inline">\(f(X,\theta)\)</span>，<span
+class="math inline">\(X_1,\dots,X_n\)</span>为样本，则<span
+class="math inline">\((\theta, X_1, \dots, X_n)\)</span>的联合密度为：
+<span class="math display">\[
+h(\theta)f(X_1,\theta)\dots f(X_n,\theta)
+\]</span> <span
+class="math inline">\((X_1,\dots,X_n)\)</span>的边缘密度为 <span
+class="math display">\[
+p(X_1,\dots,X_n)=\int h(\theta)f(X_1,\theta)\dots f(X_n,\theta) d\theta
+\]</span></p>
+<blockquote>
+<p>积分的限取决于参数</p>
+</blockquote>
+<p>后验/<span class="math inline">\(\theta\)</span>的条件密度为： <span
+class="math display">\[
+h(\theta|X_1,\dots,X_n)=h(\theta)f(X_1,\theta)\dots
+f(X_n,\theta)/p(X_1,\dots,X_n)
+\]</span>
+后验分布如何使用不是一个固定的事情；一种常见的做法是，取后验分布的均值作为<span
+class="math inline">\(\theta\)</span>的估计</p>
+<blockquote>
+<p>广义的先验密度<span
+class="math inline">\(h(\theta)\)</span>不一定满足积分为1，甚至可能是<span
+class="math inline">\(\infty\)</span></p>
+<p>初始化的<span
+class="math inline">\(h(x)\)</span>可以基于“同等无知”原则，即均匀分布；基于这个原则，不同的人可能得到不同的初始化结果，例如对<span
+class="math inline">\(p\)</span>同等无知，我们令<span
+class="math inline">\(h(p)=1, 0\le p\le 1\)</span>；同样的对<span
+class="math inline">\(p^2\)</span>也同等无知，我们令<span
+class="math inline">\(h(p^2)=1, 0\le p\le1\)</span>又得到<span
+class="math inline">\(h(p)=2p,0\le p \le 1\)</span>；</p>
+</blockquote>
+<h3 id="点估计的优良性准则">点估计的优良性准则</h3>
+<p>如何比较上述几种点估计方法？这取决于抽样。不同的样本，一种估计方法可能很好，也可能不太好；我们希望有整体上的评价方式；</p>
+<p><strong>无偏性</strong>：设<span
+class="math inline">\(\hat{g}(X_1,\dots,
+X_n)\)</span>是一个估计量，如果对于任何可能的<span
+class="math inline">\(\theta_1,\dots,\theta_k\)</span>都有 <span
+class="math display">\[
+E_{\theta_1,\dots,\theta_k}[\hat{g}(X_1,\dots,X_n)]=g(\theta_1,\dots,\theta_k)
+\]</span> 则称<span class="math inline">\(\hat{g}\)</span>是<span
+class="math inline">\(g\)</span>的一个无偏估计量；</p>
+<p>无偏性体现了，尽管一部分样本估计偏低，另一部分估计偏高，可是将正负误差在概率上平均起来应该为0，即没有系统误差；</p>
+<p>样本均值是总体均值的无偏估计： <span class="math display">\[
+E(\overline{X})=E(\sum_{i=1}^nX_i/n)=\sum_{i=1}^nE(X_i)/n=n\theta/n=\theta
+\]</span> 样本方差是总体方差的无偏估计，即<span
+class="math inline">\(E(X_i)=a\)</span>，由上可知也有<span
+class="math inline">\(E(\overline{X})=a\)</span> <span
+class="math display">\[
+\begin{aligned}
+E(\sum_{i=1}^n(X_i-\overline{X})^2)&amp;=E\sum_{i=1}^n[(X_i-a)-(\overline{X}-a)]^2\\
+&amp;=E(\sum_{i=1}^n(X_i-a)^2-n(\overline{X}-a)^2)\\
+&amp;=\sum_{i=1}^n\text{Var}(X_i)-n\text{Var}(\sum_{i=1}^nX_i/n)\\
+&amp;=n\sigma^2-n\sigma^2/n^2\\
+&amp;=(n-1)\sigma^2
+\end{aligned}
+\]</span> 因此样本方差是总体方差的无偏估计： <span
+class="math display">\[
+E(S^2)=E(\sum_{i=1}^n(X_i-\overline{X})^2/(n-1))=\sigma^2
+\]</span> 从自由度的角度解释，<span
+class="math inline">\(\sum_{i=0}^n(X_i-\overline{X})^2\)</span>的自由度为<span
+class="math inline">\(n-1\)</span>，因为存在一个约束是<span
+class="math inline">\(\overline{X}=\sum_{i=1}^nX_i/n\)</span>；当我们知道总体分布的均值为<span
+class="math inline">\(a\)</span>而不是使用样本均值时，对方差的估计可以表示为<span
+class="math inline">\(\sum_{i=1}^n(X_i-a)^2/n\)</span></p>
+<p>下式表明，用<span
+class="math inline">\(S\)</span>估计总体分布的标准差不是无偏估计！估计得要小一点；
+<span class="math display">\[
+\sigma^2=E(S^2)=\text{Var}(S)+(ES)^2
+\]</span>
+矩估计和极大似然估计对正态分布的方差的估计求出的都是样本二阶中心矩，不是无偏的；</p>
+<p><strong>最小方差无偏估计</strong>（MVU）：一个参数可能有多个无偏估计，需要一些指标来评价哪种估计更好；</p>
+<ul>
+<li><p>均方误差：<span
+class="math inline">\(M_{\hat{\theta}}(\theta)=E_{\theta}[\hat{\theta}(X_1,\dotsm,X_n)-\theta]^2\)</span></p>
+<p><span
+class="math inline">\(M_{\hat{\theta}}(\theta)=\text{Var}(\hat{\theta})+[E_{\theta}(\hat{\theta})-\theta]^2\)</span>，由该式子，得到均方误差由估计的参数的方差和系统偏差组成，如果<span
+class="math inline">\(\hat{\theta}\)</span>为<span
+class="math inline">\(\theta\)</span>的无偏估计，则第二项为0，即对于无偏估计，方差最小者最优；</p>
+<blockquote>
+<p>这里是有<span
+class="math inline">\(\text{Var}(\hat{\theta}-\theta)=\text{Var}(\hat{\theta})\)</span>？把<span
+class="math inline">\(\theta\)</span>当成常量了</p>
+</blockquote></li>
+</ul>
+<p>之前的方法只能判断现有的无偏估计那个更好，却不能求出最小的无偏估计，可以使用克拉美-劳不等式确定下界，证明昝略：</p>
+<p>只考虑单个参数的情况，记 <span class="math display">\[
+I(\theta)=\int\left[\left(\frac{\part f(x,\theta)}{\part
+\theta}\right)^2/f(x,\theta)\right]dx
+\]</span></p>
+<blockquote>
+<p>积分的界取决于<span class="math inline">\(x\)</span>可取的范围；<span
+class="math inline">\(I(\theta)\)</span>又称费歇尔信息量</p>
+</blockquote>
+<p>则有 <span class="math display">\[
+\text{Var}_{\theta}(\hat{g})\ge(g&#39;(\theta))^2/(nI(\theta))
+\]</span> 其中<span class="math inline">\(n\)</span>是样本大小；</p>
+<blockquote>
+<p>信息量越大，方差的下界越小，估计越准</p>
+</blockquote>
+<p><strong>相合性</strong>：类似于大数定理，随着样本量的增加，估计量应该趋于真值：
+<span class="math display">\[
+\lim_{n\rightarrow
+\infty}P_{\theta_1,\dotsm,\theta_k}(|\hat{g}-g|\ge\epsilon) = 0
+\]</span> 则称<span class="math inline">\(\hat{g}\)</span>是<span
+class="math inline">\(g\)</span>的相合估计；</p>
+<p><strong>渐进正态性</strong>：当<span
+class="math inline">\(n\)</span>逐渐增大时，样本的和的分布趋近于正态分布；</p>
+<h3 id="区间估计">区间估计</h3>
+<p>一方面，期望<span class="math inline">\(\theta\)</span>落在区间<span
+class="math inline">\([\theta_1,\theta_2]\)</span>的可靠性尽量高，另一方面<span
+class="math inline">\([\theta_1,\theta_2]\)</span>的范围尽量小；这两个要求是矛盾的，通常先保证可靠度（给定置信系数求区间）；</p>
+<p>给定一个很小的数<span
+class="math inline">\(\alpha&gt;0\)</span>，若<span
+class="math inline">\(P_\theta(\hat{\theta_1}\le\theta\le\hat{\theta_2})=1-\alpha\)</span>，则称区间估计<span
+class="math inline">\([\theta_1,\theta_2]\)</span>的置信系数为<span
+class="math inline">\(1-\alpha\)</span>；</p>
+<p>这里只讨论如何构造置信区间，但是其优良性比较暂不考虑；</p>
+<p>定义<strong>上<span class="math inline">\(\beta\)</span>分位点<span
+class="math inline">\(u_\beta\)</span></strong>为满足<span
+class="math inline">\(F(u_\beta)=1-\beta\)</span>的位置；</p>
+<p><strong>枢轴法</strong>（正态分布区间估计为例）：</p>
+<ol type="1">
+<li>找到与估计的参数<span
+class="math inline">\(g(\theta)\)</span>有关的统计量<span
+class="math inline">\(T\)</span>，一般是其良好的点估计（例如<span
+class="math inline">\(T=\overline{X}\)</span>；</li>
+<li>找到一个<span class="math inline">\(T与\)</span><span
+class="math inline">\(g(\theta)\)</span>组成的函数<span
+class="math inline">\(S\)</span>，使得<span
+class="math inline">\(S\)</span>的分布与带估计参数无关<span
+class="math inline">\(\theta\)</span>，例如<span
+class="math inline">\(\sqrt{n}(\overline{X}-\mu)/\sigma\)</span>服从标准正态分布<span
+class="math inline">\(\Phi\)</span></li>
+<li><span class="math inline">\(a\le S(T,g(\theta))\le
+b\)</span>能够改写成<span class="math inline">\(A \le g(\theta) \le
+B\)</span>，令<span
+class="math inline">\(a=u_{1-\alpha/2}\)</span>，<span
+class="math inline">\(b=u_{\alpha/2}\)</span>，则<span
+class="math inline">\([A,B]\)</span>即为所求的<span
+class="math inline">\(1-\alpha\)</span>的置信区间</li>
+</ol>
+]]></content>
+      <categories>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>概率与统计</tag>
       </tags>
   </entry>
   <entry>
