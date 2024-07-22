@@ -1,54 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>ConvNeXt论文阅读</title>
-    <url>/2022/09/18/ConvNeXt/</url>
-    <content><![CDATA[<img src="/2022/09/18/ConvNeXt/fig1.png" class="">
-<p><strong>论文</strong>：<strong>A ConvNet for the 2020s</strong></p>
-<p><strong>作者</strong>：<em>Zhuang Liu, Hanzi Mao, Chao-Yuan Wu,
-Christoph Feichtenhofer, Trevor Darrell, Saining Xie</em>;</p>
-<p><strong>一作单位</strong>：Facebook AI Research, UC Berkeley</p>
-<p><strong>录用情况</strong>：CVPR'2022</p>
-<blockquote>
-<p>2020年以来，很多多层级的Transformer架构被提出，获得了优异的性能；本文找到一种更加现代的卷积神经网络，能够与Transformer相匹敌；本文的实验显然需要庞大的机器才能完成，但是这些结果给CNN爱好者们一个新的方向，正如题目所说，在2020年代，该如何设计、训练CNN？</p>
-</blockquote>
-<span id="more"></span>
-<h2 id="convnets-v.s.-hierarchical-transformers">ConvNets v.s.
-Hierarchical Transformers</h2>
-<p>滑动窗口机制带来了，等变性 (translation
-equivariance)，共享参数的计算；</p>
-<p>Hierarchical Transformers
-是为了解决ViT在面对高分辨率输入计算量大，训练难，尺度单一提出的架构，引入例如
-patch merging 这样的操作，得到CNN式的多尺度特征图；</p>
-<h2 id="convnet---convnext">ConvNet -&gt; ConvNeXt</h2>
-<ol type="1">
-<li>按照与DeiT和Swin Transformer类似的配置训练ResNet，性能从76.1% 提升到
-78.8%；接下来的训练保持此训练配置；</li>
-<li>按照Swin各层块比例为1:1:3:1，将ResNet-50的层数从(3,4,6,3)改变为(3,3,9,3)，性能从78.8%
-提升到 79.4%；接下来的训练保持此层数；</li>
-<li>将卷积网络第一层常用的stem
-conv改为ViT所使用的patchify，即使用步长为4的4x4卷积，性能从79.4%变为79.5%；接下来的训练保持此设置；</li>
-<li>在high
-level上，策略是使用更多的组数、更大的宽度；使用深度可分离卷积，在空间和通道维度依次加权求和；使用depth-wise卷积减少FLOPs，增加宽度补偿性能，最终达到了80.5%；</li>
-<li>使用inverted
-bottleneck（两头细中间粗），尽管在depth-wise卷积处的计算量增加了，但是在下采样处shortcut的1x1卷积计算量减少了，最终网络的FLOPs是减少的(4.6G)，并且性能从80.5%提升到了80.6%；</li>
-<li>更大的卷积核：将bottle neck中的depth
-wise卷积提前（性能减小到79.9%，FLOPs减小到4.1G），之后将卷积核尺寸从3x3增加到7x7，性能从79.9提升到80.6%；</li>
-<li>用GELU替换RELU，性能没有变化；</li>
-<li>由于在Transformer中的每个MLP
-Block中只有一个非线性函数，因此在每个残差块中仅保留一个GELU激活函数（两个1x1卷积之间），性能提升到81.3%；</li>
-<li>在每个残差块中，将之保留在第一个1x1卷积之前的BN，性能提升到81.4%；</li>
-<li>用LN代替每个残差块中的BN，性能提升到81.5%；</li>
-<li>在ResNet中，使用步长为2的残差块来进行下采样，而在Swin中，下采样是用专门的模块实现的，并且实验表明，在分辨率改变时使用LN有助于使训练更加稳定，在Stem之后，每个下采样层之前，以及GAP之后使用LN，性能提升到82.0%;</li>
-</ol>
-<h2 id="实验">实验</h2>
-<p>文章之后的部分记录了更多实验：不同尺寸的模型、与ViT相同的架构（无downsample)，在检测和分割任务上的表现；</p>
-]]></content>
-      <categories>
-        <category>论文阅读</category>
-      </categories>
-  </entry>
-  <entry>
     <title>ACNet论文阅读</title>
     <url>/2022/10/05/ACNet/</url>
     <content><![CDATA[<img src="/2022/10/05/ACNet/image-20221005224216241.png" class="">
@@ -119,13 +71,48 @@ class="math inline">\(\pm\)</span> std的曲线：</p>
       </tags>
   </entry>
   <entry>
-    <title>Diverse Branch Block论文阅读</title>
-    <url>/2022/11/07/DBB/</url>
-    <content><![CDATA[<blockquote>
-<p>本文是重参数化的作者把这一方法做“透”了的一篇文章，在训练时用多路可以重参数化的结构不同的分支，在推理时合并起来；相比于先前的工作（ACNet和RepVGG），训练时的模型本身就在ImageNet上提点了，结合重参数化关于推理速度的卖点，这波是性能与速度的双赢；本文将主要关注代码实现；</p>
+    <title>ConvNeXt论文阅读</title>
+    <url>/2022/09/18/ConvNeXt/</url>
+    <content><![CDATA[<img src="/2022/09/18/ConvNeXt/fig1.png" class="">
+<p><strong>论文</strong>：<strong>A ConvNet for the 2020s</strong></p>
+<p><strong>作者</strong>：<em>Zhuang Liu, Hanzi Mao, Chao-Yuan Wu,
+Christoph Feichtenhofer, Trevor Darrell, Saining Xie</em>;</p>
+<p><strong>一作单位</strong>：Facebook AI Research, UC Berkeley</p>
+<p><strong>录用情况</strong>：CVPR'2022</p>
+<blockquote>
+<p>2020年以来，很多多层级的Transformer架构被提出，获得了优异的性能；本文找到一种更加现代的卷积神经网络，能够与Transformer相匹敌；本文的实验显然需要庞大的机器才能完成，但是这些结果给CNN爱好者们一个新的方向，正如题目所说，在2020年代，该如何设计、训练CNN？</p>
 </blockquote>
 <span id="more"></span>
-<h3 id="训练时结构">训练时结构</h3>
+<h2 id="convnets-v.s.-hierarchical-transformers">ConvNets v.s.
+Hierarchical Transformers</h2>
+<p>滑动窗口机制带来了，等变性 (translation
+equivariance)，共享参数的计算；</p>
+<p>Hierarchical Transformers
+是为了解决ViT在面对高分辨率输入计算量大，训练难，尺度单一提出的架构，引入例如
+patch merging 这样的操作，得到CNN式的多尺度特征图；</p>
+<h2 id="convnet---convnext">ConvNet -&gt; ConvNeXt</h2>
+<ol type="1">
+<li>按照与DeiT和Swin Transformer类似的配置训练ResNet，性能从76.1% 提升到
+78.8%；接下来的训练保持此训练配置；</li>
+<li>按照Swin各层块比例为1:1:3:1，将ResNet-50的层数从(3,4,6,3)改变为(3,3,9,3)，性能从78.8%
+提升到 79.4%；接下来的训练保持此层数；</li>
+<li>将卷积网络第一层常用的stem
+conv改为ViT所使用的patchify，即使用步长为4的4x4卷积，性能从79.4%变为79.5%；接下来的训练保持此设置；</li>
+<li>在high
+level上，策略是使用更多的组数、更大的宽度；使用深度可分离卷积，在空间和通道维度依次加权求和；使用depth-wise卷积减少FLOPs，增加宽度补偿性能，最终达到了80.5%；</li>
+<li>使用inverted
+bottleneck（两头细中间粗），尽管在depth-wise卷积处的计算量增加了，但是在下采样处shortcut的1x1卷积计算量减少了，最终网络的FLOPs是减少的(4.6G)，并且性能从80.5%提升到了80.6%；</li>
+<li>更大的卷积核：将bottle neck中的depth
+wise卷积提前（性能减小到79.9%，FLOPs减小到4.1G），之后将卷积核尺寸从3x3增加到7x7，性能从79.9提升到80.6%；</li>
+<li>用GELU替换RELU，性能没有变化；</li>
+<li>由于在Transformer中的每个MLP
+Block中只有一个非线性函数，因此在每个残差块中仅保留一个GELU激活函数（两个1x1卷积之间），性能提升到81.3%；</li>
+<li>在每个残差块中，将之保留在第一个1x1卷积之前的BN，性能提升到81.4%；</li>
+<li>用LN代替每个残差块中的BN，性能提升到81.5%；</li>
+<li>在ResNet中，使用步长为2的残差块来进行下采样，而在Swin中，下采样是用专门的模块实现的，并且实验表明，在分辨率改变时使用LN有助于使训练更加稳定，在Stem之后，每个下采样层之前，以及GAP之后使用LN，性能提升到82.0%;</li>
+</ol>
+<h2 id="实验">实验</h2>
+<p>文章之后的部分记录了更多实验：不同尺寸的模型、与ViT相同的架构（无downsample)，在检测和分割任务上的表现；</p>
 ]]></content>
       <categories>
         <category>论文阅读</category>
@@ -355,6 +342,19 @@ class="math inline">\(\operatorname{rank}\tilde{W} \le K\)</span>；</p>
       </tags>
   </entry>
   <entry>
+    <title>Diverse Branch Block论文阅读</title>
+    <url>/2022/11/07/DBB/</url>
+    <content><![CDATA[<blockquote>
+<p>本文是重参数化的作者把这一方法做“透”了的一篇文章，在训练时用多路可以重参数化的结构不同的分支，在推理时合并起来；相比于先前的工作（ACNet和RepVGG），训练时的模型本身就在ImageNet上提点了，结合重参数化关于推理速度的卖点，这波是性能与速度的双赢；本文将主要关注代码实现；</p>
+</blockquote>
+<span id="more"></span>
+<h3 id="训练时结构">训练时结构</h3>
+]]></content>
+      <categories>
+        <category>论文阅读</category>
+      </categories>
+  </entry>
+  <entry>
     <title>字典学习卷积模块以加速网络推理</title>
     <url>/2023/01/19/LCNN/</url>
     <content><![CDATA[<img src="/2023/01/19/LCNN/fig1.png" class="">
@@ -521,998 +521,6 @@ class="math inline">\(k\)</span>？关于2中提到的聚类中心坐标稀疏�
         <tag>模型压缩</tag>
         <tag>字典学习</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>探索卷积网络的线性性质来进行推理时加速</title>
-    <url>/2022/10/13/Linear-Structure-Within-Conv/</url>
-    <content><![CDATA[<img src="/2022/10/13/Linear-Structure-Within-Conv/image-20221017160950770.png" class="">
-<p><strong>论文：</strong><a
-href="https://arxiv.org/pdf/1404.0736.pdf">Exploiting Linear Structure
-Within Convolutional Networks for Efficient Evaluation</a></p>
-<p><strong>作者：</strong> <em>Emily Denton</em>, <em>Wojciech
-Zaremba</em>, <em>Joan Bruna</em>, <em>Yann LeCun</em>, <em>Rob
-Fergus</em></p>
-<p><strong>录用情况：</strong>Neurips'2014</p>
-<p><strong>第一作者单位：</strong>Dept. of Computer Science, Courant
-Institute, New York University</p>
-<blockquote>
-<p>笔者最近在做一些用SVD分解卷积核的小实验，并且也在想该如何设计目标函数，让重参数化这件事变成可学习的？然后我发现早在14年就有人做了相关问题的研究；笔者看来，这篇文章的贡献为：</p>
-<ul>
-<li>给出了一种评估压缩后卷积核好坏的方式，并且通过在线学习的方式，修改了反向传播的梯度（不确定是不是这样）</li>
-<li>归纳并尝试了对于高维张量的两种分解方法：SVD分解和外积分解；</li>
-<li>结合聚类方法，针对浅层卷积和深层卷积的不同性质，设计了单色估计方法和双色估计方法；</li>
-<li>给出一种微调方式：从最浅层开始，压缩一层，然后微调其上所有层，直至性能恢复，如此循环，看能最多压缩多少层；</li>
-</ul>
-<p>作者在实验部分用了比较老的模型，仅4层卷积和3层全连接层，现在来看非常简单，但是很适合做一个demo，然而作者原始的<a
-href="">C++代码链接</a>已经失效了</p>
-</blockquote>
-<span id="more"></span>
-<h2 id="基础知识">基础知识</h2>
-<p>有关主成分分析和奇异值分解的知识在<a
-href="https://ashun989.github.io/2022/08/10/linear-algebra/">线性代数要点总结</a>的最后部分有一些干货；</p>
-<h3 id="mahalanobis-distance">Mahalanobis distance</h3>
-<p>马氏距离用于衡量一个点<span
-class="math inline">\(P\)</span>到一个分布<span
-class="math inline">\(D\)</span>的距离，即<span
-class="math inline">\(P\)</span>距离<span
-class="math inline">\(D\)</span>的质心有多少标准差距离，因而也可以用于衡量两个分布的距离；马氏距离考虑到了数据集的相关性、并且具有尺度不变性，说人话就是，无论数据是否沿着各个轴分布，无论在各个维度上的尺度是否一致，如下图所示，马氏距离都能得到A相比于B，与分布的距离更远；</p>
-<p><img src="v2-3cee35b79d272dda86e2604c160934ee_720w.jpeg" /></p>
-只要将原始数据平移到以原点为中心，再旋转至主成分方向再除以各个方向的方差，之后再计算欧式距离，这就是马氏距离公式的由来，设数据为<span
-class="math inline">\(X\in \mathbb R^{m\times n}\)</span>，其均值为<span
-class="math inline">\(\mu_X\in \mathbb R^n\)</span>，其协方差矩阵为<span
-class="math inline">\(\Sigma_X \in \mathbb R^{n\times
-n}\)</span>，<strong>假设协方差矩阵是满秩的</strong>（即没有为0的特征值，又因为协方差矩阵半正定，意味着所有特征值为正），其特征值按照非增顺序依次为<span
-class="math inline">\(\lambda_1, \lambda_2, \lambda_n\)</span>；<span
-class="math inline">\(Y\)</span>是<span
-class="math inline">\(X\)</span>平移至原点为中心后再旋转至主成分方向的形式，即<span
-class="math inline">\(Y=U^TX\)</span>，其中<span
-class="math inline">\(U\)</span>是单位正交矩阵，使得<span
-class="math inline">\(\text{diag}\{\lambda_1,\cdots,\lambda_n\}=U^T\Sigma_XU\)</span>，对于数据点<span
-class="math inline">\(x\)</span>，其到<span
-class="math inline">\(X\)</span>的马氏距离的平方为： $$
-<span class="math display">\[\begin{aligned}
-D_M^2 &amp;= \frac{U^T(x_1-{\mu_X}_1)}{\lambda_1} + \cdots +
-\frac{U^T(x_n-{\mu_X}_n)}{\lambda_n}\\
-&amp;= (y_1, \cdots, y_n)\text{diag}\{\frac 1 {\lambda_1}, \cdots, \frac
-1 {\lambda_n} \}
-\left(
-\begin{array}{c}
-y_1\\
-\vdots\\
-y_n
-\end{array}
-\right)\\
-&amp;= y^T(U^T\Sigma_XU)^{-1}y\\
-&amp;= (x-\mu_X)^TUU^T\Sigma_X^{-1}UU^T(x-\mu_X)\\
-&amp;= (x-\mu_X)^T\Sigma_X^{-1}(x-\mu_X)
-
-\end{aligned}\]</span>
-<p><span class="math display">\[
-因此，点$x$到分布$X$的马氏距离为：
-\]</span> D_M = <span class="math display">\[
-如果$x$与$y$是两个服从同一分布且协方差矩阵为$\Sigma$的随机变量，则他们的距离为：
-\]</span> D_M = $$
-如果协方差矩阵是单位矩阵，则退化成欧式距离；如果协方差矩阵是对角矩阵，则退化成归一化的欧氏距离；</p>
-<h3 id="度量学习">度量学习</h3>
-<p>详见西瓜书第10章；</p>
-<h3 id="dirac-distribution">Dirac distribution</h3>
-<p>这种分布是理想电荷的分布：集中在一点。详见<a
-href="https://wuli.wiki/online/Delta.html">小时百科 - 狄拉克<span
-class="math inline">\(\delta\)</span>函数</a>。笔者理解为，实现时即one-hot编码；</p>
-<h3 id="矩阵的范数">矩阵的范数</h3>
-<p><span class="math display">\[
-||A||_p = (\sum_{i,j}|a_{i,j}|^p)^{1/p}
-\]</span></p>
-<p>其中，<span class="math inline">\(||A||_F=||A||_2\)</span></p>
-<h2 id="方法">方法</h2>
-<h3 id="符号定义">符号定义</h3>
-<p><img src="image-20221017161636024.png" /></p>
-<h3 id="估计度量">估计度量</h3>
-<p>我们希望获得一个<span
-class="math inline">\(\tilde{W}\)</span>，来估计网络中的<span
-class="math inline">\(W\)</span>，能够在减少计算量的情况下保持性能；一个非常朴素的想法是最小化<span
-class="math inline">\(||\tilde W -
-W||_F\)</span>，但是，这假设了在模型权重张量上每个位置的参数都对预测做出均等的贡献，这是不合理的；作者提出了两种度量：</p>
-<blockquote>
-<p>这两种度量无非都是在给<span
-class="math inline">\(W\)</span>加权，然后预测到这个加权的张量的一个近似常量，对于文中使用的SVD分解，这不是一个可迭代的算法（不能利用pytorch的自动微分偷懒了），因此直接把近似的目标设置为加权后的<span
-class="math inline">\(W\)</span>，得到的结果再乘以权重的倒数即可；</p>
-</blockquote>
-<h4 id="马氏距离度量">马氏距离度量</h4>
-<p>记<span class="math inline">\(\Theta = \{W_1, \cdots,
-W_S\}\)</span>是<span
-class="math inline">\(S\)</span>层网络的参数，<span
-class="math inline">\(U(I;\Theta)\)</span>是网络对于输入图像<span
-class="math inline">\(I\)</span>的softmax层的输出（各个类别的概率）；大小为<span
-class="math inline">\(N\)</span>的训练集，训练对记为<span
-class="math inline">\((I_n, y_n)\)</span>，记<span
-class="math inline">\(U(I_n;\Theta)\)</span>中概率最高的而索引不等于真实标签<span
-class="math inline">\(y_n\)</span>的<span
-class="math inline">\(h\)</span>个索引组成序列<span
-class="math inline">\(\{\beta_n\}\)</span>，那么对于第<span
-class="math inline">\(s\)</span>层，在反向传播过程中为权重<span
-class="math inline">\(W_s\)</span>计算一个（额外的）导数项： <span
-class="math display">\[
-d_{n,l,s}= \nabla_{W_s}(U(I_n;\Theta)-\delta(i-l)), n\le N, l\in
-\{\beta_n\}, s\le S
-\]</span> 其中，<span
-class="math inline">\(\delta(i-l)\)</span>是以<span
-class="math inline">\(l\)</span>为中心的狄拉克分布，应该就是在<span
-class="math inline">\(l\)</span>为1其他位置为0的one-hot编码向量；</p>
-<p>笔者认为，作者的意思是在一般的损失函数中添加了一个正则项（但只是在推理时计算梯度），目的是表示各层权重的各个位置对于避开那几个“最危险”的错误的能力；
-<span class="math display">\[
-\frac 1 2\sum_{n}^N\sum_{l\in \{\beta_n\}}
-||U(I_n;\Theta)-\delta(i-l)||_2^2
-\]</span> 有了这个正则项之后，作者再来计算<span
-class="math inline">\(\tilde W\)</span>到<span
-class="math inline">\(W\)</span>的马氏距离，将<span
-class="math inline">\(\tilde W - W\)</span>可以展平成一个高维向量<span
-class="math inline">\(w\in \mathbb R^P\)</span>，其导数<span
-class="math inline">\(d\)</span>也可以展平成同样长度的向量，而对于<span
-class="math inline">\(N\)</span>个样本在<span
-class="math inline">\(h\)</span>个易错位置得到的正则化损失在<span
-class="math inline">\(s\)</span>层的导数是一个基数为<span
-class="math inline">\(N\times h\)</span>的导数向量的集合<span
-class="math inline">\((d_{n,l,s})_{n,l}\)</span>，<span
-class="math inline">\(\Sigma \in \mathbb R^{P\times
-P}\)</span>是导数集合的协方差矩阵，精确的马氏距离为： <span
-class="math display">\[
-||\tilde W - W||^2_{maha} = w^T\Sigma^{-1}w
-\]</span> 考虑到求<span
-class="math inline">\(\Sigma^{-1}\)</span>的成本极高，因此作者进行了简化，即只使用<span
-class="math inline">\(\Sigma\)</span>的对角线部分（<span
-class="math inline">\(P\)</span>个维度的方差），因此，近似的马氏距离为：
-<span class="math display">\[
-||\tilde W-W||_\widetilde{maha} = \sum_p^P\alpha_pw_p, \ \ \text{where}
-\ \ \alpha_p = \sqrt{\sum_{n,l}d_{n,l,s}(p)^2}
-\]</span> 我们可以定义变量代换，<span class="math inline">\(\tilde
-W&#39; - W’ = \alpha .* \tilde W - \alpha .* W\)</span>，则继续使用L2
-norm，最小化<span class="math inline">\(||\tilde
-W&#39;-W&#39;||_2\)</span>得到<span class="math inline">\(\tilde
-W&#39;\)</span>，则<span class="math inline">\(\tilde W =
-\alpha^{-1}.*\tilde W&#39;\)</span>；</p>
-<h4 id="数据协方差度量">数据协方差度量</h4>
-<p><img src="image-20221102223532182.png" /></p>
-<h3 id="低秩矩阵分解估计">低秩矩阵分解估计</h3>
-<h4 id="高维张量的分解">高维张量的分解</h4>
-<p>对于张量<span class="math inline">\(W\in \mathbb R^{m\times n\times
-k}\)</span>，首先将后两个维度合并成一个维度，使用SVD估计<span
-class="math inline">\(\tilde W_m \in \mathbb R ^{m\times
-(nk)}\)</span>，<span class="math inline">\(\tilde W_m \approx \tilde U
-\tilde S \tilde V^T\)</span>；之后再对<span class="math inline">\(\tilde
-V\in \mathbb R^{n\times
-k}\)</span>使用SVD；记两次奇异值分解保留的秩分别为<span
-class="math inline">\(K_1\)</span>，<span
-class="math inline">\(K_2\)</span>;</p>
-<p>另一种方法是使用矩阵的外积分解，最小化： <span
-class="math display">\[
-||W-\alpha\otimes\beta\otimes\gamma||_F
-\]</span> 其中<span class="math inline">\(\alpha\in \mathbb
-R^m\)</span>, <span class="math inline">\(\beta \in \mathbb
-R^n\)</span>, <span class="math inline">\(\gamma \in \mathbb
-R^k\)</span>；如果是对于秩为<span
-class="math inline">\(K\)</span>的矩阵进行分解，只需要将<span
-class="math inline">\(W\)</span>分解为多个外积之和；、</p>
-<p>论文中给出了参考文献和实现细节，再次不再赘述；</p>
-<h4 id="单色卷积估计">单色卷积估计</h4>
-<p>对于某层卷积权重<span class="math inline">\(W\in \mathbb R^{C\times X
-\times Y\times W}\)</span>，记第<span
-class="math inline">\(w\)</span>个卷积核为<span
-class="math inline">\(W_f \in \mathbb R^{C\times
-(XY)}\)</span>；首先使秩为1的SVD，得到<span class="math inline">\(\tilde
-W_f = \tilde U_f \tilde S_f \tilde
-V_f^T\)</span>；之后为了进一步压缩，作者观察到，每个卷积核的<span
-class="math inline">\(C\)</span>的通道也是比较冗余的，可以投影到<span
-class="math inline">\(C&#39;\)</span>维的空间；对<span
-class="math inline">\(\tilde U_f \in \mathbb R^{C\times
-1}\)</span>使用聚类，得到<span
-class="math inline">\(c_f\)</span>个聚类，因此<span
-class="math inline">\(\tilde W_f = \tilde U_{c_f} \tilde S_f \tilde
-V_f^T\)</span>其中<span class="math inline">\(\tilde
-U_{c_f}\)</span>是原左奇异向量所在聚类的聚类中心；</p>
-<h4 id="双色卷积估计">双色卷积估计</h4>
-<p>除了卷积核各个通道间的冗余性，还有可能存在不同卷积核之间的冗余性。因此在双色方法中，作者首先对<span
-class="math inline">\(W_C\in \mathbb R^{C\times
-(XYF)}\)</span>进行聚类，得到<span
-class="math inline">\(a\)</span>个类别，之后再对<span
-class="math inline">\(W_F\in \mathbb R^{(CXY)\times
-F}\)</span>进行聚类，得到<span
-class="math inline">\(b\)</span>个类别，这样我们可以将<span
-class="math inline">\(W\)</span>压缩为<span
-class="math inline">\(a\times
-b\)</span>个$W_SR^{C(XY)F}$3D张量，再使用先前的SVD分解或者外积分解即可；</p>
-<blockquote>
-<p>上述使用到的聚类，都是在每次迭代中平衡各个类别个数的（各个类数量相同），这两利于并行化</p>
-</blockquote>
-<h3 id="微调">微调</h3>
-<p>相比于设计度量学习中的度量目标，作者还尝试了一种简单粗暴的方式，仅仅使用最简单的度量为目标进行逐层分解，之后冻结分解层及其先前的层，微调后面的层至性能恢复，然后再继续分解下一层；实验证明，这种方式，，要比手工设计的度量性能更好；</p>
-<h2 id="参考链接">参考链接</h2>
-<p><a
-href="https://www.cvmart.net/community/detail/3616">深入浅出的模型压缩：你一定从未见过如此通俗易懂的
-Slimming 操作</a>，这里有一些有关模型压缩论文列表，有空可以看一看</p>
-<p><a href="https://zhuanlan.zhihu.com/p/46626607">知乎 -
-马氏距离</a></p>
-<p><a href="https://wuli.wiki/online/Delta.html">小时百科 - 狄拉克<span
-class="math inline">\(\delta\)</span>函数</a></p>
-<p><a href="https://en.wikipedia.org/wiki/Matrix_norm">wikipedia -
-matrix norm</a></p>
-]]></content>
-      <categories>
-        <category>论文阅读</category>
-      </categories>
-      <tags>
-        <tag>模型压缩</tag>
-        <tag>卷积分解</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>度量空间与连续性</title>
-    <url>/2022/08/28/Lipschitz/</url>
-    <content><![CDATA[<p>前几日接触到一个新概念，Lipschitz
-Constant，本文是笔者在Wikipedia上递归搜索归纳的部分数学公里、定义、例子；抽象代数与拓扑几何的部分暂不在本文讨论；笔者不是数学专业，因此逻辑与表达多有不严谨之处，还请多多指正；</p>
-<span id="more"></span>
-<h2 id="度量空间-metric-space">度量空间 (Metric space)</h2>
-<h3 id="定义">定义</h3>
-<p>对于一个集合<span
-class="math inline">\(M\)</span>中的两个元素，可以给出一种度量<span
-class="math inline">\(d\)</span>，称为度量空间，记作<span
-class="math inline">\((M,d)\)</span>，也是一个函数：<span
-class="math inline">\(d:M\times M \rightarrow \mathbb{R}\)</span>:</p>
-<blockquote>
-<p>跳出直观的欧几里得距离，度量是一种抽象的、隐喻的概念，又是也可以理解为从一个点到另一个点需要花费的成本；</p>
-</blockquote>
-<p>对于任意的<span class="math inline">\(x,y,z\in
-M\)</span>，度量空间满足下面4条公理，</p>
-<ol type="1">
-<li><span class="math inline">\(d(x,x)=0\)</span></li>
-<li>如果<span class="math inline">\(x\ne y\)</span>，则<span
-class="math inline">\(d(x,y)&gt;0\)</span></li>
-<li><span class="math inline">\(d(x,y)=d(y,x)\)</span></li>
-<li><span class="math inline">\(d(x,z)\le d(x,y) + d(y, z)\)</span></li>
-</ol>
-<p>常见的距离函数有：欧几里得距离<span
-class="math inline">\(d_2\)</span>，曼哈顿距离<span
-class="math inline">\(d_1\)</span>，切比雪夫距离<span
-class="math inline">\(d_{\infty}\)</span>，球面距离，汉明距离等等，并且有：
-<span class="math display">\[
-d_\infty(p,q)\le d_2(p,q) \le d_1(p,q) \le 2d_\infty(p,q)
-\]</span></p>
-<h3 id="子空间">子空间</h3>
-<p>度量空间<span class="math inline">\((M,d)\)</span>，有<span
-class="math inline">\(A\subseteq M\)</span>，则<span
-class="math inline">\(A\)</span>的诱导度量<span
-class="math inline">\(d_A:A\times A\rightarrow \mathbb{R}\)</span>定义为
-<span class="math display">\[
-d_A(x,y)=d(x,y)
-\]</span> 球面集合<span class="math inline">\(S^2\)</span>是<span
-class="math inline">\(\mathbb{R^3}\)</span>的子集，球面上的诱导度量是3维空间中的欧几里得距离；</p>
-<h3 id="收敛性">收敛性</h3>
-<p>这里先给出欧式空间上的表述，可以推广到度量空间：</p>
-<p>一个数列<span class="math inline">\((x_n)\)</span>收敛到<span
-class="math inline">\(x\)</span>，当且仅当对于任意的<span
-class="math inline">\(\epsilon&gt;0\)</span>，存在整数<span
-class="math inline">\(N\)</span>，对于所有的<span
-class="math inline">\(n&gt;N\)</span>都有<span
-class="math inline">\(d(x_n,x)&lt; \epsilon\)</span>；</p>
-<h3 id="完备性-completeness">完备性 (completeness)</h3>
-<p>直观地说，如果没有“缺失点”，即任何看起来收敛的序列（随着叙述的增加愈发靠近），确实都是收敛的，则称该度量空间是完备的；</p>
-<p>一个数列<span class="math inline">\((x_n)\)</span>是<span
-class="math inline">\((M,d)\)</span>中的柯西数列，当且仅当对于任意的<span
-class="math inline">\(\epsilon&gt;0\)</span>，存在整数<span
-class="math inline">\(N\)</span>，对于所有的<span
-class="math inline">\(m,n&gt;N\)</span>都有<span
-class="math inline">\(d(x_m,x_n)&lt;\epsilon\)</span>；</p>
-<p>收敛数列一定是柯西数列，(如果<span
-class="math inline">\(x_m\)</span>与<span
-class="math inline">\(x_n\)</span>与极限的距离都不超过<span
-class="math inline">\(\epsilon\)</span>，则通过三角不等式推出相同条件（<span
-class="math inline">\(N\)</span>）下<span
-class="math inline">\(x_m\)</span>与<span
-class="math inline">\(x_n\)</span>的距离不超过<span
-class="math inline">\(2\epsilon\)</span>；</p>
-<p>如果度量空间中所有的柯西数列都是收敛的，则度量空间是完备的；</p>
-<p>例如，区间<span class="math inline">\((0,1)\)</span>不完备而<span
-class="math inline">\([0,1]\)</span>完备，有理数集不完备而实数集完备；</p>
-<h3 id="有界性-bounded">有界性 (bounded)</h3>
-<p>在<span class="math inline">\(M\)</span>中存在一个距离上届，称为<span
-class="math inline">\(M\)</span>的直径；</p>
-<p>完全有界(or precompact)，定义涉及拓扑；</p>
-<h3 id="紧凑性-compactness">紧凑性 (compactness)</h3>
-<p>有几个紧凑性的等价定义，这里忽略涉及到拓扑概念的：</p>
-<ol type="1">
-<li>每一个数列都有一个收敛的子数列；</li>
-<li>完备的且完全有界的；</li>
-</ol>
-<h3 id="度量空间之间的映射">度量空间之间的映射</h3>
-<blockquote>
-<p>从度量空间到度量空间，有时称映射(maps)、有时称函数(functions)</p>
-</blockquote>
-<h4 id="等距映射-isometries">等距映射 (Isometries)</h4>
-<p>一个函数<span class="math inline">\(f:M_1\rightarrow
-M_2\)</span>是等距的，如果对于<span
-class="math inline">\(M_1\)</span>中任意的点都有： <span
-class="math display">\[
-d_2(f(x),f(y))=d_1(x,y)
-\]</span></p>
-<blockquote>
-<p><span
-class="math inline">\(f\)</span>应该是二元组到二元组的函数，上述<span
-class="math inline">\(f(x)\)</span>理解为<span
-class="math inline">\(f(x,y)\)</span>的第一项，<span
-class="math inline">\(f(y)\)</span>是第二项</p>
-</blockquote>
-<p>例如<span
-class="math inline">\(f:(\mathbb{R}^2,d_1)\rightarrow(\mathbb{R}^2,d_\infty)\)</span>有：
-<span class="math display">\[
-f(x,y)=(x+y,x-y)
-\]</span> 因为<span
-class="math inline">\(|x|+|y|=\max({|x+y|,|x-y|})\)</span></p>
-<h4 id="连续映射continuous-maps">连续映射(continuous maps)</h4>
-<p>存在多种等价的定义，其中<span
-class="math inline">\(\epsilon-\delta\)</span>定义为：</p>
-<p>一个函数<span class="math inline">\(f:M_1\rightarrow
-M_2\)</span>是连续的，如果对于<span
-class="math inline">\(M_1\)</span>中任意的点<span
-class="math inline">\(x\)</span>，和任意的<span
-class="math inline">\(\epsilon &gt; 0\)</span>，都有<span
-class="math inline">\(\delta &gt; 0\)</span>使得对于<span
-class="math inline">\(M_1\)</span>中任意的<span
-class="math inline">\(y\)</span>有： <span class="math display">\[
-d_1(x,y)&lt;\delta \Rightarrow d_2(f(x),f(y))&lt;\epsilon
-\]</span></p>
-<h4 id="一致连续映射uniformly-continuous-maps">一致连续映射(uniformly
-continuous maps)</h4>
-<p>一个函数<span class="math inline">\(f:M_1\rightarrow
-M_2\)</span>是一致连续的，如果对于任意的实数<span
-class="math inline">\(\epsilon &gt; 0\)</span>，存在<span
-class="math inline">\(\delta &gt;0\)</span>使得对于<span
-class="math inline">\(M_1\)</span>中任意的点<span
-class="math inline">\(x,y\)</span>满足<span
-class="math inline">\(d(x,y)&lt;\delta\)</span>的，有 <span
-class="math display">\[
-d_2(f(x),f(y))&lt;\epsilon
-\]</span></p>
-<blockquote>
-<p>在连续的定义中，<span class="math inline">\(\epsilon\)</span>是<span
-class="math inline">\(x\)</span>和<span
-class="math inline">\(\delta\)</span>的函数；在一致连续的定义中，<span
-class="math inline">\(\epsilon\)</span>仅是<span
-class="math inline">\(\delta\)</span>的函数；后者的条件更强；</p>
-</blockquote>
-<h4 id="李普希兹映射-lipschitz-maps">李普希兹映射 (Lipschitz maps)</h4>
-<p>经过这种映射，距离的拉伸不会超过一个上界：给定一个实数<span
-class="math inline">\(K&gt;0\)</span>，函数<span
-class="math inline">\(f:M_1\rightarrow M_2\)</span>是K-Lipschitz映射当：
-<span class="math display">\[
-d_2(f(x),f(y))\le Kd_1(x,y)
-\]</span> 特殊地，当<span
-class="math inline">\(K&lt;1\)</span>时称为收缩(contraction)</p>
-<h4 id="准等距映射quasi-isometries">准等距映射(Quasi-isometries)</h4>
-<p>函数<span class="math inline">\(f:M_1\rightarrow
-M_2\)</span>是准等距映射当存在常数<span class="math inline">\(A\ge
-1\)</span>且<span class="math inline">\(B\ge 0\)</span>有： <span
-class="math display">\[
-\frac{1}{A}d_2(f(x),f(y))-B\le d_1(x,y) \le Ad_2(f(x),f(y))+B
-\]</span></p>
-<h2 id="李普希兹连续">李普希兹连续</h2>
-<p>上文中的李普希兹映射的定义也是李普希兹连续的定义，其中<span
-class="math inline">\(K\)</span>是李普希兹常量，最小的<span
-class="math inline">\(K\)</span>称为the best Lipschitz
-constant或者dilation。</p>
-<p>一种特殊情况是当<span
-class="math inline">\(f\)</span>是实函数时，上述定义相当于限制了函数在其定义域上任意两点的割的绝对值存在上限<span
-class="math inline">\(K\)</span>：</p>
-<p><span class="math inline">\(|f(x_1)-f(x_2)|\le
-K|x_1-x_2|\)</span></p>
-<img src="/2022/08/28/Lipschitz/lipschitz.png" class="" title="lipschitz">
-<blockquote>
-<p>如上图所示，无论怎么移动，两条斜率绝对值为<span
-class="math inline">\(K\)</span>的斜线割开的上下部分均不会有<span
-class="math inline">\((x,f(x))\)</span>，即满足李普希兹连续条件</p>
-</blockquote>
-<p>在神经网络中，我们假设模型函数具有一个小于1的李普希兹常量，通常是为了避免梯度传播过程中发生数值问题；</p>
-<h2 id="参考链接">参考链接</h2>
-<p><a href="https://en.wikipedia.org/wiki/Metric_space">Metric
-space</a></p>
-]]></content>
-      <categories>
-        <category>基础知识</category>
-      </categories>
-      <tags>
-        <tag>度量空间</tag>
-        <tag>李普希兹连续</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>模型压缩论文阅读列表</title>
-    <url>/2022/11/03/Model-Compression/</url>
-    <content><![CDATA[<blockquote>
-<p>模型压缩，包括低秩分解、剪枝、量化、蒸馏等技术，旨在精度损失很小的前提下，获得参数更小、推理速度更快的模型</p>
-</blockquote>
-<span id="more"></span>
-<h2 id="方法">方法</h2>
-<h3 id="低秩分解">低秩分解</h3>
-<h4 id="学习可分离滤波器">学习可分离滤波器</h4>
-<p><a
-href="http://openaccess.thecvf.com/content_cvpr_2013/html/Rigamonti_Learning_Separable_Filters_2013_CVPR_paper.html">Learning
-Separable Filters</a></p>
-<p>本文提出，通过学习可分离卷积核的方法降低卷积运算的复杂度。
-一种方法是，为卷积添加“可分离”的约束，但是作者发现先学习不可分离卷积，之后<strong>学习用可分离卷积线性组合得到不可分离卷积更好</strong>。</p>
-<p>可以抛开应用背景看，本文对卷积核的分解使用现在看来非常直观的方法：先在模型优化目标中引入卷积核矩阵的核范数，得到低秩的核之后，把核分解过程从模型优化过程解耦出来，找到次优的分解基和权重；</p>
-<p>对于3D卷积，由于SVD只能分解2D矩阵，核范数的优化不能实现，因此，在分解的过程作者使用了Canonical
-Polyadic Decomposition(CPD)的分解方法；</p>
-<h4 id="探索卷积核的线性结构">探索卷积核的线性结构</h4>
-<p><a href="https://arxiv.org/pdf/1404.0736.pdf">Exploiting Linear
-Structure Within Convolutional Networks for Efficient Evaluation</a></p>
-<p>见先前的<a
-href="https://ashun989.github.io/2022/10/13/Linear-Structure-Within-Conv/#more">文章</a></p>
-<p>这篇文章的方法，在保持分类误差不超过1%的前提下，只是将1个卷积层进行分解并且获得了大约1.6倍的加速比；</p>
-<h4 id="用低秩扩展加速卷积神经网络">用低秩扩展加速卷积神经网络</h4>
-<p><a href="https://arxiv.org/abs/1405.3866">Speeding up convolutional
-neural networks with low rank expansions</a></p>
-<p>详细分析见<a href="">文章</a></p>
-<p>在空间维度上使用rank-1分解，在通道维度上使用基的线性组合，通过调整基组成的子空间的维度（基的个数）来权衡加速比和精度；作者基于这样的思想设计了两种分解模式；并对比最小化卷积核重建损失和数据重建损失的效果；</p>
-<h4 id="非线性卷积层的高效和精确估计">非线性卷积层的高效和精确估计</h4>
-<p><a
-href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Zhang_Efficient_and_Accurate_2015_CVPR_paper.html">Efficient
-and accurate approximations of nonlinear convolutional networks</a></p>
-<p>本文的主要目标是加速CNN的推理。</p>
-<h3 id="剪枝">剪枝</h3>
-<h4
-id="模型剪枝学习网络的权重和连接">模型剪枝：学习网络的权重和连接</h4>
-<p><a
-href="https://proceedings.neurips.cc/paper/2015/hash/ae0eb3eed39d2bcef4622b2499a05fe6-Abstract.html">Learning
-both weights and connections for efficient neural network</a></p>
-<p>我们知道，dropout过程是一种在训练阶段随机剪裁神经元之间的连接，但是在推理时恢复所有连接的技术；而剪枝则是在训练时减去的连接，推理时也不再恢复；</p>
-<p>剪枝可以分为单步剪枝和迭代剪枝，本文使用迭代剪枝，减除更多参数；剪枝选择的策略也有很多，一种直观地策略是，去除那些绝对值小的神经元，本文的实验发现这种方法损害性能；本文中的一次迭代是：减去那些输入为0或者输出为0的神经元，之后微调模型；为了提高效率，以及避免网络在反向传播过程中梯度消失，如果做卷积层的剪枝则在微调时冻结全连接层，反之亦然；</p>
-<p>是什么保证了存在输入或输出为0的神经元？正则项；L1正则项更具有使得模型参数稀疏化的能力，而在使用微调后，L2正则项的表现更好；</p>
-<p>随着模型的稀疏，输出方差也在变小，这意味着减小过拟合，因此随着剪枝迭代的进行，dropout率应该减小；</p>
-<h4 id="模型压缩剪枝量化huffman">模型压缩：剪枝+量化+Huffman</h4>
-<p><a href="https://arxiv.org/abs/1510.00149">Deep compression:
-Compressing deep neural networks with pruning, trained quantization and
-huffman coding</a></p>
-<p>一种结合剪枝、量化和霍夫曼编码的深度神经网络压缩技术，将AlexNet从240MB压缩到6.9MB，将VGG-16从552MB压缩到11.3MB；</p>
-<p>剪枝方法沿用作者先前的无损剪枝操作；量化方法使用K均值聚类，根据训练好的模型权重建立codebook以及原始权重在codebook中的索引，探索了三种聚类中心的初始化方式；</p>
-<p>观察到量化后的索引与聚类权重分布不均，使用霍夫曼编码进一步压缩存储；</p>
-<h4 id="剪枝卷积网络中的滤波器">剪枝卷积网络中的滤波器</h4>
-<p><a href="https://arxiv.org/abs/1608.08710">Pruning filters for
-efficient convnets</a></p>
-<p>使用简单的magnitude
-based策略来分析滤波器权重，剪裁滤波器与响应的特征图，具体的剪裁方法很简单，记卷积层参数<span
-class="math inline">\(F\in \mathbb R^{C_2\times C_1\times H\times
-W}\)</span>，其中<span class="math inline">\(C_2\)</span>与<span
-class="math inline">\(C_1\)</span>分别为输出通道数和输入通道数，可以看成<span
-class="math inline">\(C_2\)</span>个卷积核，现在希望从中去除<span
-class="math inline">\(m\)</span>个卷积核：</p>
-<ol type="1">
-<li>计算<span class="math inline">\(C_2\)</span>个卷积核各自的L1
-norm，排序，选出最小的那几个卷积核，移除；</li>
-<li>由于输出通道数变为<span
-class="math inline">\(C_2-m\)</span>，那么接下来的一个卷积层的卷积核的对应输入通道也要移除<span
-class="math inline">\(m\)</span>个；</li>
-</ol>
-<p>作者还在文中做了一些其他讨论，比如</p>
-<ul>
-<li>各个卷积层的剪枝会影响到后续卷积层，这里存在一个简单的组合优化问题，每一个卷积层，是先完成前面层对其输入通道数的影响，再根据前文的策略缩减输出特征维度；如果考虑前面的影响，又该考虑前面几层影响，是最优的？作者实验了两种方案，各自独立剪裁，后传播影响；以及贪心策略；后者稍好一些</li>
-<li>存在残差连接的情况下，shortcut上的1x1卷积和主干上的第二层卷积层只能二选一剪枝（一个会影响另一个），作者选择以shortcut上的剪枝为主，因为shortcut更重要一些；</li>
-<li>一次性全剪枝完再微调，还是迭代地剪枝、微调；后者效果稍好，但是对于更深的网络，后者微调的时间更长一些；</li>
-<li>使用什么样的norm来表示卷积核的重要性</li>
-</ul>
-<h3 id="量化">量化</h3>
-<p><a href="https://arxiv.org/abs/1412.6115">Compressing Deep
-Convolutional Networks using Vector Quantization</a></p>
-<h3 id="其他">其他</h3>
-<h4 id="频域压缩">频域压缩</h4>
-<p><a
-href="https://ieeexplore.ieee.org/abstract/document/8413170/">Packing
-convolutional neural networks in the frequency domain</a></p>
-<p>把卷积核视为图像，在频域中分解为公共部分和个体方差，之后丢弃这两者大部分的低频信号，同时不会带来严重的精度损失；作者还探索了数据驱动的消除冗余的方法；</p>
-<p>在CNNPackv1中，主要步骤为：</p>
-<ul>
-<li>对所有卷积核使用DCT变换，之后剪裁到固定的维度<span
-class="math inline">\(d\)</span>，（卷积核的高频信息在该过程被抛弃）；</li>
-<li>学习卷积核的k个聚类中心，并计算各个卷积核相对于聚类中心的残差，分别对聚类中心和残差进行稀疏化（L1
-norm）；</li>
-<li>固定已经完成剪枝和稀疏化的参数不变，微调网络，并量化残差，重复至收敛；最后再使用CSR保存参数的稀疏形式并使用Huffman编码；</li>
-</ul>
-<p>在CNNPackv2中，压缩过程使用上了输入数据，修改了目标函数；对于这个目标函数，作者还用相当的篇幅描述了如何优化；</p>
-<p>由于压缩、量化都是在频域中完成的，如果要在推理时使用原来空间域中卷积的方式，需要将频域中的卷积核转换回去，得到的空间域中的卷积核将不再稀疏，这就意味着，在推理时，模型参数在内存中的占用量远大于在磁盘上存储的大小；因此作者设计了在频域中完成卷积的加速方法；</p>
-<blockquote>
-<p>本文数学推导较多，需要DCT相关的背景知识，笔者将来有空时也许会单独开一篇关于本文的论文阅读；</p>
-</blockquote>
-<p>data-driven的CNNPackv2方法对AlexNet和VGG-16
-Net实现了43.5和49.1倍的压缩率，以及26.2和10.2倍的理论加速比；对于ResNet-50，压缩率为14.0，理论加速比为5.0；对于ResNeXt-50，压缩率为14.3，理论加速比为5,1；以上压缩造成的在imagenet上的top-1
-acc损失都在1%左右；</p>
-<h2 id="参考链接">参考链接</h2>
-<p><a href="https://cloud.tencent.com/developer/article/1631704">腾讯云
-- 闲话模型压缩之网络剪枝（Network Pruning）</a></p>
-]]></content>
-      <categories>
-        <category>论文阅读</category>
-      </categories>
-      <tags>
-        <tag>模型压缩</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>机器学习课堂笔记</title>
-    <url>/2022/09/30/ML-Class/</url>
-    <content><![CDATA[<blockquote>
-<p>本文记录在本学期《机器学习及其应用课》上一些印象比较深刻的知识点；大部分在课堂PPT或者相关书籍（周志华《机器学习》，李航《统计学习方法》）上很容易理解的点就不在此赘述了；</p>
-<p>笔者水平有限，如果有错误清多多指正；</p>
-</blockquote>
-<span id="more"></span>
-<h2 id="模型的评估与选择">模型的评估与选择</h2>
-<h3 id="泛化误差的分解">泛化误差的分解</h3>
-泛化误差是模型对位置数据预测的误差： $$
-<span class="math display">\[\begin{aligned}
-R_\text{exp}(\hat f)&amp;=E_P[L(Y, \hat f(X))]\\
-&amp;=\int_{\mathcal{X}\times\mathcal{Y}}L(y, \hat f(x))P(x, y)dxdy
-
-\end{aligned}\]</span>
-<p>$$</p>
-<p>首先要明确的一点是，泛化误差<span
-class="math inline">\(\ne\)</span>某个测试集误差，后者只是前者的一次估计，前者是后者所在分布的期望，测试集的选择、推理过程的随机性都会得到不同的结果。应当使用统计学中的假设检验方法比较两个模型的好坏。</p>
-<blockquote>
-<p>但是笔者目前看到几乎所有的论文都是，在测试集甚至验证集上，有更好的性能，就SOTA了？</p>
-</blockquote>
-<p>泛化误差是一个理论上的误差，如果能描述清楚其上下界，则对实验有一定的指导意义：泛化误差的下界决定了在一个任务上最理想能刷到多少点，是收到数据集的限制的；泛化误差的上界反映了模型本身是否容易学习，一般认为，泛化误差上界越小的模型越好，然而对于简单的线性模型，我们也许可以给出上界，但是对于现在的各种复杂的非线性的、深层的模型，给出泛化误差上界仍然是很难的问题。</p>
-<p>下面是对泛化误差的分解：</p>
-<p>记测试样本为<span class="math inline">\(x\)</span>，<span
-class="math inline">\(y_D\)</span>与<span
-class="math inline">\(y\)</span>分别为样本在数据集中的标记和样本真实标记，<span
-class="math inline">\(f(x;D)\)</span>为训练集<span
-class="math inline">\(D\)</span>上学习的模型对于<span
-class="math inline">\(x\)</span>的预测标签（以下简记为<span
-class="math inline">\(f\)</span>），定义对于测试样本中预测的<strong>方差</strong>为<span
-class="math inline">\(var(x)=E_D[(f(x;D)-\overline
-f(x))^2]\)</span>（以下简记为<span
-class="math inline">\(E[(f-Ef)^2]\)</span>），定义噪声为<span
-class="math inline">\(\epsilon^2=E_D[(y_D-y)^2]\)</span>，定义偏差为<span
-class="math inline">\(bias^2(x)=(\hat f(x)- y)^2\)</span>;</p>
-<blockquote>
-<p><span class="math inline">\(y_D\)</span>和<span
-class="math inline">\(y\)</span>的区别，是数据标注时引入的误差，由标注员本身认知的偏置和偶然的错误组成；<span
-class="math inline">\(f\)</span>和<span
-class="math inline">\(Ef\)</span>的区别，即由于训练集变动等原因，导致模型对同一个样本的预测不总是相同；</p>
-<p>下面的<span class="math inline">\(L\)</span>直接使用均方误差：</p>
-</blockquote>
-<p><span class="math display">\[
-\begin{aligned}
-E(f;D) &amp;= E[(f(x;D)-y_D)^2]\\
-&amp;= E[(f - Ef + Ef - y_D)^2]\\
-&amp;= E[(f-Ef)^2]+E[(Ef-y_D)^2]+2E[f\cdot Ef + y_DEf - y_Df - E_f^2]\\
-&amp;= E[(f-Ef)^2]+E[(E_f-y + y-y_D)^2]\\
-&amp;= E[(f-Ef)^2]+E[(E_f-y)^2]+E[(y-y_D)^2+E[(E_f-y)(y-y_D)]\\
-&amp;= var(x) + bias^2(x) + \epsilon^2
-\end{aligned}
-\]</span></p>
-<blockquote>
-<p>上述推导用到的知识有：</p>
-<ul>
-<li><p><span class="math inline">\(E(aX+bY)=aEX+bEY\)</span>，其中<span
-class="math inline">\(a, b\)</span>是常数，<span
-class="math inline">\(X,Y\)</span>是随机变量；特殊地<span
-class="math inline">\(E(a)=a\)</span>；</p></li>
-<li><p><span
-class="math inline">\(E(XY)=E(X)E(Y)\)</span>，当且仅当<span
-class="math inline">\(X,Y\)</span>是相互独立的随机变量；</p></li>
-</ul>
-<p>需要的假设有：</p>
-<ul>
-<li><p>噪声期望为0，即<span
-class="math inline">\(E(y_D-y)=0\)</span>，这是假设了数据集的标注没有系统误差而都是随机误差，比较合理；则可以推出<span
-class="math inline">\(\text{Var}[(y_D-y)]=E[(y_D-y)]^2=\epsilon^2\)</span>；</p></li>
-<li><p>偏差与噪声无关；</p></li>
-</ul>
-</blockquote>
-<h3 id="vc维">VC维</h3>
-<blockquote>
-<p>以下定义来自<a
-href="https://www.jiqizhixin.com/graph/technologies/e766aa0d-af15-480a-9ce9-b6357442330e">机器之心
-- VC维度</a></p>
-</blockquote>
-<p>VC维是衡量可以通过统计<strong>分类</strong>算法学习的函数空间的容量的度量。定义为算法可以破碎(shatter)的最大点集的基数。shatter的含义为，对于一个假设空间<span
-class="math inline">\(\mathcal H\)</span>（函数的集合），如果存在<span
-class="math inline">\(m\)</span>个数据样本能够被假设空间中的函数按照所有可能的<span
-class="math inline">\(2^n\)</span>种方式分开（每个样本有两种类别可能），则称<span
-class="math inline">\(\mathcal H\)</span>能够把<span
-class="math inline">\(m\)</span>个数据样本破碎开。</p>
-<p>e.g.
-线性模型的VC维为3，因为3个点线性可分而4个点的xor情况线性不可分。</p>
-<h3 id="泛化误差上界">泛化误差上界</h3>
-<p>在推导特定问题的泛化误差上界之前，我们定性地描述泛化误差上界：</p>
-<ul>
-<li>样本容量越大，泛化误差上界趋于0；</li>
-<li>假设空间容量越大，泛化误差上界越大；</li>
-</ul>
-<p>考虑二分类问题，样本容量为<span
-class="math inline">\(N\)</span>，训练数据集<span
-class="math inline">\(T\)</span>是从联合概率分布<span
-class="math inline">\(P(X,Y)\)</span>独立同分布产生的，假设空间是函数的有限集合<span
-class="math inline">\(\mathcal F = \{f_1, \cdots,
-f_d\}\)</span>，损失函数为0-1损失，则期望风险（<span
-class="math inline">\(L(Y, F(X))\)</span>期望值）和经验风险（<span
-class="math inline">\(L(Y, F(X))\)</span>样本均值）分别为： <span
-class="math display">\[
-R(f)=E[L(Y,f(X))]
-\]</span></p>
-<p><span class="math display">\[
-\hat R(f) = \frac 1 N \sum_{i=1}^N L(y_i, f(x_i))
-\]</span></p>
-<p>经验风险最小化函数为 <span class="math display">\[
-f_N = \arg\min_{f\in\mathcal F}\hat R(f)
-\]</span> 我们关心<span class="math inline">\(f_N\)</span>的泛化能力：
-<span class="math display">\[
-R(f_N)=E[L(Y,f_N(X))]
-\]</span> 对于任意一个<span
-class="math inline">\(f\)</span>，至少以概率<span
-class="math inline">\(1-\delta, ~
-0&lt;\delta&lt;1\)</span>，以下不等式成立： <span
-class="math display">\[
-R(f) \le \hat R(f) + \sqrt{\frac {1}{2N} (\log d+\log\frac 1 \delta)}
-\]</span></p>
-<blockquote>
-<p>具体证明见： 李航《统计学习方法》。</p>
-</blockquote>
-<h2 id="向量矩阵张量的导数">向量、矩阵、张量的导数</h2>
-<p>理解矢量导数，最朴素的方式，就是把矢量计算拆成多个并行的标量计算；</p>
-<p>以下内容来自<a
-href="http://cs231n.stanford.edu/vecDerivs.pdf">cs231n的参考资料</a>，用粗体字母表示向量，用大写字母表示矩阵，一般的小写字母表示标量；</p>
-<h3 id="向量对向量求导">向量对向量求导</h3>
-<p>设<span class="math inline">\(\mathbf{y}\)</span>是长度为<span
-class="math inline">\(C\)</span>列向量，<span
-class="math inline">\(W\)</span>是<span class="math inline">\(C\times
-D\)</span>矩阵，<span class="math inline">\(\mathbf
-x\)</span>是长度为<span class="math inline">\(D\)</span>列向量，有<span
-class="math inline">\(\mathbf y = W\mathbf
-x\)</span>，简单的排列组合知识告诉我们，<span
-class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
-x}\)</span>有<span class="math inline">\(C\times
-D\)</span>项（二维矩阵）；不妨以<span class="math inline">\(\mathbf
-y\)</span>的第3个元素对<span class="math inline">\(\mathbf
-x\)</span>的第7个元素为例： <span class="math display">\[
-\begin{aligned}
-\frac{\partial y_3}{\partial x_7} &amp;= \frac{\partial}{\partial
-x_7}(W_{3,1}x_1+\cdots+W_{3,7}x_7+\cdots+W_{3,D}x_D)\\
-&amp;=W_{3,7}
-\end{aligned}
-\]</span> 推广到其他位置，不难得出结论，<span
-class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
-x}\)</span>恰好就是<span class="math inline">\(W\)</span></p>
-<blockquote>
-<p>如果<span class="math inline">\(\mathbf y\)</span>与<span
-class="math inline">\(\mathbf x\)</span>都是行向量且<span
-class="math inline">\(\mathbf y = \mathbf x W\)</span>，同样有<span
-class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
-x}=W\)</span></p>
-</blockquote>
-<h3 id="向量对矩阵求导">向量对矩阵求导</h3>
-<p>与上一小节条件相同，直观地看，<span
-class="math inline">\(\frac{\partial\mathbf y}{\partial
-W}\)</span>应该是一个<span class="math inline">\(C\times C\times
-D\)</span>的张量，设<span class="math inline">\(W=[\mathbf w_1, \cdots,
-\mathbf w_D]\)</span>，<span class="math inline">\(\mathbf y = W\mathbf
-x\)</span>也可以理解为<span class="math inline">\(\mathbf
-y\)</span>是<span class="math inline">\(W\)</span>各列以<span
-class="math inline">\(\mathbf x\)</span>中对应元素为权重的加权和，即
-<span class="math display">\[
-\mathbf y = x_1\mathbf w_1 + \cdots + x_D \mathbf w_D
-\]</span> 特殊的，我们可以得到 <span class="math display">\[
-\frac{\partial y_3}{\partial W_{3,7}} = \frac{\partial}{\partial
-W_{3,7}}(x_1W_{3,1} +\cdots + x_7W_{3,7} + \cdots + x_DW_{3,D}) = x_7
-\]</span></p>
-<p><span class="math display">\[
-\frac{\partial y_3}{\partial W_{2,7}} = \frac{\partial}{\partial
-W_{2,7}}(x_1W_{3,1} +\cdots + x_7W_{3,7} + \cdots + x_DW_{3,D}) = 0
-\]</span></p>
-<p>推广后，我们发现，对于<span
-class="math inline">\(\frac{\partial\mathbf y_i}{\partial
-W_{j,k}}\)</span>，仅仅在<span
-class="math inline">\(i=j\)</span>时不为零，且<span
-class="math display">\[\frac{\partial\mathbf y_i}{\partial
-W_{i,k}}=x_k\]</span>，这样，我们可以将结果的3D张量表示成一个更紧凑的2D矩阵，形状为<span
-class="math inline">\(C\times D\)</span>，（<span
-class="math inline">\(C\)</span>个<span class="math inline">\(\mathbf
-x\)</span>拼接）： <span class="math display">\[
-\frac{\partial\mathbf y}{\partial W} = \mathbf x \mathbf 1^T
-\]</span></p>
-<blockquote>
-<p>当然，结果还可以继续“紧凑”成向量<span class="math inline">\(\mathbf
-x\)</span>，这里我们有意让<span
-class="math inline">\(\frac{\partial}{\partial W}\)</span>的形状与<span
-class="math inline">\(W\)</span>相同，是利于理解反向传播过程中参数的更新，当然，利用numpy/pytorch的广播机制，只需要保存一个向量即可；</p>
-</blockquote>
-<h3 id="矩阵对矩阵求导">矩阵对矩阵求导</h3>
-<p>将先前定义的<span class="math inline">\(\mathbf y\)</span>和<span
-class="math inline">\(\mathbf x\)</span>分别扩展成矩阵<span
-class="math inline">\(Y\in \mathbb R^{C\times N}\)</span>，<span
-class="math inline">\(X\in \mathbb R^{D\times N}\)</span>，<span
-class="math inline">\(Y=WX\)</span>；这种扩展，可以理解为使用了<span
-class="math inline">\(N\)</span>个数据，对于<span
-class="math inline">\(i = 1, \cdots, N\)</span>，有<span
-class="math inline">\(\mathbf y_i = W \mathbf x_i\)</span>；</p>
-<p>使用先前的结论，有 <span class="math display">\[
-\frac{\partial Y_{.,i}}{\partial X_{.,i}} = \frac{\partial \mathbf
-y_i}{\partial \mathbf x_i} = \frac{\partial}{\partial \mathbf
-x_i}W\mathbf x_i = W
-\]</span></p>
-<p><span class="math display">\[
-\frac{\partial Y_{.,i}}{\partial X_{.,j}} = \frac{\partial \mathbf
-y_i}{\partial \mathbf x_j} = \frac{\partial}{\partial \mathbf
-x_j}W\mathbf x_i = 0
-\]</span></p>
-<p>将矩阵乘法展开成标量乘积之和形式，还可以得到<span
-class="math inline">\(\frac{\partial Y_{a,b}}{\partial
-X_{c,d}}\)</span>在<span class="math inline">\(a\ne
-c\)</span>时也为0，因此紧凑地表示<span
-class="math inline">\(\frac{\partial Y}{\partial
-X}\)</span>，可以将4D张量缩减为2D矩阵，也就是<span
-class="math inline">\(W\)</span>；</p>
-<p>类似的，<span class="math inline">\(\frac{\partial Y}{\partial W} =
-X\)</span>；</p>
-<blockquote>
-<p>这个结果，在形式上，又与标量求导相同，只不过我们需要清楚，这些都是“紧凑”后的形式；</p>
-</blockquote>
-<h2 id="线性模型">线性模型</h2>
-<h3 id="线性判别分析">线性判别分析</h3>
-<p>核心思想：将高维空间的样本投影到一条直线上，使得同类样本尽可能近，异类样本尽可能远；</p>
-<h4 id="如何表示投影">如何表示投影</h4>
-<p>如何表示投影？在<a
-href="https://ashun989.github.io/2022/08/10/linear-algebra/">线性代数要点总结</a>的“正交投影”一节，给出了将<span
-class="math inline">\(\mathbb{R}^n\)</span>中的向量<span
-class="math inline">\(y\)</span>投影到子空间<span
-class="math inline">\(W\)</span>后的数学表示，设<span
-class="math inline">\(U=[u_1,\cdots,
-u_p]\)</span>为该子空间的单位正交基，则 <span class="math display">\[
-\text{proj}_Wy=UU^Ty
-\]</span> 在西瓜书上的图解是一个最简单的情况，原空间是<span
-class="math inline">\(\mathbb
-R^2\)</span>，投影子空间是其中的一条直线（1维子空间），其单位正交基应该只有一个向量，即该直线的单位向量<span
-class="math inline">\(\omega\)</span>，按照上述公式，投影后的点坐标应该是<span
-class="math inline">\(\omega\omega^Tx\)</span>，为什么后续却适用了<span
-class="math inline">\(\omega^Tx\)</span>这一表示呢？</p>
-<p><img src="image-20221027141501670.png" /></p>
-<p>直观地看，在上图中，<span
-class="math inline">\(\omega\omega^Tx\)</span>仍然保持了与<span
-class="math inline">\(x\)</span>相同的形状，而<span
-class="math inline">\(\omega^Tx\)</span>是一个标量；向量空间<span
-class="math inline">\(\mathbb R^n\)</span>的子空间<span
-class="math inline">\(W\)</span>有<span
-class="math inline">\(p\)</span>个线性无关的基，即子空间是<span
-class="math inline">\(p\)</span>维的，但每个基的元素个数为<span
-class="math inline">\(n\)</span>，即子空间的域仍然是<span
-class="math inline">\(p\)</span>，即在线代中介绍的投影运算，在投影前后不改变域，而在这里介绍的“投影”，希望得到的是与该子空间同构的<span
-class="math inline">\(\mathbb
-R^p\)</span>上的结果，而线性判别分析的限制更强，即<span
-class="math inline">\(p=1\)</span>；</p>
-<p>回想投影公式的推导过程，<span
-class="math inline">\(U^Ty\)</span>是<span
-class="math inline">\(p\)</span>个正交的单位向量与<span
-class="math inline">\(y\)</span>的点积结果，表示<span
-class="math inline">\(y\)</span>投影到子空间各个方向上的长度是多少，之后再左乘<span
-class="math inline">\(U\)</span>是为了得到投影点在<span
-class="math inline">\(\mathbb{R}^n\)</span>中的坐标；</p>
-<p>现在我们只需要知道在1维子空间的唯一基方向的长度<span
-class="math inline">\(y=\omega^Tx\)</span>，用于分类，更准确的说，我们只要得到不同的<span
-class="math inline">\(x\)</span>，投影后向相对长度，因此<span
-class="math inline">\(\omega\)</span>不必要是一个方向向量，不同的<span
-class="math inline">\(\omega\)</span>只会使得所有投影结果乘上不同的比例因子罢了；</p>
-<h4 id="如何设计目标函数">如何设计目标函数</h4>
-<p>首先定义一些接下来会用到的符号，总样本集合<span
-class="math inline">\(X\)</span>包含<span
-class="math inline">\(N\)</span>个<span
-class="math inline">\(d\)</span>维样本<span
-class="math inline">\(x\)</span>，即<span
-class="math inline">\(X\)</span>是<span class="math inline">\(d\times
-N\)</span>的矩阵，记类别数为<span
-class="math inline">\(K=2\)</span>，第<span
-class="math inline">\(i\)</span>类样本的集合为<span
-class="math inline">\(X_i\)</span>，基数为<span
-class="math inline">\(N_i\)</span>，均值为<span
-class="math inline">\(m_i\)</span>，协方差为<span
-class="math inline">\(\Sigma_i\)</span>；投影后的均值为<span
-class="math inline">\(\omega m_i\)</span>，协方差矩阵<span
-class="math inline">\(\omega^T\Sigma\omega\)</span>；（这里投影后的协方差矩阵是1x1的，因此可以视为一个标量）</p>
-<blockquote>
-<p>有关协方差和投影后协方差矩阵的形式，可见<a
-href="https://ashun989.github.io/2022/08/10/linear-algebra/">线性代数要点总结</a>的主成分分析一节；</p>
-</blockquote>
-<p>希望类间距离越大，可以写成样本中心距离越大；希望类内距离越小，可以写成协方差越小，则目标函数（最大化）为：
-<span class="math display">\[
-\begin{aligned}
-J &amp;= \frac{||\omega^Tm_0 - \omega^T
-m_1||_2^2}{\omega^T\Sigma_0\omega + \omega^T\Sigma_1\omega}\\
-&amp;= \frac{\omega^T(m_0 - m_1)(m_0 -
-m_1)^T\omega}{\omega^T(\Sigma_0+\Sigma_1)\omega}\\
-\end{aligned}
-\]</span> 把分子分母中做个变量代换，定义：</p>
-<p>类间散度矩阵为<span class="math inline">\(S_b\)</span>，<span
-class="math inline">\(d\times d\)</span> <span class="math display">\[
-S_b = (m_0-m_1)(m_0-m_1)^T
-\]</span> 分母上 <span class="math display">\[
-\begin{aligned}
-\Sigma_0 +\Sigma_1 &amp;= \frac{1}{N_0-1}(X_0-m_0\mathbf
-1)(X_0-m_0\mathbf 1)^T + \frac{1}{N_1-1}(X_1-m_1\mathbf
-1)(X_1-m_1\mathbf 1)^T\\
-&amp;= \frac{1}{N_0-1}\sum_{x\in X_0}(x-m_0)(x-m_0)^T +
-\frac{1}{N_1-1}\sum_{x\in X_1}(x-m_1)(x-m_1)^T
-\end{aligned}
-\]</span> 而在定义类内散度矩阵<span
-class="math inline">\(S_w\)</span>，<span class="math inline">\(d\times
-d\)</span>时， 抛去了归一化项： <span class="math display">\[
-S_w = \sum_{x\in X_0}(x-m_0)(x-m_0)^T + \sum_{x\in X_1}(x-m_1)(x-m_1)^T
-\]</span> 上述目标函数重写为： <span class="math display">\[
-J = \frac{\omega^TS_b\omega}{\omega^TS_w\omega}
-\]</span></p>
-<blockquote>
-<p>抛去了归一化项会有什么影响吗？直观地，正负样本的数量不同时，会有差距，不做归一化会使得<span
-class="math inline">\(S_w\)</span>偏向样本多得那一方。可是求平均同样会放大样本较少类别中离群点的影响。对于类别不均衡问题，LDA算法本身没有考虑，但是后续可以通过难样本挖掘等采样策略来训练等等；</p>
-</blockquote>
-<h4 id="如何优化">如何优化</h4>
-<p>如何求解使<span class="math inline">\(J\)</span>最大的<span
-class="math inline">\(\omega\)</span>？分子分母都是关于<span
-class="math inline">\(\omega\)</span>的二次型；由于我们只需要<span
-class="math inline">\(\omega\)</span>的方向，因此可以让分母为非零常数<span
-class="math inline">\(c\)</span>，分子最大化；</p>
-<blockquote>
-<p>为了便于理解，在上图中原始空间为<span class="math inline">\(\mathbb
-{R}^2\)</span>的情况下，记<span class="math inline">\(\omega =
-(\omega_1, \omega_2)\)</span>，<span
-class="math inline">\(J\)</span>也就是这样的一个目标函数： <span
-class="math display">\[
-J =
-\frac{a\omega_1^2+b\omega_2^2+c\omega_1\omega_2}{d\omega_1^2+e\omega_2^2+f\omega_1\omega_2}
-\]</span></p>
-</blockquote>
-<p><span class="math display">\[
-\begin{matrix}
-    \min_w &amp;-\omega S_b\omega\\
-\text{s.t.}&amp;\omega^TS_w\omega = c
-\end{matrix}
-\]</span></p>
-<p>对应的拉格朗日函数为： <span class="math display">\[
-L(\omega, \lambda) = \omega^T S_b\omega - \lambda(\omega^TS_w\omega - c)
-\]</span> 对<span
-class="math inline">\(\omega\)</span>求导并令导数为0，得到 <span
-class="math display">\[
-S_b\omega  = \lambda S_w\omega
-\]</span> LDA假设样本的协方差矩阵是满秩的，因此有<span
-class="math inline">\(S_w\)</span>非奇异，则 <span
-class="math display">\[
-S_w^{-1}S_b\omega = \lambda \omega
-\]</span></p>
-<blockquote>
-<p>在Fisher判别分析中，没有协方差矩阵满秩的假设，因此<span
-class="math inline">\(S_w^{-1}\)</span>可以使用求伪逆的方法；</p>
-</blockquote>
-<p>转化为求解<span
-class="math inline">\(S_\omega^{-1}S_b\)</span>的特征向量的问题；但是，又观察到<span
-class="math inline">\((m_0-m_1)^T\omega\)</span>是标量，则<span
-class="math inline">\(S_b\omega\)</span>始终与<span
-class="math inline">\((m_0-m_1)\)</span>同方向： <span
-class="math display">\[
-S_b\omega = (m_0-m_1)(m_0-m_1)^T\omega = \lambda&#39;(m_0-m_1)
-\]</span> 因此 <span class="math display">\[
-\omega = \frac{\lambda}{\lambda&#39;}S_w^{-1}(m_0-m_1)
-\]</span> 比例因子<span class="math inline">\(\lambda /
-\lambda&#39;\)</span>可以忽略，因为我们只在意方向；</p>
-<h4 id="如何分类">如何分类</h4>
-<p>对于二分类问题，在投影到1维直线上之后，我们需要确定一个阈值来在推理时区分正负类别，最简单的，可以使用投影后的样本中心的均值作为阈值；</p>
-<h4 id="如何扩展到多分类">如何扩展到多分类</h4>
-<p>观察上述过程，扩展到多分类，仍要满足类内距离小，那么<span
-class="math inline">\(S_w\)</span>的定义只要由两类协方差矩阵之和扩展成多类协方差矩阵之和即可；
-<span class="math display">\[
-S_w = \sum_{i=1}^{K}\sum_{x\in X_i}(x-m_i)(x-m_i)^T
-\]</span></p>
-<p>仍要满足类间距离大，那么<span
-class="math inline">\(S_b\)</span>的定义该如何扩展？</p>
-<p>先定义一个全局散度矩阵<span class="math inline">\(S_t\)</span>，<span
-class="math inline">\(m\)</span>表示所有样本的均值： <span
-class="math display">\[
-S_t = \sum_{i=1}^{K}\sum_{x\in X_i}(x-m)(x-m)^T
-\]</span> 令<span class="math inline">\(S_b = S_t -
-S_w\)</span>，则有类间样本均值：</p>
-<blockquote>
-<p><span class="math display">\[
-\begin{aligned}
-(x-m)(x-m)^T - (x-m_i)(x-m_i)^T
-&amp;=(x-m)(x^T-m^T) - (x-m_i)(x^T-m_i^T)\\
-&amp;=-mx^T-xm^T+mm^T+m_ix^T+xm_i^T-m_im_i^T\\
-\sum_{x\in X_i}(-mx^T-xm^T-mm^T+m_ix^T+xm_i^T-m_im_i^T) &amp;=
-N_i(mm^T-m_i^Tm_i^T)+(m_i-m)N_im_i^T + N_im_i(m_i^T-m^T)\\
-&amp;= N_i(mm^T + m_i^Tm_i^T - mm_i^T - m_im^T)\\
-&amp;= N_i(m_i - m)(m_i - m)^T
-\end{aligned}
-\]</span></p>
-</blockquote>
-<p><span class="math display">\[
-S_b = \sum_{i=1}^{K}N_i(m_i-m)(m_i-m)^T
-\]</span></p>
-<p>扩展到多分类的另一个问题在于，投影到1维直线上已经不太合适了，<span
-class="math inline">\(d\times 1\)</span>的投影向量<span
-class="math inline">\(\omega\)</span>扩展为<span
-class="math inline">\(d\times (K-1)\)</span>的投影矩阵<span
-class="math inline">\(W\)</span>，但是这样一来，目标函数的分子分母都不再是标量而是矩阵，可以改成求矩阵的迹</p>
-<blockquote>
-<p>协方差矩阵的迹是总方差</p>
-</blockquote>
-<p><span class="math display">\[
-\max_{W}\frac{\text{tr}(W^TS_bW)}{\text{tr}(W^tS_wW)}
-\]</span></p>
-<p>上述问题的解与之前有相同形式（笔者目前还不能给出推导过程）： <span
-class="math display">\[
-S_bW = \lambda S_w W
-\]</span> 问题同样转化为求<span
-class="math inline">\(S_w^{-1}S_b\)</span>的前<span
-class="math inline">\(d&#39;\)</span>个最大广义非零特征值对应的特征向量，<span
-class="math inline">\(d&#39; \le (K - 1)\)</span>；</p>
-<p>在推理时，设<span
-class="math inline">\(y=Wx\)</span>是测试样本在投影空间的表示，计算<span
-class="math inline">\(y\)</span>到哪个投影后的类别中心<span
-class="math inline">\(Wm_i\)</span>最近，决定了<span
-class="math inline">\(x\)</span>属于哪个类别；</p>
-<blockquote>
-<p>为什么<span class="math inline">\(K\)</span>分类投影到<span
-class="math inline">\(K-1\)</span>的超平面？还是别的维度也可以？</p>
-<p>不存在什么限制要求必须投影到$K-1维超平面</p>
-</blockquote>
-<h4 id="扩展到降维">扩展到降维</h4>
-<p>上面在多分类的扩展中，我们看到了LDA可以作为监督降维技术，并且这种投影过程使用了类别信息；</p>
-<h3 id="逻辑斯蒂回归对数几率回归">逻辑斯蒂回归/对数几率回归</h3>
-<p>一句话描述逻辑斯蒂回归，就是在线性回归层之后使用了sigmoid函数，并设置阈值完成二分类预测，相比于直接用线性模型+阈值做分类，能够一定程度减少离群点的影响；</p>
-<p>如何优化逻辑斯蒂回归模型的参数？我想起来在吴恩达老师的机器学习入门课中，给了一个新手友好的解释：</p>
-<blockquote>
-<p>线性回归模型 + MSE损失，和逻辑回归模型 +
-BCE损失，求导后损失函数对<span
-class="math inline">\(\theta\)</span>的梯度形式均为Error * Feature</p>
-</blockquote>
-<p>逻辑回归模型为什么引入CE？又为什么不用MSE？吴恩达老师只是简单提到了最大似然估计和非凸函数，没有给当时还是新手的我讲太多；下面笔者记录一下，是怎样得到BCE损失函数的？</p>
-<h4 id="从统计意义解释">从统计意义解释</h4>
-<p>决策边界：使得模型输出=分类阈值的所有输入的集合，设输入特征是<span
-class="math inline">\(\mathbb R^d\)</span>中的向量，则决策边界是<span
-class="math inline">\(d-1\)</span>维的超平面；对于逻辑回归，其决策边界是线性的；</p>
-<blockquote>
-<p>如果阈值为0.5，那么超平面即<span
-class="math inline">\(wx+b=0\)</span>，将偏置项"吸入"，也就是<span
-class="math inline">\(wx=0\)</span></p>
-</blockquote>
-<p>使用sigmoid激活之后，模型的输出可以视为一种后验概率： <span
-class="math display">\[
-\begin{aligned}
-P(Y=1|X) &amp;= \frac{e^{wx}}{1+e^{wx}} &amp;= p\\
-P(Y=0|X) &amp;= \frac{1}{1+e^{wx}} &amp;=  1 - p\\
-\end{aligned}
-\]</span>
-定义事件的几率为发生与不发生的比率，对数几率即几率取对数，那么逻辑斯蒂回归模型的对数几率，即为线性函数的输出：
-<span class="math display">\[
-\log\frac{P(Y=1|X)}{P(Y=0|X)} = wx
-\]</span>
-也就是说，虽然披着“分类”的外皮，但是我们还是在做一个回归任务，只不过，回归的目标是“对数几率”；</p>
-<p>设输入数据为<span class="math inline">\(\{x_i,
-y_i\}_{i=1}^m\)</span>，<span
-class="math inline">\(y_i\)</span>为0或1，则对数似然函数为 <span
-class="math display">\[
-l(w) = \sum_{i=1}^m\log p(y_i|x_i; w)
-\]</span> 按照似然函数的定义，其中： <span class="math display">\[
-p(y_i|x_i;w) = p_i^{y_i}(1-p_i)^{1-y_i}
-\]</span> 则 <span class="math display">\[
-\begin{aligned}
-l(w) &amp;= \sum_{i=1}^{m}[y_i\log p_i + (1-y_i)\log(1-p_i)]\\
-&amp;= \sum_{i=1}^{m}[y_i\log\frac{p_i}{1-p_i} + \log(1-p_i)]\\
-&amp;= \sum_{i=1}^{m}[y_i(wx_i)-\log(1+e^{wx})]
-\end{aligned}
-\]</span> 上式的第一行也就是常见的BCE损失的表现形式，求<span
-class="math inline">\(\frac{\partial l}{\partial
-w}\)</span>即我们熟悉的Error * Feature形式；</p>
-<h4 id="扩展到多分类">扩展到多分类</h4>
-<p>同样的，写出对数似然函数，仍然能够得到CE损失的形式：</p>
-<p><img src="image-20221027212853259.png" /></p>
-<p><img src="image-20221027212912620.png" /></p>
-<p><a
-href="https://ashun989.github.io/2022/08/30/Stable-Calculations/#more">这里</a>有一份softmax+CE
-loss的求导过程；</p>
-]]></content>
   </entry>
   <entry>
     <title>凸优化学习笔记(一)</title>
@@ -4434,186 +3442,996 @@ alternatives) 表明两者有且只有一个是可行的；</p>
       </tags>
   </entry>
   <entry>
-    <title>RepVGG论文与代码阅读</title>
-    <url>/2022/10/03/RepVGG/</url>
-    <content><![CDATA[<img src="/2022/10/03/RepVGG/image-20221003122122530.png" class="">
-<p><strong>论文</strong>：<a
-href="https://openaccess.thecvf.com/content/CVPR2021/papers/Ding_RepVGG_Making_VGG-Style_ConvNets_Great_Again_CVPR_2021_paper.pdf">RepVGG:
-Making VGG-style ConvNets Great Again</a></p>
-<p><strong>作者</strong>：<em>Xiaohan Ding</em>, <em>Xiangyu Zhang</em>,
-<em>Ningning Ma</em>, <em>Jungong Han</em>, <em>Guiguang Ding</em>,
-<em>Jian Sun</em></p>
-<p><strong>录用情况</strong>：CVPR'2021</p>
-<p><strong>第一作者单位</strong>：Beijing National Research Center for
-Information Science and Technology (BNRist); School of Software,
-Tsinghua University, Beijing, China</p>
+    <title>度量空间与连续性</title>
+    <url>/2022/08/28/Lipschitz/</url>
+    <content><![CDATA[<p>前几日接触到一个新概念，Lipschitz
+Constant，本文是笔者在Wikipedia上递归搜索归纳的部分数学公里、定义、例子；抽象代数与拓扑几何的部分暂不在本文讨论；笔者不是数学专业，因此逻辑与表达多有不严谨之处，还请多多指正；</p>
+<span id="more"></span>
+<h2 id="度量空间-metric-space">度量空间 (Metric space)</h2>
+<h3 id="定义">定义</h3>
+<p>对于一个集合<span
+class="math inline">\(M\)</span>中的两个元素，可以给出一种度量<span
+class="math inline">\(d\)</span>，称为度量空间，记作<span
+class="math inline">\((M,d)\)</span>，也是一个函数：<span
+class="math inline">\(d:M\times M \rightarrow \mathbb{R}\)</span>:</p>
 <blockquote>
-<p>本文借助重参数化技巧，提出了一个在训练时多分支，而在推理时为类似于VGG的直筒形网络（3x3卷积+ReLU堆叠成的基本块），命名为RepVGG。这是第一次一个简单的模型在ImageNet上获得了80%以上的top1准确率，并且直筒形状的结构让RepVGG有着很高的计算密度与推理速度，相比于EfficientNet和RegNet有更好的性能与速度的折中。<a
-href="https://zhuanlan.zhihu.com/p/344324470">作者本人在知乎上的稿子</a>。<a
-href="https://github.com/DingXiaoH/RepVGG">代码仓库</a>。</p>
+<p>跳出直观的欧几里得距离，度量是一种抽象的、隐喻的概念，又是也可以理解为从一个点到另一个点需要花费的成本；</p>
+</blockquote>
+<p>对于任意的<span class="math inline">\(x,y,z\in
+M\)</span>，度量空间满足下面4条公理，</p>
+<ol type="1">
+<li><span class="math inline">\(d(x,x)=0\)</span></li>
+<li>如果<span class="math inline">\(x\ne y\)</span>，则<span
+class="math inline">\(d(x,y)&gt;0\)</span></li>
+<li><span class="math inline">\(d(x,y)=d(y,x)\)</span></li>
+<li><span class="math inline">\(d(x,z)\le d(x,y) + d(y, z)\)</span></li>
+</ol>
+<p>常见的距离函数有：欧几里得距离<span
+class="math inline">\(d_2\)</span>，曼哈顿距离<span
+class="math inline">\(d_1\)</span>，切比雪夫距离<span
+class="math inline">\(d_{\infty}\)</span>，球面距离，汉明距离等等，并且有：
+<span class="math display">\[
+d_\infty(p,q)\le d_2(p,q) \le d_1(p,q) \le 2d_\infty(p,q)
+\]</span></p>
+<h3 id="子空间">子空间</h3>
+<p>度量空间<span class="math inline">\((M,d)\)</span>，有<span
+class="math inline">\(A\subseteq M\)</span>，则<span
+class="math inline">\(A\)</span>的诱导度量<span
+class="math inline">\(d_A:A\times A\rightarrow \mathbb{R}\)</span>定义为
+<span class="math display">\[
+d_A(x,y)=d(x,y)
+\]</span> 球面集合<span class="math inline">\(S^2\)</span>是<span
+class="math inline">\(\mathbb{R^3}\)</span>的子集，球面上的诱导度量是3维空间中的欧几里得距离；</p>
+<h3 id="收敛性">收敛性</h3>
+<p>这里先给出欧式空间上的表述，可以推广到度量空间：</p>
+<p>一个数列<span class="math inline">\((x_n)\)</span>收敛到<span
+class="math inline">\(x\)</span>，当且仅当对于任意的<span
+class="math inline">\(\epsilon&gt;0\)</span>，存在整数<span
+class="math inline">\(N\)</span>，对于所有的<span
+class="math inline">\(n&gt;N\)</span>都有<span
+class="math inline">\(d(x_n,x)&lt; \epsilon\)</span>；</p>
+<h3 id="完备性-completeness">完备性 (completeness)</h3>
+<p>直观地说，如果没有“缺失点”，即任何看起来收敛的序列（随着叙述的增加愈发靠近），确实都是收敛的，则称该度量空间是完备的；</p>
+<p>一个数列<span class="math inline">\((x_n)\)</span>是<span
+class="math inline">\((M,d)\)</span>中的柯西数列，当且仅当对于任意的<span
+class="math inline">\(\epsilon&gt;0\)</span>，存在整数<span
+class="math inline">\(N\)</span>，对于所有的<span
+class="math inline">\(m,n&gt;N\)</span>都有<span
+class="math inline">\(d(x_m,x_n)&lt;\epsilon\)</span>；</p>
+<p>收敛数列一定是柯西数列，(如果<span
+class="math inline">\(x_m\)</span>与<span
+class="math inline">\(x_n\)</span>与极限的距离都不超过<span
+class="math inline">\(\epsilon\)</span>，则通过三角不等式推出相同条件（<span
+class="math inline">\(N\)</span>）下<span
+class="math inline">\(x_m\)</span>与<span
+class="math inline">\(x_n\)</span>的距离不超过<span
+class="math inline">\(2\epsilon\)</span>；</p>
+<p>如果度量空间中所有的柯西数列都是收敛的，则度量空间是完备的；</p>
+<p>例如，区间<span class="math inline">\((0,1)\)</span>不完备而<span
+class="math inline">\([0,1]\)</span>完备，有理数集不完备而实数集完备；</p>
+<h3 id="有界性-bounded">有界性 (bounded)</h3>
+<p>在<span class="math inline">\(M\)</span>中存在一个距离上届，称为<span
+class="math inline">\(M\)</span>的直径；</p>
+<p>完全有界(or precompact)，定义涉及拓扑；</p>
+<h3 id="紧凑性-compactness">紧凑性 (compactness)</h3>
+<p>有几个紧凑性的等价定义，这里忽略涉及到拓扑概念的：</p>
+<ol type="1">
+<li>每一个数列都有一个收敛的子数列；</li>
+<li>完备的且完全有界的；</li>
+</ol>
+<h3 id="度量空间之间的映射">度量空间之间的映射</h3>
+<blockquote>
+<p>从度量空间到度量空间，有时称映射(maps)、有时称函数(functions)</p>
+</blockquote>
+<h4 id="等距映射-isometries">等距映射 (Isometries)</h4>
+<p>一个函数<span class="math inline">\(f:M_1\rightarrow
+M_2\)</span>是等距的，如果对于<span
+class="math inline">\(M_1\)</span>中任意的点都有： <span
+class="math display">\[
+d_2(f(x),f(y))=d_1(x,y)
+\]</span></p>
+<blockquote>
+<p><span
+class="math inline">\(f\)</span>应该是二元组到二元组的函数，上述<span
+class="math inline">\(f(x)\)</span>理解为<span
+class="math inline">\(f(x,y)\)</span>的第一项，<span
+class="math inline">\(f(y)\)</span>是第二项</p>
+</blockquote>
+<p>例如<span
+class="math inline">\(f:(\mathbb{R}^2,d_1)\rightarrow(\mathbb{R}^2,d_\infty)\)</span>有：
+<span class="math display">\[
+f(x,y)=(x+y,x-y)
+\]</span> 因为<span
+class="math inline">\(|x|+|y|=\max({|x+y|,|x-y|})\)</span></p>
+<h4 id="连续映射continuous-maps">连续映射(continuous maps)</h4>
+<p>存在多种等价的定义，其中<span
+class="math inline">\(\epsilon-\delta\)</span>定义为：</p>
+<p>一个函数<span class="math inline">\(f:M_1\rightarrow
+M_2\)</span>是连续的，如果对于<span
+class="math inline">\(M_1\)</span>中任意的点<span
+class="math inline">\(x\)</span>，和任意的<span
+class="math inline">\(\epsilon &gt; 0\)</span>，都有<span
+class="math inline">\(\delta &gt; 0\)</span>使得对于<span
+class="math inline">\(M_1\)</span>中任意的<span
+class="math inline">\(y\)</span>有： <span class="math display">\[
+d_1(x,y)&lt;\delta \Rightarrow d_2(f(x),f(y))&lt;\epsilon
+\]</span></p>
+<h4 id="一致连续映射uniformly-continuous-maps">一致连续映射(uniformly
+continuous maps)</h4>
+<p>一个函数<span class="math inline">\(f:M_1\rightarrow
+M_2\)</span>是一致连续的，如果对于任意的实数<span
+class="math inline">\(\epsilon &gt; 0\)</span>，存在<span
+class="math inline">\(\delta &gt;0\)</span>使得对于<span
+class="math inline">\(M_1\)</span>中任意的点<span
+class="math inline">\(x,y\)</span>满足<span
+class="math inline">\(d(x,y)&lt;\delta\)</span>的，有 <span
+class="math display">\[
+d_2(f(x),f(y))&lt;\epsilon
+\]</span></p>
+<blockquote>
+<p>在连续的定义中，<span class="math inline">\(\epsilon\)</span>是<span
+class="math inline">\(x\)</span>和<span
+class="math inline">\(\delta\)</span>的函数；在一致连续的定义中，<span
+class="math inline">\(\epsilon\)</span>仅是<span
+class="math inline">\(\delta\)</span>的函数；后者的条件更强；</p>
+</blockquote>
+<h4 id="李普希兹映射-lipschitz-maps">李普希兹映射 (Lipschitz maps)</h4>
+<p>经过这种映射，距离的拉伸不会超过一个上界：给定一个实数<span
+class="math inline">\(K&gt;0\)</span>，函数<span
+class="math inline">\(f:M_1\rightarrow M_2\)</span>是K-Lipschitz映射当：
+<span class="math display">\[
+d_2(f(x),f(y))\le Kd_1(x,y)
+\]</span> 特殊地，当<span
+class="math inline">\(K&lt;1\)</span>时称为收缩(contraction)</p>
+<h4 id="准等距映射quasi-isometries">准等距映射(Quasi-isometries)</h4>
+<p>函数<span class="math inline">\(f:M_1\rightarrow
+M_2\)</span>是准等距映射当存在常数<span class="math inline">\(A\ge
+1\)</span>且<span class="math inline">\(B\ge 0\)</span>有： <span
+class="math display">\[
+\frac{1}{A}d_2(f(x),f(y))-B\le d_1(x,y) \le Ad_2(f(x),f(y))+B
+\]</span></p>
+<h2 id="李普希兹连续">李普希兹连续</h2>
+<p>上文中的李普希兹映射的定义也是李普希兹连续的定义，其中<span
+class="math inline">\(K\)</span>是李普希兹常量，最小的<span
+class="math inline">\(K\)</span>称为the best Lipschitz
+constant或者dilation。</p>
+<p>一种特殊情况是当<span
+class="math inline">\(f\)</span>是实函数时，上述定义相当于限制了函数在其定义域上任意两点的割的绝对值存在上限<span
+class="math inline">\(K\)</span>：</p>
+<p><span class="math inline">\(|f(x_1)-f(x_2)|\le
+K|x_1-x_2|\)</span></p>
+<img src="/2022/08/28/Lipschitz/lipschitz.png" class="" title="lipschitz">
+<blockquote>
+<p>如上图所示，无论怎么移动，两条斜率绝对值为<span
+class="math inline">\(K\)</span>的斜线割开的上下部分均不会有<span
+class="math inline">\((x,f(x))\)</span>，即满足李普希兹连续条件</p>
+</blockquote>
+<p>在神经网络中，我们假设模型函数具有一个小于1的李普希兹常量，通常是为了避免梯度传播过程中发生数值问题；</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a href="https://en.wikipedia.org/wiki/Metric_space">Metric
+space</a></p>
+]]></content>
+      <categories>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>度量空间</tag>
+        <tag>李普希兹连续</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>机器学习课堂笔记</title>
+    <url>/2022/09/30/ML-Class/</url>
+    <content><![CDATA[<blockquote>
+<p>本文记录在本学期《机器学习及其应用课》上一些印象比较深刻的知识点；大部分在课堂PPT或者相关书籍（周志华《机器学习》，李航《统计学习方法》）上很容易理解的点就不在此赘述了；</p>
+<p>笔者水平有限，如果有错误清多多指正；</p>
 </blockquote>
 <span id="more"></span>
-<h2 id="方法">方法</h2>
-<h3 id="为什么需要多分支的网络">为什么需要多分支的网络</h3>
-<p>我们不否认直筒型的、深层的网络理论上具有足够的学习能力，但是很难训练；从GoogLeNet、ResNet起，大家就尝到了多分支网络的甜头，对于shortcut连接，一些普遍的解释为：</p>
-<ul>
-<li>获得了多种浅层模型的集成的效果，具体地说，<span
-class="math inline">\(n\)</span>个有shortcut的block，相当于<span
-class="math inline">\(2^n\)</span>个网络的集成；</li>
-<li>在非线性层存在的前提下，复杂的连接，增加了模型的非线性；</li>
-</ul>
-<p>然而，这种多分支结构也引入了缺陷：</p>
-<ul>
-<li>多分支使得显存消耗增加；</li>
-<li>复杂的模型降低了并行度；</li>
-</ul>
-<p>作者指出，尽管一些模型具有较低的FLOPs，但是因为并行度不够等原因，计算密度低，模型在推理时的速度慢。</p>
-<h3 id="模型重参数化">模型重参数化</h3>
-<p>本文的重参数化，侧重于“使用先前的模型结构的参数，构造新结构的参数，使得模型结构修改前后，对于数据流的作用是等价的”，即找到一种参数的代数变换，使得<span
-class="math inline">\(x+g(x)+f(x)=h(x)\)</span>；</p>
-<p>作者在文中强调了这个工作与DiractNet的区别：DiractNet的重参数化是用得到的参数计算另一个数学表达式来优化。笔者后续也会更新一些别的重参数化的论文阅读。</p>
-<h3 id="winograd-convolution">Winograd Convolution</h3>
-<p>这是一种对于步长为1的3x3卷积的加速算法，对于<span
-class="math inline">\(F(2\times 2, 3\times
-3)\)</span>（表示输出尺寸为2x2，卷积核尺寸为3x3的一卷积运算），考虑每一个输出的每一个位置来自一对长度为9的向量的内积，标准卷积方法需要2x2x3x3=36次乘法计算，而winograd方法通过观察到im2col之后的矩阵存在大量重复元素，设计算法将乘法次数减少到16次。这个<a
-href="https://www.slideshare.net/embeddedvision/even-faster-cnns-exploring-the-new-class-of-winograd-algorithms-a-presentation-from-arm?from_action=save">slide</a>清楚地讲述了在<span
-class="math inline">\(F(2,3)\)</span>上的算法，又如何扩展到<span
-class="math inline">\(F(2\times 2, 3\times
-3)\)</span>，进而再扩展到更大尺寸，更多通道上的3x3步长1卷积。</p>
-<p>作者整个模型都使用3x3,stride=1的卷积，旨在利用上这种加速算法。</p>
-<h3 id="训练时块结构与重参数化方法">训练时块结构与重参数化方法</h3>
-<p><img src="image-20221003132412029.png" /></p>
-<p>作者为每个块设计了两条额外分支，在每个块的最后（图中没有画出来）的是ReLU非线性层，不参与后续的重参数化。在推理前，目的时将3个分支的参数合并到单分支的3x3卷积中去。</p>
-<p><img src="image-20221003132802917.png" /></p>
-<p>上图主要展示了，如何将1x1卷积和原始输入构造为具有等价输出的3x3卷积，下面的公式化描述介绍了如何“吸BN”。</p>
-<p><img src="image-20221003133459134.png" /></p>
-<p>在实现时，注意的第一个细节是，将1x1卷积转化为3x3卷积时，除了给卷积核pad
-0之外，图像的padding也要减去<span class="math inline">\(\lfloor
-\frac{\text{kernel size}}{2}\rfloor\)</span>，这才使得结果等价。</p>
-<p>另一个细节是，由于作者穿插设置了部分块使用分组卷积（后面的整体架构一节中会讲到），对于3x3卷积和1x1卷积的分支，在重参数化时没有什么需要对此特殊处理的，对与将恒等映射改写为3x3卷积的情况，则需要注意分组卷积的组数。</p>
+<h2 id="模型的评估与选择">模型的评估与选择</h2>
+<h3 id="泛化误差的分解">泛化误差的分解</h3>
+泛化误差是模型对位置数据预测的误差： $$
+<span class="math display">\[\begin{aligned}
+R_\text{exp}(\hat f)&amp;=E_P[L(Y, \hat f(X))]\\
+&amp;=\int_{\mathcal{X}\times\mathcal{Y}}L(y, \hat f(x))P(x, y)dxdy
+
+\end{aligned}\]</span>
+<p>$$</p>
+<p>首先要明确的一点是，泛化误差<span
+class="math inline">\(\ne\)</span>某个测试集误差，后者只是前者的一次估计，前者是后者所在分布的期望，测试集的选择、推理过程的随机性都会得到不同的结果。应当使用统计学中的假设检验方法比较两个模型的好坏。</p>
 <blockquote>
-<p>分组卷积，就是将<span
-class="math inline">\(C_1\)</span>维的输入tensor和<span
-class="math inline">\(C_2/g\)</span>个<span
-class="math inline">\(C_1\)</span>维卷积核分成<span
-class="math inline">\(g\)</span>个<span
-class="math inline">\(C_1/g\)</span>维的卷积，得到的<span
-class="math inline">\(g\)</span>个<span
-class="math inline">\(C_2/g\)</span>的tensor在channel维度拼接到一起。因此，对于恒等映射等价的第<span
-class="math inline">\(i\)</span>个卷积核，应该只在<span
-class="math inline">\(i ~\text{mod}~
-g\)</span>维的3x3的矩阵的中心为1。</p>
+<p>但是笔者目前看到几乎所有的论文都是，在测试集甚至验证集上，有更好的性能，就SOTA了？</p>
 </blockquote>
-<p>对于一个<code>RepVGGBlock</code>，作者定义了<code>switch_to_deploy</code>方法，在训练后，推理前，遍历网络并对所有<code>RepVGGBlock</code>调用该方法：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">switch_to_deploy</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;rbr_reparam&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="comment"># 获得与3个分支的作用等价的1个卷积核以及偏差</span></span><br><span class="line">    kernel, bias = self.get_equivalent_kernel_bias()</span><br><span class="line">    <span class="comment"># 构造新的3x3卷积，各种参数配置保持不变，但使用计算好的参数</span></span><br><span class="line">    self.rbr_reparam = nn.Conv2d(in_channels=self.rbr_dense.conv.in_channels, out_channels=self.rbr_dense.conv.out_channels,</span><br><span class="line">                                 kernel_size=self.rbr_dense.conv.kernel_size, stride=self.rbr_dense.conv.stride,</span><br><span class="line">                                 padding=self.rbr_dense.conv.padding, dilation=self.rbr_dense.conv.dilation, groups=self.rbr_dense.conv.groups, bias=<span class="literal">True</span>)</span><br><span class="line">    self.rbr_reparam.weight.data = kernel</span><br><span class="line">    self.rbr_reparam.bias.data = bias</span><br><span class="line">    <span class="comment"># 删除训练时模型中的分支结构</span></span><br><span class="line">    self.__delattr__(<span class="string">&#x27;rbr_dense&#x27;</span>)</span><br><span class="line">    self.__delattr__(<span class="string">&#x27;rbr_1x1&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;rbr_identity&#x27;</span>):</span><br><span class="line">        self.__delattr__(<span class="string">&#x27;rbr_identity&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;id_tensor&#x27;</span>):</span><br><span class="line">            self.__delattr__(<span class="string">&#x27;id_tensor&#x27;</span>)</span><br><span class="line">            self.deploy = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_equivalent_kernel_bias</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;三合一</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    kernel3x3, bias3x3 = self._fuse_bn_tensor(self.rbr_dense)</span><br><span class="line">    kernel1x1, bias1x1 = self._fuse_bn_tensor(self.rbr_1x1)</span><br><span class="line">    kernelid, biasid = self._fuse_bn_tensor(self.rbr_identity)</span><br><span class="line">    <span class="keyword">return</span> kernel3x3 + self._pad_1x1_to_3x3_tensor(kernel1x1) + kernelid, bias3x3 + bias1x1 + biasid</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_pad_1x1_to_3x3_tensor</span>(<span class="params">self, kernel1x1</span>):</span><br><span class="line">    <span class="keyword">if</span> kernel1x1 <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> torch.nn.functional.pad(kernel1x1, [<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_fuse_bn_tensor</span>(<span class="params">self, branch</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;吸BN</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> branch <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(branch, nn.Sequential):</span><br><span class="line">        <span class="comment"># 3x3或1x1的conv_bn分支</span></span><br><span class="line">        kernel = branch.conv.weight</span><br><span class="line">        running_mean = branch.bn.running_mean</span><br><span class="line">        running_var = branch.bn.running_var</span><br><span class="line">        gamma = branch.bn.weight</span><br><span class="line">        beta = branch.bn.bias</span><br><span class="line">        eps = branch.bn.eps</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># 恒等映射分支（只有一个BN层）</span></span><br><span class="line">        <span class="keyword">assert</span> <span class="built_in">isinstance</span>(branch, nn.BatchNorm2d)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;id_tensor&#x27;</span>):</span><br><span class="line">            input_dim = self.in_channels // self.groups</span><br><span class="line">            kernel_value = np.zeros((self.in_channels, input_dim, <span class="number">3</span>, <span class="number">3</span>), dtype=np.float32)  <span class="comment"># 构造的3x3卷积核</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(self.in_channels):</span><br><span class="line">                kernel_value[i, i % input_dim, <span class="number">1</span>, <span class="number">1</span>] = <span class="number">1</span></span><br><span class="line">                self.id_tensor = torch.from_numpy(kernel_value).to(branch.weight.device)</span><br><span class="line">                kernel = self.id_tensor</span><br><span class="line">                running_mean = branch.running_mean</span><br><span class="line">                running_var = branch.running_var</span><br><span class="line">                gamma = branch.weight</span><br><span class="line">                beta = branch.bias</span><br><span class="line">                eps = branch.eps</span><br><span class="line">                std = (running_var + eps).sqrt()</span><br><span class="line">     t = (gamma / std).reshape(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">     <span class="keyword">return</span> kernel * t, beta - running_mean * gamma / std</span><br></pre></td></tr></table></figure>
-<h3 id="整体架构">整体架构</h3>
-<p>作者配置架构的原则就两个：简单的根据经验设置+减少参数；</p>
-<p><img src="image-20221003142015913.png" /></p>
-<p>上表展示了不同分辨率的特征图有几个block，以及每个block的通道数，其中<span
-class="math inline">\(a, b\)</span>是缩放因子，有<span
-class="math inline">\(a&lt;b\)</span>，stage1个stage5都只有一一个block的原因是为了减少参数量。</p>
-<p>可选的，可以穿插地将部分block的groups设置为一个全局常数，比如2或者4。相邻的block都使用分组卷积，可能会导致通道内信息交换受限。</p>
-<p>最新的代码中，作者添加了RepVGGplus，使用了更深的层数，辅助头，以及在非线性层之后使用<a
-href="https://arxiv.org/pdf/1709.01507.pdf">SEBlock</a>。</p>
-<h2 id="实验">实验</h2>
-<p>这一部分作者想强调的点在于，他们使用了Pytorch官方教程中简单的数据增强，随心的模型配置，就让推理时的模型获得了相比于同样训练设置下参数相近的ResNet，
-EfficientNet,
-ResNeXt等更快的推理速度和更好的性能（尽管该模型往往参数量更大，FLOPs更大，但速度却最快）。</p>
-<p>在消融实验中，作者不仅证明了3个并行分支，一个不能少，并且，通过将ResNet中的Block替换为RepVGG
-Block，证明了性能的优越并不是靠在训练时堆参数得到的。</p>
-<p>此外作者还刷了刷Cityscapes的点。</p>
-<p>实验结果的细节见论文，并且在仓库中，作者更新了最新的模型配置与性能（在ImageNet上最高刷到了84.06%）。</p>
-<h2 id="总结">总结</h2>
-<p>本文提出的结构重参数化技巧让VGG风格的模型“再次伟大”，本质上还是利用数学上的等价转换将训练好的复杂模型简化。除了卷积，其他算子（如MLP）有没有响应的简化方法？该模型虽然速度快，适用于满载荷的业务场景，但是较高的FLOPs也将带来更多功耗，这在各种终端中也是至关重要的。</p>
+<p>泛化误差是一个理论上的误差，如果能描述清楚其上下界，则对实验有一定的指导意义：泛化误差的下界决定了在一个任务上最理想能刷到多少点，是收到数据集的限制的；泛化误差的上界反映了模型本身是否容易学习，一般认为，泛化误差上界越小的模型越好，然而对于简单的线性模型，我们也许可以给出上界，但是对于现在的各种复杂的非线性的、深层的模型，给出泛化误差上界仍然是很难的问题。</p>
+<p>下面是对泛化误差的分解：</p>
+<p>记测试样本为<span class="math inline">\(x\)</span>，<span
+class="math inline">\(y_D\)</span>与<span
+class="math inline">\(y\)</span>分别为样本在数据集中的标记和样本真实标记，<span
+class="math inline">\(f(x;D)\)</span>为训练集<span
+class="math inline">\(D\)</span>上学习的模型对于<span
+class="math inline">\(x\)</span>的预测标签（以下简记为<span
+class="math inline">\(f\)</span>），定义对于测试样本中预测的<strong>方差</strong>为<span
+class="math inline">\(var(x)=E_D[(f(x;D)-\overline
+f(x))^2]\)</span>（以下简记为<span
+class="math inline">\(E[(f-Ef)^2]\)</span>），定义噪声为<span
+class="math inline">\(\epsilon^2=E_D[(y_D-y)^2]\)</span>，定义偏差为<span
+class="math inline">\(bias^2(x)=(\hat f(x)- y)^2\)</span>;</p>
+<blockquote>
+<p><span class="math inline">\(y_D\)</span>和<span
+class="math inline">\(y\)</span>的区别，是数据标注时引入的误差，由标注员本身认知的偏置和偶然的错误组成；<span
+class="math inline">\(f\)</span>和<span
+class="math inline">\(Ef\)</span>的区别，即由于训练集变动等原因，导致模型对同一个样本的预测不总是相同；</p>
+<p>下面的<span class="math inline">\(L\)</span>直接使用均方误差：</p>
+</blockquote>
+<p><span class="math display">\[
+\begin{aligned}
+E(f;D) &amp;= E[(f(x;D)-y_D)^2]\\
+&amp;= E[(f - Ef + Ef - y_D)^2]\\
+&amp;= E[(f-Ef)^2]+E[(Ef-y_D)^2]+2E[f\cdot Ef + y_DEf - y_Df - E_f^2]\\
+&amp;= E[(f-Ef)^2]+E[(E_f-y + y-y_D)^2]\\
+&amp;= E[(f-Ef)^2]+E[(E_f-y)^2]+E[(y-y_D)^2+E[(E_f-y)(y-y_D)]\\
+&amp;= var(x) + bias^2(x) + \epsilon^2
+\end{aligned}
+\]</span></p>
+<blockquote>
+<p>上述推导用到的知识有：</p>
+<ul>
+<li><p><span class="math inline">\(E(aX+bY)=aEX+bEY\)</span>，其中<span
+class="math inline">\(a, b\)</span>是常数，<span
+class="math inline">\(X,Y\)</span>是随机变量；特殊地<span
+class="math inline">\(E(a)=a\)</span>；</p></li>
+<li><p><span
+class="math inline">\(E(XY)=E(X)E(Y)\)</span>，当且仅当<span
+class="math inline">\(X,Y\)</span>是相互独立的随机变量；</p></li>
+</ul>
+<p>需要的假设有：</p>
+<ul>
+<li><p>噪声期望为0，即<span
+class="math inline">\(E(y_D-y)=0\)</span>，这是假设了数据集的标注没有系统误差而都是随机误差，比较合理；则可以推出<span
+class="math inline">\(\text{Var}[(y_D-y)]=E[(y_D-y)]^2=\epsilon^2\)</span>；</p></li>
+<li><p>偏差与噪声无关；</p></li>
+</ul>
+</blockquote>
+<h3 id="vc维">VC维</h3>
+<blockquote>
+<p>以下定义来自<a
+href="https://www.jiqizhixin.com/graph/technologies/e766aa0d-af15-480a-9ce9-b6357442330e">机器之心
+- VC维度</a></p>
+</blockquote>
+<p>VC维是衡量可以通过统计<strong>分类</strong>算法学习的函数空间的容量的度量。定义为算法可以破碎(shatter)的最大点集的基数。shatter的含义为，对于一个假设空间<span
+class="math inline">\(\mathcal H\)</span>（函数的集合），如果存在<span
+class="math inline">\(m\)</span>个数据样本能够被假设空间中的函数按照所有可能的<span
+class="math inline">\(2^n\)</span>种方式分开（每个样本有两种类别可能），则称<span
+class="math inline">\(\mathcal H\)</span>能够把<span
+class="math inline">\(m\)</span>个数据样本破碎开。</p>
+<p>e.g.
+线性模型的VC维为3，因为3个点线性可分而4个点的xor情况线性不可分。</p>
+<h3 id="泛化误差上界">泛化误差上界</h3>
+<p>在推导特定问题的泛化误差上界之前，我们定性地描述泛化误差上界：</p>
+<ul>
+<li>样本容量越大，泛化误差上界趋于0；</li>
+<li>假设空间容量越大，泛化误差上界越大；</li>
+</ul>
+<p>考虑二分类问题，样本容量为<span
+class="math inline">\(N\)</span>，训练数据集<span
+class="math inline">\(T\)</span>是从联合概率分布<span
+class="math inline">\(P(X,Y)\)</span>独立同分布产生的，假设空间是函数的有限集合<span
+class="math inline">\(\mathcal F = \{f_1, \cdots,
+f_d\}\)</span>，损失函数为0-1损失，则期望风险（<span
+class="math inline">\(L(Y, F(X))\)</span>期望值）和经验风险（<span
+class="math inline">\(L(Y, F(X))\)</span>样本均值）分别为： <span
+class="math display">\[
+R(f)=E[L(Y,f(X))]
+\]</span></p>
+<p><span class="math display">\[
+\hat R(f) = \frac 1 N \sum_{i=1}^N L(y_i, f(x_i))
+\]</span></p>
+<p>经验风险最小化函数为 <span class="math display">\[
+f_N = \arg\min_{f\in\mathcal F}\hat R(f)
+\]</span> 我们关心<span class="math inline">\(f_N\)</span>的泛化能力：
+<span class="math display">\[
+R(f_N)=E[L(Y,f_N(X))]
+\]</span> 对于任意一个<span
+class="math inline">\(f\)</span>，至少以概率<span
+class="math inline">\(1-\delta, ~
+0&lt;\delta&lt;1\)</span>，以下不等式成立： <span
+class="math display">\[
+R(f) \le \hat R(f) + \sqrt{\frac {1}{2N} (\log d+\log\frac 1 \delta)}
+\]</span></p>
+<blockquote>
+<p>具体证明见： 李航《统计学习方法》。</p>
+</blockquote>
+<h2 id="向量矩阵张量的导数">向量、矩阵、张量的导数</h2>
+<p>理解矢量导数，最朴素的方式，就是把矢量计算拆成多个并行的标量计算；</p>
+<p>以下内容来自<a
+href="http://cs231n.stanford.edu/vecDerivs.pdf">cs231n的参考资料</a>，用粗体字母表示向量，用大写字母表示矩阵，一般的小写字母表示标量；</p>
+<h3 id="向量对向量求导">向量对向量求导</h3>
+<p>设<span class="math inline">\(\mathbf{y}\)</span>是长度为<span
+class="math inline">\(C\)</span>列向量，<span
+class="math inline">\(W\)</span>是<span class="math inline">\(C\times
+D\)</span>矩阵，<span class="math inline">\(\mathbf
+x\)</span>是长度为<span class="math inline">\(D\)</span>列向量，有<span
+class="math inline">\(\mathbf y = W\mathbf
+x\)</span>，简单的排列组合知识告诉我们，<span
+class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
+x}\)</span>有<span class="math inline">\(C\times
+D\)</span>项（二维矩阵）；不妨以<span class="math inline">\(\mathbf
+y\)</span>的第3个元素对<span class="math inline">\(\mathbf
+x\)</span>的第7个元素为例： <span class="math display">\[
+\begin{aligned}
+\frac{\partial y_3}{\partial x_7} &amp;= \frac{\partial}{\partial
+x_7}(W_{3,1}x_1+\cdots+W_{3,7}x_7+\cdots+W_{3,D}x_D)\\
+&amp;=W_{3,7}
+\end{aligned}
+\]</span> 推广到其他位置，不难得出结论，<span
+class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
+x}\)</span>恰好就是<span class="math inline">\(W\)</span></p>
+<blockquote>
+<p>如果<span class="math inline">\(\mathbf y\)</span>与<span
+class="math inline">\(\mathbf x\)</span>都是行向量且<span
+class="math inline">\(\mathbf y = \mathbf x W\)</span>，同样有<span
+class="math inline">\(\frac{\partial\mathbf y}{\partial \mathbf
+x}=W\)</span></p>
+</blockquote>
+<h3 id="向量对矩阵求导">向量对矩阵求导</h3>
+<p>与上一小节条件相同，直观地看，<span
+class="math inline">\(\frac{\partial\mathbf y}{\partial
+W}\)</span>应该是一个<span class="math inline">\(C\times C\times
+D\)</span>的张量，设<span class="math inline">\(W=[\mathbf w_1, \cdots,
+\mathbf w_D]\)</span>，<span class="math inline">\(\mathbf y = W\mathbf
+x\)</span>也可以理解为<span class="math inline">\(\mathbf
+y\)</span>是<span class="math inline">\(W\)</span>各列以<span
+class="math inline">\(\mathbf x\)</span>中对应元素为权重的加权和，即
+<span class="math display">\[
+\mathbf y = x_1\mathbf w_1 + \cdots + x_D \mathbf w_D
+\]</span> 特殊的，我们可以得到 <span class="math display">\[
+\frac{\partial y_3}{\partial W_{3,7}} = \frac{\partial}{\partial
+W_{3,7}}(x_1W_{3,1} +\cdots + x_7W_{3,7} + \cdots + x_DW_{3,D}) = x_7
+\]</span></p>
+<p><span class="math display">\[
+\frac{\partial y_3}{\partial W_{2,7}} = \frac{\partial}{\partial
+W_{2,7}}(x_1W_{3,1} +\cdots + x_7W_{3,7} + \cdots + x_DW_{3,D}) = 0
+\]</span></p>
+<p>推广后，我们发现，对于<span
+class="math inline">\(\frac{\partial\mathbf y_i}{\partial
+W_{j,k}}\)</span>，仅仅在<span
+class="math inline">\(i=j\)</span>时不为零，且<span
+class="math display">\[\frac{\partial\mathbf y_i}{\partial
+W_{i,k}}=x_k\]</span>，这样，我们可以将结果的3D张量表示成一个更紧凑的2D矩阵，形状为<span
+class="math inline">\(C\times D\)</span>，（<span
+class="math inline">\(C\)</span>个<span class="math inline">\(\mathbf
+x\)</span>拼接）： <span class="math display">\[
+\frac{\partial\mathbf y}{\partial W} = \mathbf x \mathbf 1^T
+\]</span></p>
+<blockquote>
+<p>当然，结果还可以继续“紧凑”成向量<span class="math inline">\(\mathbf
+x\)</span>，这里我们有意让<span
+class="math inline">\(\frac{\partial}{\partial W}\)</span>的形状与<span
+class="math inline">\(W\)</span>相同，是利于理解反向传播过程中参数的更新，当然，利用numpy/pytorch的广播机制，只需要保存一个向量即可；</p>
+</blockquote>
+<h3 id="矩阵对矩阵求导">矩阵对矩阵求导</h3>
+<p>将先前定义的<span class="math inline">\(\mathbf y\)</span>和<span
+class="math inline">\(\mathbf x\)</span>分别扩展成矩阵<span
+class="math inline">\(Y\in \mathbb R^{C\times N}\)</span>，<span
+class="math inline">\(X\in \mathbb R^{D\times N}\)</span>，<span
+class="math inline">\(Y=WX\)</span>；这种扩展，可以理解为使用了<span
+class="math inline">\(N\)</span>个数据，对于<span
+class="math inline">\(i = 1, \cdots, N\)</span>，有<span
+class="math inline">\(\mathbf y_i = W \mathbf x_i\)</span>；</p>
+<p>使用先前的结论，有 <span class="math display">\[
+\frac{\partial Y_{.,i}}{\partial X_{.,i}} = \frac{\partial \mathbf
+y_i}{\partial \mathbf x_i} = \frac{\partial}{\partial \mathbf
+x_i}W\mathbf x_i = W
+\]</span></p>
+<p><span class="math display">\[
+\frac{\partial Y_{.,i}}{\partial X_{.,j}} = \frac{\partial \mathbf
+y_i}{\partial \mathbf x_j} = \frac{\partial}{\partial \mathbf
+x_j}W\mathbf x_i = 0
+\]</span></p>
+<p>将矩阵乘法展开成标量乘积之和形式，还可以得到<span
+class="math inline">\(\frac{\partial Y_{a,b}}{\partial
+X_{c,d}}\)</span>在<span class="math inline">\(a\ne
+c\)</span>时也为0，因此紧凑地表示<span
+class="math inline">\(\frac{\partial Y}{\partial
+X}\)</span>，可以将4D张量缩减为2D矩阵，也就是<span
+class="math inline">\(W\)</span>；</p>
+<p>类似的，<span class="math inline">\(\frac{\partial Y}{\partial W} =
+X\)</span>；</p>
+<blockquote>
+<p>这个结果，在形式上，又与标量求导相同，只不过我们需要清楚，这些都是“紧凑”后的形式；</p>
+</blockquote>
+<h2 id="线性模型">线性模型</h2>
+<h3 id="线性判别分析">线性判别分析</h3>
+<p>核心思想：将高维空间的样本投影到一条直线上，使得同类样本尽可能近，异类样本尽可能远；</p>
+<h4 id="如何表示投影">如何表示投影</h4>
+<p>如何表示投影？在<a
+href="https://ashun989.github.io/2022/08/10/linear-algebra/">线性代数要点总结</a>的“正交投影”一节，给出了将<span
+class="math inline">\(\mathbb{R}^n\)</span>中的向量<span
+class="math inline">\(y\)</span>投影到子空间<span
+class="math inline">\(W\)</span>后的数学表示，设<span
+class="math inline">\(U=[u_1,\cdots,
+u_p]\)</span>为该子空间的单位正交基，则 <span class="math display">\[
+\text{proj}_Wy=UU^Ty
+\]</span> 在西瓜书上的图解是一个最简单的情况，原空间是<span
+class="math inline">\(\mathbb
+R^2\)</span>，投影子空间是其中的一条直线（1维子空间），其单位正交基应该只有一个向量，即该直线的单位向量<span
+class="math inline">\(\omega\)</span>，按照上述公式，投影后的点坐标应该是<span
+class="math inline">\(\omega\omega^Tx\)</span>，为什么后续却适用了<span
+class="math inline">\(\omega^Tx\)</span>这一表示呢？</p>
+<p><img src="image-20221027141501670.png" /></p>
+<p>直观地看，在上图中，<span
+class="math inline">\(\omega\omega^Tx\)</span>仍然保持了与<span
+class="math inline">\(x\)</span>相同的形状，而<span
+class="math inline">\(\omega^Tx\)</span>是一个标量；向量空间<span
+class="math inline">\(\mathbb R^n\)</span>的子空间<span
+class="math inline">\(W\)</span>有<span
+class="math inline">\(p\)</span>个线性无关的基，即子空间是<span
+class="math inline">\(p\)</span>维的，但每个基的元素个数为<span
+class="math inline">\(n\)</span>，即子空间的域仍然是<span
+class="math inline">\(p\)</span>，即在线代中介绍的投影运算，在投影前后不改变域，而在这里介绍的“投影”，希望得到的是与该子空间同构的<span
+class="math inline">\(\mathbb
+R^p\)</span>上的结果，而线性判别分析的限制更强，即<span
+class="math inline">\(p=1\)</span>；</p>
+<p>回想投影公式的推导过程，<span
+class="math inline">\(U^Ty\)</span>是<span
+class="math inline">\(p\)</span>个正交的单位向量与<span
+class="math inline">\(y\)</span>的点积结果，表示<span
+class="math inline">\(y\)</span>投影到子空间各个方向上的长度是多少，之后再左乘<span
+class="math inline">\(U\)</span>是为了得到投影点在<span
+class="math inline">\(\mathbb{R}^n\)</span>中的坐标；</p>
+<p>现在我们只需要知道在1维子空间的唯一基方向的长度<span
+class="math inline">\(y=\omega^Tx\)</span>，用于分类，更准确的说，我们只要得到不同的<span
+class="math inline">\(x\)</span>，投影后向相对长度，因此<span
+class="math inline">\(\omega\)</span>不必要是一个方向向量，不同的<span
+class="math inline">\(\omega\)</span>只会使得所有投影结果乘上不同的比例因子罢了；</p>
+<h4 id="如何设计目标函数">如何设计目标函数</h4>
+<p>首先定义一些接下来会用到的符号，总样本集合<span
+class="math inline">\(X\)</span>包含<span
+class="math inline">\(N\)</span>个<span
+class="math inline">\(d\)</span>维样本<span
+class="math inline">\(x\)</span>，即<span
+class="math inline">\(X\)</span>是<span class="math inline">\(d\times
+N\)</span>的矩阵，记类别数为<span
+class="math inline">\(K=2\)</span>，第<span
+class="math inline">\(i\)</span>类样本的集合为<span
+class="math inline">\(X_i\)</span>，基数为<span
+class="math inline">\(N_i\)</span>，均值为<span
+class="math inline">\(m_i\)</span>，协方差为<span
+class="math inline">\(\Sigma_i\)</span>；投影后的均值为<span
+class="math inline">\(\omega m_i\)</span>，协方差矩阵<span
+class="math inline">\(\omega^T\Sigma\omega\)</span>；（这里投影后的协方差矩阵是1x1的，因此可以视为一个标量）</p>
+<blockquote>
+<p>有关协方差和投影后协方差矩阵的形式，可见<a
+href="https://ashun989.github.io/2022/08/10/linear-algebra/">线性代数要点总结</a>的主成分分析一节；</p>
+</blockquote>
+<p>希望类间距离越大，可以写成样本中心距离越大；希望类内距离越小，可以写成协方差越小，则目标函数（最大化）为：
+<span class="math display">\[
+\begin{aligned}
+J &amp;= \frac{||\omega^Tm_0 - \omega^T
+m_1||_2^2}{\omega^T\Sigma_0\omega + \omega^T\Sigma_1\omega}\\
+&amp;= \frac{\omega^T(m_0 - m_1)(m_0 -
+m_1)^T\omega}{\omega^T(\Sigma_0+\Sigma_1)\omega}\\
+\end{aligned}
+\]</span> 把分子分母中做个变量代换，定义：</p>
+<p>类间散度矩阵为<span class="math inline">\(S_b\)</span>，<span
+class="math inline">\(d\times d\)</span> <span class="math display">\[
+S_b = (m_0-m_1)(m_0-m_1)^T
+\]</span> 分母上 <span class="math display">\[
+\begin{aligned}
+\Sigma_0 +\Sigma_1 &amp;= \frac{1}{N_0-1}(X_0-m_0\mathbf
+1)(X_0-m_0\mathbf 1)^T + \frac{1}{N_1-1}(X_1-m_1\mathbf
+1)(X_1-m_1\mathbf 1)^T\\
+&amp;= \frac{1}{N_0-1}\sum_{x\in X_0}(x-m_0)(x-m_0)^T +
+\frac{1}{N_1-1}\sum_{x\in X_1}(x-m_1)(x-m_1)^T
+\end{aligned}
+\]</span> 而在定义类内散度矩阵<span
+class="math inline">\(S_w\)</span>，<span class="math inline">\(d\times
+d\)</span>时， 抛去了归一化项： <span class="math display">\[
+S_w = \sum_{x\in X_0}(x-m_0)(x-m_0)^T + \sum_{x\in X_1}(x-m_1)(x-m_1)^T
+\]</span> 上述目标函数重写为： <span class="math display">\[
+J = \frac{\omega^TS_b\omega}{\omega^TS_w\omega}
+\]</span></p>
+<blockquote>
+<p>抛去了归一化项会有什么影响吗？直观地，正负样本的数量不同时，会有差距，不做归一化会使得<span
+class="math inline">\(S_w\)</span>偏向样本多得那一方。可是求平均同样会放大样本较少类别中离群点的影响。对于类别不均衡问题，LDA算法本身没有考虑，但是后续可以通过难样本挖掘等采样策略来训练等等；</p>
+</blockquote>
+<h4 id="如何优化">如何优化</h4>
+<p>如何求解使<span class="math inline">\(J\)</span>最大的<span
+class="math inline">\(\omega\)</span>？分子分母都是关于<span
+class="math inline">\(\omega\)</span>的二次型；由于我们只需要<span
+class="math inline">\(\omega\)</span>的方向，因此可以让分母为非零常数<span
+class="math inline">\(c\)</span>，分子最大化；</p>
+<blockquote>
+<p>为了便于理解，在上图中原始空间为<span class="math inline">\(\mathbb
+{R}^2\)</span>的情况下，记<span class="math inline">\(\omega =
+(\omega_1, \omega_2)\)</span>，<span
+class="math inline">\(J\)</span>也就是这样的一个目标函数： <span
+class="math display">\[
+J =
+\frac{a\omega_1^2+b\omega_2^2+c\omega_1\omega_2}{d\omega_1^2+e\omega_2^2+f\omega_1\omega_2}
+\]</span></p>
+</blockquote>
+<p><span class="math display">\[
+\begin{matrix}
+    \min_w &amp;-\omega S_b\omega\\
+\text{s.t.}&amp;\omega^TS_w\omega = c
+\end{matrix}
+\]</span></p>
+<p>对应的拉格朗日函数为： <span class="math display">\[
+L(\omega, \lambda) = \omega^T S_b\omega - \lambda(\omega^TS_w\omega - c)
+\]</span> 对<span
+class="math inline">\(\omega\)</span>求导并令导数为0，得到 <span
+class="math display">\[
+S_b\omega  = \lambda S_w\omega
+\]</span> LDA假设样本的协方差矩阵是满秩的，因此有<span
+class="math inline">\(S_w\)</span>非奇异，则 <span
+class="math display">\[
+S_w^{-1}S_b\omega = \lambda \omega
+\]</span></p>
+<blockquote>
+<p>在Fisher判别分析中，没有协方差矩阵满秩的假设，因此<span
+class="math inline">\(S_w^{-1}\)</span>可以使用求伪逆的方法；</p>
+</blockquote>
+<p>转化为求解<span
+class="math inline">\(S_\omega^{-1}S_b\)</span>的特征向量的问题；但是，又观察到<span
+class="math inline">\((m_0-m_1)^T\omega\)</span>是标量，则<span
+class="math inline">\(S_b\omega\)</span>始终与<span
+class="math inline">\((m_0-m_1)\)</span>同方向： <span
+class="math display">\[
+S_b\omega = (m_0-m_1)(m_0-m_1)^T\omega = \lambda&#39;(m_0-m_1)
+\]</span> 因此 <span class="math display">\[
+\omega = \frac{\lambda}{\lambda&#39;}S_w^{-1}(m_0-m_1)
+\]</span> 比例因子<span class="math inline">\(\lambda /
+\lambda&#39;\)</span>可以忽略，因为我们只在意方向；</p>
+<h4 id="如何分类">如何分类</h4>
+<p>对于二分类问题，在投影到1维直线上之后，我们需要确定一个阈值来在推理时区分正负类别，最简单的，可以使用投影后的样本中心的均值作为阈值；</p>
+<h4 id="如何扩展到多分类">如何扩展到多分类</h4>
+<p>观察上述过程，扩展到多分类，仍要满足类内距离小，那么<span
+class="math inline">\(S_w\)</span>的定义只要由两类协方差矩阵之和扩展成多类协方差矩阵之和即可；
+<span class="math display">\[
+S_w = \sum_{i=1}^{K}\sum_{x\in X_i}(x-m_i)(x-m_i)^T
+\]</span></p>
+<p>仍要满足类间距离大，那么<span
+class="math inline">\(S_b\)</span>的定义该如何扩展？</p>
+<p>先定义一个全局散度矩阵<span class="math inline">\(S_t\)</span>，<span
+class="math inline">\(m\)</span>表示所有样本的均值： <span
+class="math display">\[
+S_t = \sum_{i=1}^{K}\sum_{x\in X_i}(x-m)(x-m)^T
+\]</span> 令<span class="math inline">\(S_b = S_t -
+S_w\)</span>，则有类间样本均值：</p>
+<blockquote>
+<p><span class="math display">\[
+\begin{aligned}
+(x-m)(x-m)^T - (x-m_i)(x-m_i)^T
+&amp;=(x-m)(x^T-m^T) - (x-m_i)(x^T-m_i^T)\\
+&amp;=-mx^T-xm^T+mm^T+m_ix^T+xm_i^T-m_im_i^T\\
+\sum_{x\in X_i}(-mx^T-xm^T-mm^T+m_ix^T+xm_i^T-m_im_i^T) &amp;=
+N_i(mm^T-m_i^Tm_i^T)+(m_i-m)N_im_i^T + N_im_i(m_i^T-m^T)\\
+&amp;= N_i(mm^T + m_i^Tm_i^T - mm_i^T - m_im^T)\\
+&amp;= N_i(m_i - m)(m_i - m)^T
+\end{aligned}
+\]</span></p>
+</blockquote>
+<p><span class="math display">\[
+S_b = \sum_{i=1}^{K}N_i(m_i-m)(m_i-m)^T
+\]</span></p>
+<p>扩展到多分类的另一个问题在于，投影到1维直线上已经不太合适了，<span
+class="math inline">\(d\times 1\)</span>的投影向量<span
+class="math inline">\(\omega\)</span>扩展为<span
+class="math inline">\(d\times (K-1)\)</span>的投影矩阵<span
+class="math inline">\(W\)</span>，但是这样一来，目标函数的分子分母都不再是标量而是矩阵，可以改成求矩阵的迹</p>
+<blockquote>
+<p>协方差矩阵的迹是总方差</p>
+</blockquote>
+<p><span class="math display">\[
+\max_{W}\frac{\text{tr}(W^TS_bW)}{\text{tr}(W^tS_wW)}
+\]</span></p>
+<p>上述问题的解与之前有相同形式（笔者目前还不能给出推导过程）： <span
+class="math display">\[
+S_bW = \lambda S_w W
+\]</span> 问题同样转化为求<span
+class="math inline">\(S_w^{-1}S_b\)</span>的前<span
+class="math inline">\(d&#39;\)</span>个最大广义非零特征值对应的特征向量，<span
+class="math inline">\(d&#39; \le (K - 1)\)</span>；</p>
+<p>在推理时，设<span
+class="math inline">\(y=Wx\)</span>是测试样本在投影空间的表示，计算<span
+class="math inline">\(y\)</span>到哪个投影后的类别中心<span
+class="math inline">\(Wm_i\)</span>最近，决定了<span
+class="math inline">\(x\)</span>属于哪个类别；</p>
+<blockquote>
+<p>为什么<span class="math inline">\(K\)</span>分类投影到<span
+class="math inline">\(K-1\)</span>的超平面？还是别的维度也可以？</p>
+<p>不存在什么限制要求必须投影到$K-1维超平面</p>
+</blockquote>
+<h4 id="扩展到降维">扩展到降维</h4>
+<p>上面在多分类的扩展中，我们看到了LDA可以作为监督降维技术，并且这种投影过程使用了类别信息；</p>
+<h3 id="逻辑斯蒂回归对数几率回归">逻辑斯蒂回归/对数几率回归</h3>
+<p>一句话描述逻辑斯蒂回归，就是在线性回归层之后使用了sigmoid函数，并设置阈值完成二分类预测，相比于直接用线性模型+阈值做分类，能够一定程度减少离群点的影响；</p>
+<p>如何优化逻辑斯蒂回归模型的参数？我想起来在吴恩达老师的机器学习入门课中，给了一个新手友好的解释：</p>
+<blockquote>
+<p>线性回归模型 + MSE损失，和逻辑回归模型 +
+BCE损失，求导后损失函数对<span
+class="math inline">\(\theta\)</span>的梯度形式均为Error * Feature</p>
+</blockquote>
+<p>逻辑回归模型为什么引入CE？又为什么不用MSE？吴恩达老师只是简单提到了最大似然估计和非凸函数，没有给当时还是新手的我讲太多；下面笔者记录一下，是怎样得到BCE损失函数的？</p>
+<h4 id="从统计意义解释">从统计意义解释</h4>
+<p>决策边界：使得模型输出=分类阈值的所有输入的集合，设输入特征是<span
+class="math inline">\(\mathbb R^d\)</span>中的向量，则决策边界是<span
+class="math inline">\(d-1\)</span>维的超平面；对于逻辑回归，其决策边界是线性的；</p>
+<blockquote>
+<p>如果阈值为0.5，那么超平面即<span
+class="math inline">\(wx+b=0\)</span>，将偏置项"吸入"，也就是<span
+class="math inline">\(wx=0\)</span></p>
+</blockquote>
+<p>使用sigmoid激活之后，模型的输出可以视为一种后验概率： <span
+class="math display">\[
+\begin{aligned}
+P(Y=1|X) &amp;= \frac{e^{wx}}{1+e^{wx}} &amp;= p\\
+P(Y=0|X) &amp;= \frac{1}{1+e^{wx}} &amp;=  1 - p\\
+\end{aligned}
+\]</span>
+定义事件的几率为发生与不发生的比率，对数几率即几率取对数，那么逻辑斯蒂回归模型的对数几率，即为线性函数的输出：
+<span class="math display">\[
+\log\frac{P(Y=1|X)}{P(Y=0|X)} = wx
+\]</span>
+也就是说，虽然披着“分类”的外皮，但是我们还是在做一个回归任务，只不过，回归的目标是“对数几率”；</p>
+<p>设输入数据为<span class="math inline">\(\{x_i,
+y_i\}_{i=1}^m\)</span>，<span
+class="math inline">\(y_i\)</span>为0或1，则对数似然函数为 <span
+class="math display">\[
+l(w) = \sum_{i=1}^m\log p(y_i|x_i; w)
+\]</span> 按照似然函数的定义，其中： <span class="math display">\[
+p(y_i|x_i;w) = p_i^{y_i}(1-p_i)^{1-y_i}
+\]</span> 则 <span class="math display">\[
+\begin{aligned}
+l(w) &amp;= \sum_{i=1}^{m}[y_i\log p_i + (1-y_i)\log(1-p_i)]\\
+&amp;= \sum_{i=1}^{m}[y_i\log\frac{p_i}{1-p_i} + \log(1-p_i)]\\
+&amp;= \sum_{i=1}^{m}[y_i(wx_i)-\log(1+e^{wx})]
+\end{aligned}
+\]</span> 上式的第一行也就是常见的BCE损失的表现形式，求<span
+class="math inline">\(\frac{\partial l}{\partial
+w}\)</span>即我们熟悉的Error * Feature形式；</p>
+<h4 id="扩展到多分类">扩展到多分类</h4>
+<p>同样的，写出对数似然函数，仍然能够得到CE损失的形式：</p>
+<p><img src="image-20221027212853259.png" /></p>
+<p><img src="image-20221027212912620.png" /></p>
+<p><a
+href="https://ashun989.github.io/2022/08/30/Stable-Calculations/#more">这里</a>有一份softmax+CE
+loss的求导过程；</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>探索卷积网络的线性性质来进行推理时加速</title>
+    <url>/2022/10/13/Linear-Structure-Within-Conv/</url>
+    <content><![CDATA[<img src="/2022/10/13/Linear-Structure-Within-Conv/image-20221017160950770.png" class="">
+<p><strong>论文：</strong><a
+href="https://arxiv.org/pdf/1404.0736.pdf">Exploiting Linear Structure
+Within Convolutional Networks for Efficient Evaluation</a></p>
+<p><strong>作者：</strong> <em>Emily Denton</em>, <em>Wojciech
+Zaremba</em>, <em>Joan Bruna</em>, <em>Yann LeCun</em>, <em>Rob
+Fergus</em></p>
+<p><strong>录用情况：</strong>Neurips'2014</p>
+<p><strong>第一作者单位：</strong>Dept. of Computer Science, Courant
+Institute, New York University</p>
+<blockquote>
+<p>笔者最近在做一些用SVD分解卷积核的小实验，并且也在想该如何设计目标函数，让重参数化这件事变成可学习的？然后我发现早在14年就有人做了相关问题的研究；笔者看来，这篇文章的贡献为：</p>
+<ul>
+<li>给出了一种评估压缩后卷积核好坏的方式，并且通过在线学习的方式，修改了反向传播的梯度（不确定是不是这样）</li>
+<li>归纳并尝试了对于高维张量的两种分解方法：SVD分解和外积分解；</li>
+<li>结合聚类方法，针对浅层卷积和深层卷积的不同性质，设计了单色估计方法和双色估计方法；</li>
+<li>给出一种微调方式：从最浅层开始，压缩一层，然后微调其上所有层，直至性能恢复，如此循环，看能最多压缩多少层；</li>
+</ul>
+<p>作者在实验部分用了比较老的模型，仅4层卷积和3层全连接层，现在来看非常简单，但是很适合做一个demo，然而作者原始的<a
+href="">C++代码链接</a>已经失效了</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="基础知识">基础知识</h2>
+<p>有关主成分分析和奇异值分解的知识在<a
+href="https://ashun989.github.io/2022/08/10/linear-algebra/">线性代数要点总结</a>的最后部分有一些干货；</p>
+<h3 id="mahalanobis-distance">Mahalanobis distance</h3>
+<p>马氏距离用于衡量一个点<span
+class="math inline">\(P\)</span>到一个分布<span
+class="math inline">\(D\)</span>的距离，即<span
+class="math inline">\(P\)</span>距离<span
+class="math inline">\(D\)</span>的质心有多少标准差距离，因而也可以用于衡量两个分布的距离；马氏距离考虑到了数据集的相关性、并且具有尺度不变性，说人话就是，无论数据是否沿着各个轴分布，无论在各个维度上的尺度是否一致，如下图所示，马氏距离都能得到A相比于B，与分布的距离更远；</p>
+<p><img src="v2-3cee35b79d272dda86e2604c160934ee_720w.jpeg" /></p>
+只要将原始数据平移到以原点为中心，再旋转至主成分方向再除以各个方向的方差，之后再计算欧式距离，这就是马氏距离公式的由来，设数据为<span
+class="math inline">\(X\in \mathbb R^{m\times n}\)</span>，其均值为<span
+class="math inline">\(\mu_X\in \mathbb R^n\)</span>，其协方差矩阵为<span
+class="math inline">\(\Sigma_X \in \mathbb R^{n\times
+n}\)</span>，<strong>假设协方差矩阵是满秩的</strong>（即没有为0的特征值，又因为协方差矩阵半正定，意味着所有特征值为正），其特征值按照非增顺序依次为<span
+class="math inline">\(\lambda_1, \lambda_2, \lambda_n\)</span>；<span
+class="math inline">\(Y\)</span>是<span
+class="math inline">\(X\)</span>平移至原点为中心后再旋转至主成分方向的形式，即<span
+class="math inline">\(Y=U^TX\)</span>，其中<span
+class="math inline">\(U\)</span>是单位正交矩阵，使得<span
+class="math inline">\(\text{diag}\{\lambda_1,\cdots,\lambda_n\}=U^T\Sigma_XU\)</span>，对于数据点<span
+class="math inline">\(x\)</span>，其到<span
+class="math inline">\(X\)</span>的马氏距离的平方为： $$
+<span class="math display">\[\begin{aligned}
+D_M^2 &amp;= \frac{U^T(x_1-{\mu_X}_1)}{\lambda_1} + \cdots +
+\frac{U^T(x_n-{\mu_X}_n)}{\lambda_n}\\
+&amp;= (y_1, \cdots, y_n)\text{diag}\{\frac 1 {\lambda_1}, \cdots, \frac
+1 {\lambda_n} \}
+\left(
+\begin{array}{c}
+y_1\\
+\vdots\\
+y_n
+\end{array}
+\right)\\
+&amp;= y^T(U^T\Sigma_XU)^{-1}y\\
+&amp;= (x-\mu_X)^TUU^T\Sigma_X^{-1}UU^T(x-\mu_X)\\
+&amp;= (x-\mu_X)^T\Sigma_X^{-1}(x-\mu_X)
+
+\end{aligned}\]</span>
+<p><span class="math display">\[
+因此，点$x$到分布$X$的马氏距离为：
+\]</span> D_M = <span class="math display">\[
+如果$x$与$y$是两个服从同一分布且协方差矩阵为$\Sigma$的随机变量，则他们的距离为：
+\]</span> D_M = $$
+如果协方差矩阵是单位矩阵，则退化成欧式距离；如果协方差矩阵是对角矩阵，则退化成归一化的欧氏距离；</p>
+<h3 id="度量学习">度量学习</h3>
+<p>详见西瓜书第10章；</p>
+<h3 id="dirac-distribution">Dirac distribution</h3>
+<p>这种分布是理想电荷的分布：集中在一点。详见<a
+href="https://wuli.wiki/online/Delta.html">小时百科 - 狄拉克<span
+class="math inline">\(\delta\)</span>函数</a>。笔者理解为，实现时即one-hot编码；</p>
+<h3 id="矩阵的范数">矩阵的范数</h3>
+<p><span class="math display">\[
+||A||_p = (\sum_{i,j}|a_{i,j}|^p)^{1/p}
+\]</span></p>
+<p>其中，<span class="math inline">\(||A||_F=||A||_2\)</span></p>
+<h2 id="方法">方法</h2>
+<h3 id="符号定义">符号定义</h3>
+<p><img src="image-20221017161636024.png" /></p>
+<h3 id="估计度量">估计度量</h3>
+<p>我们希望获得一个<span
+class="math inline">\(\tilde{W}\)</span>，来估计网络中的<span
+class="math inline">\(W\)</span>，能够在减少计算量的情况下保持性能；一个非常朴素的想法是最小化<span
+class="math inline">\(||\tilde W -
+W||_F\)</span>，但是，这假设了在模型权重张量上每个位置的参数都对预测做出均等的贡献，这是不合理的；作者提出了两种度量：</p>
+<blockquote>
+<p>这两种度量无非都是在给<span
+class="math inline">\(W\)</span>加权，然后预测到这个加权的张量的一个近似常量，对于文中使用的SVD分解，这不是一个可迭代的算法（不能利用pytorch的自动微分偷懒了），因此直接把近似的目标设置为加权后的<span
+class="math inline">\(W\)</span>，得到的结果再乘以权重的倒数即可；</p>
+</blockquote>
+<h4 id="马氏距离度量">马氏距离度量</h4>
+<p>记<span class="math inline">\(\Theta = \{W_1, \cdots,
+W_S\}\)</span>是<span
+class="math inline">\(S\)</span>层网络的参数，<span
+class="math inline">\(U(I;\Theta)\)</span>是网络对于输入图像<span
+class="math inline">\(I\)</span>的softmax层的输出（各个类别的概率）；大小为<span
+class="math inline">\(N\)</span>的训练集，训练对记为<span
+class="math inline">\((I_n, y_n)\)</span>，记<span
+class="math inline">\(U(I_n;\Theta)\)</span>中概率最高的而索引不等于真实标签<span
+class="math inline">\(y_n\)</span>的<span
+class="math inline">\(h\)</span>个索引组成序列<span
+class="math inline">\(\{\beta_n\}\)</span>，那么对于第<span
+class="math inline">\(s\)</span>层，在反向传播过程中为权重<span
+class="math inline">\(W_s\)</span>计算一个（额外的）导数项： <span
+class="math display">\[
+d_{n,l,s}= \nabla_{W_s}(U(I_n;\Theta)-\delta(i-l)), n\le N, l\in
+\{\beta_n\}, s\le S
+\]</span> 其中，<span
+class="math inline">\(\delta(i-l)\)</span>是以<span
+class="math inline">\(l\)</span>为中心的狄拉克分布，应该就是在<span
+class="math inline">\(l\)</span>为1其他位置为0的one-hot编码向量；</p>
+<p>笔者认为，作者的意思是在一般的损失函数中添加了一个正则项（但只是在推理时计算梯度），目的是表示各层权重的各个位置对于避开那几个“最危险”的错误的能力；
+<span class="math display">\[
+\frac 1 2\sum_{n}^N\sum_{l\in \{\beta_n\}}
+||U(I_n;\Theta)-\delta(i-l)||_2^2
+\]</span> 有了这个正则项之后，作者再来计算<span
+class="math inline">\(\tilde W\)</span>到<span
+class="math inline">\(W\)</span>的马氏距离，将<span
+class="math inline">\(\tilde W - W\)</span>可以展平成一个高维向量<span
+class="math inline">\(w\in \mathbb R^P\)</span>，其导数<span
+class="math inline">\(d\)</span>也可以展平成同样长度的向量，而对于<span
+class="math inline">\(N\)</span>个样本在<span
+class="math inline">\(h\)</span>个易错位置得到的正则化损失在<span
+class="math inline">\(s\)</span>层的导数是一个基数为<span
+class="math inline">\(N\times h\)</span>的导数向量的集合<span
+class="math inline">\((d_{n,l,s})_{n,l}\)</span>，<span
+class="math inline">\(\Sigma \in \mathbb R^{P\times
+P}\)</span>是导数集合的协方差矩阵，精确的马氏距离为： <span
+class="math display">\[
+||\tilde W - W||^2_{maha} = w^T\Sigma^{-1}w
+\]</span> 考虑到求<span
+class="math inline">\(\Sigma^{-1}\)</span>的成本极高，因此作者进行了简化，即只使用<span
+class="math inline">\(\Sigma\)</span>的对角线部分（<span
+class="math inline">\(P\)</span>个维度的方差），因此，近似的马氏距离为：
+<span class="math display">\[
+||\tilde W-W||_\widetilde{maha} = \sum_p^P\alpha_pw_p, \ \ \text{where}
+\ \ \alpha_p = \sqrt{\sum_{n,l}d_{n,l,s}(p)^2}
+\]</span> 我们可以定义变量代换，<span class="math inline">\(\tilde
+W&#39; - W’ = \alpha .* \tilde W - \alpha .* W\)</span>，则继续使用L2
+norm，最小化<span class="math inline">\(||\tilde
+W&#39;-W&#39;||_2\)</span>得到<span class="math inline">\(\tilde
+W&#39;\)</span>，则<span class="math inline">\(\tilde W =
+\alpha^{-1}.*\tilde W&#39;\)</span>；</p>
+<h4 id="数据协方差度量">数据协方差度量</h4>
+<p><img src="image-20221102223532182.png" /></p>
+<h3 id="低秩矩阵分解估计">低秩矩阵分解估计</h3>
+<h4 id="高维张量的分解">高维张量的分解</h4>
+<p>对于张量<span class="math inline">\(W\in \mathbb R^{m\times n\times
+k}\)</span>，首先将后两个维度合并成一个维度，使用SVD估计<span
+class="math inline">\(\tilde W_m \in \mathbb R ^{m\times
+(nk)}\)</span>，<span class="math inline">\(\tilde W_m \approx \tilde U
+\tilde S \tilde V^T\)</span>；之后再对<span class="math inline">\(\tilde
+V\in \mathbb R^{n\times
+k}\)</span>使用SVD；记两次奇异值分解保留的秩分别为<span
+class="math inline">\(K_1\)</span>，<span
+class="math inline">\(K_2\)</span>;</p>
+<p>另一种方法是使用矩阵的外积分解，最小化： <span
+class="math display">\[
+||W-\alpha\otimes\beta\otimes\gamma||_F
+\]</span> 其中<span class="math inline">\(\alpha\in \mathbb
+R^m\)</span>, <span class="math inline">\(\beta \in \mathbb
+R^n\)</span>, <span class="math inline">\(\gamma \in \mathbb
+R^k\)</span>；如果是对于秩为<span
+class="math inline">\(K\)</span>的矩阵进行分解，只需要将<span
+class="math inline">\(W\)</span>分解为多个外积之和；、</p>
+<p>论文中给出了参考文献和实现细节，再次不再赘述；</p>
+<h4 id="单色卷积估计">单色卷积估计</h4>
+<p>对于某层卷积权重<span class="math inline">\(W\in \mathbb R^{C\times X
+\times Y\times W}\)</span>，记第<span
+class="math inline">\(w\)</span>个卷积核为<span
+class="math inline">\(W_f \in \mathbb R^{C\times
+(XY)}\)</span>；首先使秩为1的SVD，得到<span class="math inline">\(\tilde
+W_f = \tilde U_f \tilde S_f \tilde
+V_f^T\)</span>；之后为了进一步压缩，作者观察到，每个卷积核的<span
+class="math inline">\(C\)</span>的通道也是比较冗余的，可以投影到<span
+class="math inline">\(C&#39;\)</span>维的空间；对<span
+class="math inline">\(\tilde U_f \in \mathbb R^{C\times
+1}\)</span>使用聚类，得到<span
+class="math inline">\(c_f\)</span>个聚类，因此<span
+class="math inline">\(\tilde W_f = \tilde U_{c_f} \tilde S_f \tilde
+V_f^T\)</span>其中<span class="math inline">\(\tilde
+U_{c_f}\)</span>是原左奇异向量所在聚类的聚类中心；</p>
+<h4 id="双色卷积估计">双色卷积估计</h4>
+<p>除了卷积核各个通道间的冗余性，还有可能存在不同卷积核之间的冗余性。因此在双色方法中，作者首先对<span
+class="math inline">\(W_C\in \mathbb R^{C\times
+(XYF)}\)</span>进行聚类，得到<span
+class="math inline">\(a\)</span>个类别，之后再对<span
+class="math inline">\(W_F\in \mathbb R^{(CXY)\times
+F}\)</span>进行聚类，得到<span
+class="math inline">\(b\)</span>个类别，这样我们可以将<span
+class="math inline">\(W\)</span>压缩为<span
+class="math inline">\(a\times
+b\)</span>个$W_SR^{C(XY)F}$3D张量，再使用先前的SVD分解或者外积分解即可；</p>
+<blockquote>
+<p>上述使用到的聚类，都是在每次迭代中平衡各个类别个数的（各个类数量相同），这两利于并行化</p>
+</blockquote>
+<h3 id="微调">微调</h3>
+<p>相比于设计度量学习中的度量目标，作者还尝试了一种简单粗暴的方式，仅仅使用最简单的度量为目标进行逐层分解，之后冻结分解层及其先前的层，微调后面的层至性能恢复，然后再继续分解下一层；实验证明，这种方式，，要比手工设计的度量性能更好；</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a
+href="https://www.cvmart.net/community/detail/3616">深入浅出的模型压缩：你一定从未见过如此通俗易懂的
+Slimming 操作</a>，这里有一些有关模型压缩论文列表，有空可以看一看</p>
+<p><a href="https://zhuanlan.zhihu.com/p/46626607">知乎 -
+马氏距离</a></p>
+<p><a href="https://wuli.wiki/online/Delta.html">小时百科 - 狄拉克<span
+class="math inline">\(\delta\)</span>函数</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Matrix_norm">wikipedia -
+matrix norm</a></p>
 ]]></content>
       <categories>
         <category>论文阅读</category>
       </categories>
       <tags>
-        <tag>结构重参数化</tag>
+        <tag>模型压缩</tag>
+        <tag>卷积分解</tag>
       </tags>
   </entry>
   <entry>
-    <title>Non-local网络回顾</title>
-    <url>/2022/09/21/Non-local/</url>
-    <content><![CDATA[<img src="/2022/09/21/Non-local/image-20220921200450948.png" class="">
-<p><strong>论文</strong>：Non-local Neural Networks</p>
-<p><strong>作者</strong>：<em>Xiaolong Wang, Ross Girshick, Abhinav
-Gupta, Kaiming He</em></p>
-<p><strong>录用情况</strong>：CVPR'2018</p>
-<p><strong>第一作者单位</strong>：Carnegie Mellon University，Facebook
-AI Research</p>
-<p>本文提出的Non-Local是捕获长距离信息的，这篇文章主要在视频分类任务上做实验（Kinetics,
-Charades），但在静态图像方面，也在COCO上进行了实例分割、检测和姿态估计的实验。</p>
-<p>笔者认为，Non-Local在计算attention的方法上有所扩展，并在计算attention之前使用池化方法减小计算量之外，与self-attention没有什么不同的。</p>
-<blockquote>
-<p>当然，在当时的情况下，Self-Attention还在NLP领域内玩，而且作者提出他们的insight来自于一种经典的图像去噪算法<a
-href="https://en.wikipedia.org/wiki/Non-local_means">Non-local
-mean</a>。</p>
+    <title>模型压缩论文阅读列表</title>
+    <url>/2022/11/03/Model-Compression/</url>
+    <content><![CDATA[<blockquote>
+<p>模型压缩，包括低秩分解、剪枝、量化、蒸馏等技术，旨在精度损失很小的前提下，获得参数更小、推理速度更快的模型</p>
 </blockquote>
 <span id="more"></span>
-<h2 id="整体形式">整体形式</h2>
-<p>与Non-local mean一样的，作者希望将如下公式设计到网络结构中去： <span
-class="math display">\[
-\mathbf{y}_i=\frac{1}{\mathcal{C}(\mathbf x)}\sum_{\forall j}f(\mathbf
-x_i, \mathbf x_j)g(\mathbf x_j)
-\]</span> 其中，<span class="math inline">\(\mathbf
-x\)</span>是输入信号，<span class="math inline">\(\mathbf
-y\)</span>是与之形状相同的输出信号，<span
-class="math inline">\(i,j\)</span>是空间位置上的索引，<span
-class="math inline">\(f\)</span>是度量相似度的函数，<span
-class="math inline">\(g\)</span>是一种从源空间到度量空间的映射，<span
-class="math inline">\(\mathcal C(\mathbf
-x)\)</span>是归一化项。其含义可以理解为，对于每个位置上的输入信号，都与空间上其他位置的信号计算一个相似度，作为权值，计算在全局上的加权平均作为输出。</p>
-<p>相比之下，卷积操作，一个像素只能与其邻域范围内的像素直接相关；而全连接（即矩阵乘法）也是一种全局的加权，但是其权重是在训练集中学习到的，而非Non-local这样输入适应的，并且全连接层限制了输入的形状。</p>
-<h2 id="细节设计">细节设计</h2>
-<p>作者令<span class="math inline">\(g(x)=W_g\mathbf
-x_j\)</span>，没有做过多的讨论。对于<span
-class="math inline">\(f\)</span>和<span class="math inline">\(\mathcal
-C\)</span>，作者给出了四种形式：</p>
+<h2 id="方法">方法</h2>
+<h3 id="低秩分解">低秩分解</h3>
+<h4 id="学习可分离滤波器">学习可分离滤波器</h4>
+<p><a
+href="http://openaccess.thecvf.com/content_cvpr_2013/html/Rigamonti_Learning_Separable_Filters_2013_CVPR_paper.html">Learning
+Separable Filters</a></p>
+<p>本文提出，通过学习可分离卷积核的方法降低卷积运算的复杂度。
+一种方法是，为卷积添加“可分离”的约束，但是作者发现先学习不可分离卷积，之后<strong>学习用可分离卷积线性组合得到不可分离卷积更好</strong>。</p>
+<p>可以抛开应用背景看，本文对卷积核的分解使用现在看来非常直观的方法：先在模型优化目标中引入卷积核矩阵的核范数，得到低秩的核之后，把核分解过程从模型优化过程解耦出来，找到次优的分解基和权重；</p>
+<p>对于3D卷积，由于SVD只能分解2D矩阵，核范数的优化不能实现，因此，在分解的过程作者使用了Canonical
+Polyadic Decomposition(CPD)的分解方法；</p>
+<h4 id="探索卷积核的线性结构">探索卷积核的线性结构</h4>
+<p><a href="https://arxiv.org/pdf/1404.0736.pdf">Exploiting Linear
+Structure Within Convolutional Networks for Efficient Evaluation</a></p>
+<p>见先前的<a
+href="https://ashun989.github.io/2022/10/13/Linear-Structure-Within-Conv/#more">文章</a></p>
+<p>这篇文章的方法，在保持分类误差不超过1%的前提下，只是将1个卷积层进行分解并且获得了大约1.6倍的加速比；</p>
+<h4 id="用低秩扩展加速卷积神经网络">用低秩扩展加速卷积神经网络</h4>
+<p><a href="https://arxiv.org/abs/1405.3866">Speeding up convolutional
+neural networks with low rank expansions</a></p>
+<p>详细分析见<a href="">文章</a></p>
+<p>在空间维度上使用rank-1分解，在通道维度上使用基的线性组合，通过调整基组成的子空间的维度（基的个数）来权衡加速比和精度；作者基于这样的思想设计了两种分解模式；并对比最小化卷积核重建损失和数据重建损失的效果；</p>
+<h4 id="非线性卷积层的高效和精确估计">非线性卷积层的高效和精确估计</h4>
+<p><a
+href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Zhang_Efficient_and_Accurate_2015_CVPR_paper.html">Efficient
+and accurate approximations of nonlinear convolutional networks</a></p>
+<p>本文的主要目标是加速CNN的推理。</p>
+<h3 id="剪枝">剪枝</h3>
+<h4
+id="模型剪枝学习网络的权重和连接">模型剪枝：学习网络的权重和连接</h4>
+<p><a
+href="https://proceedings.neurips.cc/paper/2015/hash/ae0eb3eed39d2bcef4622b2499a05fe6-Abstract.html">Learning
+both weights and connections for efficient neural network</a></p>
+<p>我们知道，dropout过程是一种在训练阶段随机剪裁神经元之间的连接，但是在推理时恢复所有连接的技术；而剪枝则是在训练时减去的连接，推理时也不再恢复；</p>
+<p>剪枝可以分为单步剪枝和迭代剪枝，本文使用迭代剪枝，减除更多参数；剪枝选择的策略也有很多，一种直观地策略是，去除那些绝对值小的神经元，本文的实验发现这种方法损害性能；本文中的一次迭代是：减去那些输入为0或者输出为0的神经元，之后微调模型；为了提高效率，以及避免网络在反向传播过程中梯度消失，如果做卷积层的剪枝则在微调时冻结全连接层，反之亦然；</p>
+<p>是什么保证了存在输入或输出为0的神经元？正则项；L1正则项更具有使得模型参数稀疏化的能力，而在使用微调后，L2正则项的表现更好；</p>
+<p>随着模型的稀疏，输出方差也在变小，这意味着减小过拟合，因此随着剪枝迭代的进行，dropout率应该减小；</p>
+<h4 id="模型压缩剪枝量化huffman">模型压缩：剪枝+量化+Huffman</h4>
+<p><a href="https://arxiv.org/abs/1510.00149">Deep compression:
+Compressing deep neural networks with pruning, trained quantization and
+huffman coding</a></p>
+<p>一种结合剪枝、量化和霍夫曼编码的深度神经网络压缩技术，将AlexNet从240MB压缩到6.9MB，将VGG-16从552MB压缩到11.3MB；</p>
+<p>剪枝方法沿用作者先前的无损剪枝操作；量化方法使用K均值聚类，根据训练好的模型权重建立codebook以及原始权重在codebook中的索引，探索了三种聚类中心的初始化方式；</p>
+<p>观察到量化后的索引与聚类权重分布不均，使用霍夫曼编码进一步压缩存储；</p>
+<h4 id="剪枝卷积网络中的滤波器">剪枝卷积网络中的滤波器</h4>
+<p><a href="https://arxiv.org/abs/1608.08710">Pruning filters for
+efficient convnets</a></p>
+<p>使用简单的magnitude
+based策略来分析滤波器权重，剪裁滤波器与响应的特征图，具体的剪裁方法很简单，记卷积层参数<span
+class="math inline">\(F\in \mathbb R^{C_2\times C_1\times H\times
+W}\)</span>，其中<span class="math inline">\(C_2\)</span>与<span
+class="math inline">\(C_1\)</span>分别为输出通道数和输入通道数，可以看成<span
+class="math inline">\(C_2\)</span>个卷积核，现在希望从中去除<span
+class="math inline">\(m\)</span>个卷积核：</p>
+<ol type="1">
+<li>计算<span class="math inline">\(C_2\)</span>个卷积核各自的L1
+norm，排序，选出最小的那几个卷积核，移除；</li>
+<li>由于输出通道数变为<span
+class="math inline">\(C_2-m\)</span>，那么接下来的一个卷积层的卷积核的对应输入通道也要移除<span
+class="math inline">\(m\)</span>个；</li>
+</ol>
+<p>作者还在文中做了一些其他讨论，比如</p>
 <ul>
-<li><strong>Gaussian</strong>：<span class="math inline">\(f(\mathbf
-x_i, \mathbf x_j)=e^{\mathbf x_i^T \mathbf x_j}\)</span>，<span
-class="math inline">\(\mathcal C(\mathbf x)=\sum_{\forall j}f(\mathbf
-x_i, \mathbf
-x_j)\)</span>，在实现的时候，就是完成点积之后添加一个Softmax层；</li>
-<li><strong>Embedded Gaussian</strong>：<span
-class="math inline">\(f(\mathbf x_i, \mathbf x_j)=e^{\theta(\mathbf
-x_i)^T \phi(\mathbf x_j)}\)</span>，<span class="math inline">\(\mathcal
-C(\mathbf x)=\sum_{\forall j}f(\mathbf x_i, \mathbf
-x_j)\)</span>，其中<span class="math inline">\(\theta\)</span>和<span
-class="math inline">\(\phi\)</span>也都是线性映射；这种情况就是没有除以<span
-class="math inline">\(\sqrt d\)</span>的self attention了；</li>
-<li><strong>Dot product</strong>：<span class="math inline">\(f(\mathbf
-x_i, \mathbf x_j)=\theta(\mathbf x_i)^T \phi(\mathbf
-x_j)\)</span>，<span class="math inline">\(\mathcal
-C(x)=N\)</span>，其中<span
-class="math inline">\(N\)</span>是空间位置的数量，对于2D，就是HxW，对于3D，就是TxHxW，这里使用常数作为归一化是为了简单；</li>
-<li><strong>Concatenation</strong>：<span
-class="math inline">\(f(\mathbf x_i, \mathbf x_j)=\text{ReLu}(\mathbf
-w_f^T[\theta(\mathbf x_i), \phi(\mathbf x_j)])\)</span>，<span
-class="math inline">\(\mathcal C(x)=N\)</span>；</li>
+<li>各个卷积层的剪枝会影响到后续卷积层，这里存在一个简单的组合优化问题，每一个卷积层，是先完成前面层对其输入通道数的影响，再根据前文的策略缩减输出特征维度；如果考虑前面的影响，又该考虑前面几层影响，是最优的？作者实验了两种方案，各自独立剪裁，后传播影响；以及贪心策略；后者稍好一些</li>
+<li>存在残差连接的情况下，shortcut上的1x1卷积和主干上的第二层卷积层只能二选一剪枝（一个会影响另一个），作者选择以shortcut上的剪枝为主，因为shortcut更重要一些；</li>
+<li>一次性全剪枝完再微调，还是迭代地剪枝、微调；后者效果稍好，但是对于更深的网络，后者微调的时间更长一些；</li>
+<li>使用什么样的norm来表示卷积核的重要性</li>
 </ul>
-<p>同样的，作者引入了残差连接，即希望学习的<span
-class="math inline">\(\mathbf
-y\)</span>是一个残差，整个Non-local块表示为： <span
-class="math display">\[
-z_i=W_z\mathbf y_i+\mathbf x_i
-\]</span>
-按照bottleneck的设计，同样是为了减少参数量，度量时的通道数减少为输入输出的一半；此外，还可以引入池化操作进一步减少计算量，用Embedding
-Gaussian中的式子表示，为<span
-class="math inline">\(y_i=\frac{1}{\mathcal C(\hat{\mathbf x})}
-f(\mathbf x_i, \hat{\mathbf x}_j)g(\hat{\mathbf
-x}_j)\)</span>，其中<span
-class="math inline">\(\hat{\mathbf{x}}_j\)</span>是<span
-class="math inline">\(\mathbf x_j\)</span>下采样的结果。</p>
-<h2 id="实验">实验</h2>
-<p>原作的实验关注了视频理解任务，因为该论文现在不算新了，这里就不再赘述。在MMSegmentation里有一个把Non-local用在decoder
-head中的分割模型，可以<a
-href="https://github.com/open-mmlab/mmsegmentation/blob/master/configs/_base_/models/nonlocal_r50-d8.py">参考</a>。</p>
+<h3 id="量化">量化</h3>
+<p><a href="https://arxiv.org/abs/1412.6115">Compressing Deep
+Convolutional Networks using Vector Quantization</a></p>
+<h3 id="其他">其他</h3>
+<h4 id="频域压缩">频域压缩</h4>
+<p><a
+href="https://ieeexplore.ieee.org/abstract/document/8413170/">Packing
+convolutional neural networks in the frequency domain</a></p>
+<p>把卷积核视为图像，在频域中分解为公共部分和个体方差，之后丢弃这两者大部分的低频信号，同时不会带来严重的精度损失；作者还探索了数据驱动的消除冗余的方法；</p>
+<p>在CNNPackv1中，主要步骤为：</p>
+<ul>
+<li>对所有卷积核使用DCT变换，之后剪裁到固定的维度<span
+class="math inline">\(d\)</span>，（卷积核的高频信息在该过程被抛弃）；</li>
+<li>学习卷积核的k个聚类中心，并计算各个卷积核相对于聚类中心的残差，分别对聚类中心和残差进行稀疏化（L1
+norm）；</li>
+<li>固定已经完成剪枝和稀疏化的参数不变，微调网络，并量化残差，重复至收敛；最后再使用CSR保存参数的稀疏形式并使用Huffman编码；</li>
+</ul>
+<p>在CNNPackv2中，压缩过程使用上了输入数据，修改了目标函数；对于这个目标函数，作者还用相当的篇幅描述了如何优化；</p>
+<p>由于压缩、量化都是在频域中完成的，如果要在推理时使用原来空间域中卷积的方式，需要将频域中的卷积核转换回去，得到的空间域中的卷积核将不再稀疏，这就意味着，在推理时，模型参数在内存中的占用量远大于在磁盘上存储的大小；因此作者设计了在频域中完成卷积的加速方法；</p>
+<blockquote>
+<p>本文数学推导较多，需要DCT相关的背景知识，笔者将来有空时也许会单独开一篇关于本文的论文阅读；</p>
+</blockquote>
+<p>data-driven的CNNPackv2方法对AlexNet和VGG-16
+Net实现了43.5和49.1倍的压缩率，以及26.2和10.2倍的理论加速比；对于ResNet-50，压缩率为14.0，理论加速比为5.0；对于ResNeXt-50，压缩率为14.3，理论加速比为5,1；以上压缩造成的在imagenet上的top-1
+acc损失都在1%左右；</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a href="https://cloud.tencent.com/developer/article/1631704">腾讯云
+- 闲话模型压缩之网络剪枝（Network Pruning）</a></p>
 ]]></content>
+      <categories>
+        <category>论文阅读</category>
+      </categories>
+      <tags>
+        <tag>模型压缩</tag>
+      </tags>
   </entry>
   <entry>
     <title>卷积分解：考虑非线性函数、多层误差累积以及秩选择</title>
@@ -4783,195 +4601,185 @@ selection相比于手工设置的一组rank，也能降低分类误差；</p>
       </tags>
   </entry>
   <entry>
-    <title>SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法</title>
-    <url>/2023/02/01/SCNN/</url>
-    <content><![CDATA[<img src="/2023/02/01/SCNN/fig1.png" class="">
-<p><strong>论文</strong>：<a
-href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Liu_Sparse_Convolutional_Neural_2015_CVPR_paper.pdf"><strong>Sparse
-Convolutional Neural Networks</strong></a></p>
-<p><strong>作者</strong>：<em>Baoyuan Liu, Min Wang, Hassan Foroosh,
-Marshall F. Tappen, Marianna Penksy</em></p>
-<p><strong>一作单位</strong>：Computational Imaging Lab, Computer
-Science, University of Central Florida, Orlando, FL, USA</p>
-<p><strong>录用情况</strong>：CVPR'2015</p>
+    <title>Non-local网络回顾</title>
+    <url>/2022/09/21/Non-local/</url>
+    <content><![CDATA[<img src="/2022/09/21/Non-local/image-20220921200450948.png" class="">
+<p><strong>论文</strong>：Non-local Neural Networks</p>
+<p><strong>作者</strong>：<em>Xiaolong Wang, Ross Girshick, Abhinav
+Gupta, Kaiming He</em></p>
+<p><strong>录用情况</strong>：CVPR'2018</p>
+<p><strong>第一作者单位</strong>：Carnegie Mellon University，Facebook
+AI Research</p>
+<p>本文提出的Non-Local是捕获长距离信息的，这篇文章主要在视频分类任务上做实验（Kinetics,
+Charades），但在静态图像方面，也在COCO上进行了实例分割、检测和姿态估计的实验。</p>
+<p>笔者认为，Non-Local在计算attention的方法上有所扩展，并在计算attention之前使用池化方法减小计算量之外，与self-attention没有什么不同的。</p>
 <blockquote>
-<p>本文将卷积核两次分解，之后对第二次分解得到的“权重”矩阵进行稀疏化，对于ILSVRC2012数据集上训练的一个5层卷积层的网络，经过微调，在1%的性能损失下，获得了90%的稀疏率；尽管稀疏的算法在高度并行的GPU设备上并不吃香，但是对无GPU设备的加速仍有其意义，因此本文设计了在CPU上高效的稀疏矩阵乘法，获得了实质的推理加速；</p>
+<p>当然，在当时的情况下，Self-Attention还在NLP领域内玩，而且作者提出他们的insight来自于一种经典的图像去噪算法<a
+href="https://en.wikipedia.org/wiki/Non-local_means">Non-local
+mean</a>。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="整体形式">整体形式</h2>
+<p>与Non-local mean一样的，作者希望将如下公式设计到网络结构中去： <span
+class="math display">\[
+\mathbf{y}_i=\frac{1}{\mathcal{C}(\mathbf x)}\sum_{\forall j}f(\mathbf
+x_i, \mathbf x_j)g(\mathbf x_j)
+\]</span> 其中，<span class="math inline">\(\mathbf
+x\)</span>是输入信号，<span class="math inline">\(\mathbf
+y\)</span>是与之形状相同的输出信号，<span
+class="math inline">\(i,j\)</span>是空间位置上的索引，<span
+class="math inline">\(f\)</span>是度量相似度的函数，<span
+class="math inline">\(g\)</span>是一种从源空间到度量空间的映射，<span
+class="math inline">\(\mathcal C(\mathbf
+x)\)</span>是归一化项。其含义可以理解为，对于每个位置上的输入信号，都与空间上其他位置的信号计算一个相似度，作为权值，计算在全局上的加权平均作为输出。</p>
+<p>相比之下，卷积操作，一个像素只能与其邻域范围内的像素直接相关；而全连接（即矩阵乘法）也是一种全局的加权，但是其权重是在训练集中学习到的，而非Non-local这样输入适应的，并且全连接层限制了输入的形状。</p>
+<h2 id="细节设计">细节设计</h2>
+<p>作者令<span class="math inline">\(g(x)=W_g\mathbf
+x_j\)</span>，没有做过多的讨论。对于<span
+class="math inline">\(f\)</span>和<span class="math inline">\(\mathcal
+C\)</span>，作者给出了四种形式：</p>
+<ul>
+<li><strong>Gaussian</strong>：<span class="math inline">\(f(\mathbf
+x_i, \mathbf x_j)=e^{\mathbf x_i^T \mathbf x_j}\)</span>，<span
+class="math inline">\(\mathcal C(\mathbf x)=\sum_{\forall j}f(\mathbf
+x_i, \mathbf
+x_j)\)</span>，在实现的时候，就是完成点积之后添加一个Softmax层；</li>
+<li><strong>Embedded Gaussian</strong>：<span
+class="math inline">\(f(\mathbf x_i, \mathbf x_j)=e^{\theta(\mathbf
+x_i)^T \phi(\mathbf x_j)}\)</span>，<span class="math inline">\(\mathcal
+C(\mathbf x)=\sum_{\forall j}f(\mathbf x_i, \mathbf
+x_j)\)</span>，其中<span class="math inline">\(\theta\)</span>和<span
+class="math inline">\(\phi\)</span>也都是线性映射；这种情况就是没有除以<span
+class="math inline">\(\sqrt d\)</span>的self attention了；</li>
+<li><strong>Dot product</strong>：<span class="math inline">\(f(\mathbf
+x_i, \mathbf x_j)=\theta(\mathbf x_i)^T \phi(\mathbf
+x_j)\)</span>，<span class="math inline">\(\mathcal
+C(x)=N\)</span>，其中<span
+class="math inline">\(N\)</span>是空间位置的数量，对于2D，就是HxW，对于3D，就是TxHxW，这里使用常数作为归一化是为了简单；</li>
+<li><strong>Concatenation</strong>：<span
+class="math inline">\(f(\mathbf x_i, \mathbf x_j)=\text{ReLu}(\mathbf
+w_f^T[\theta(\mathbf x_i), \phi(\mathbf x_j)])\)</span>，<span
+class="math inline">\(\mathcal C(x)=N\)</span>；</li>
+</ul>
+<p>同样的，作者引入了残差连接，即希望学习的<span
+class="math inline">\(\mathbf
+y\)</span>是一个残差，整个Non-local块表示为： <span
+class="math display">\[
+z_i=W_z\mathbf y_i+\mathbf x_i
+\]</span>
+按照bottleneck的设计，同样是为了减少参数量，度量时的通道数减少为输入输出的一半；此外，还可以引入池化操作进一步减少计算量，用Embedding
+Gaussian中的式子表示，为<span
+class="math inline">\(y_i=\frac{1}{\mathcal C(\hat{\mathbf x})}
+f(\mathbf x_i, \hat{\mathbf x}_j)g(\hat{\mathbf
+x}_j)\)</span>，其中<span
+class="math inline">\(\hat{\mathbf{x}}_j\)</span>是<span
+class="math inline">\(\mathbf x_j\)</span>下采样的结果。</p>
+<h2 id="实验">实验</h2>
+<p>原作的实验关注了视频理解任务，因为该论文现在不算新了，这里就不再赘述。在MMSegmentation里有一个把Non-local用在decoder
+head中的分割模型，可以<a
+href="https://github.com/open-mmlab/mmsegmentation/blob/master/configs/_base_/models/nonlocal_r50-d8.py">参考</a>。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>RepVGG论文与代码阅读</title>
+    <url>/2022/10/03/RepVGG/</url>
+    <content><![CDATA[<img src="/2022/10/03/RepVGG/image-20221003122122530.png" class="">
+<p><strong>论文</strong>：<a
+href="https://openaccess.thecvf.com/content/CVPR2021/papers/Ding_RepVGG_Making_VGG-Style_ConvNets_Great_Again_CVPR_2021_paper.pdf">RepVGG:
+Making VGG-style ConvNets Great Again</a></p>
+<p><strong>作者</strong>：<em>Xiaohan Ding</em>, <em>Xiangyu Zhang</em>,
+<em>Ningning Ma</em>, <em>Jungong Han</em>, <em>Guiguang Ding</em>,
+<em>Jian Sun</em></p>
+<p><strong>录用情况</strong>：CVPR'2021</p>
+<p><strong>第一作者单位</strong>：Beijing National Research Center for
+Information Science and Technology (BNRist); School of Software,
+Tsinghua University, Beijing, China</p>
+<blockquote>
+<p>本文借助重参数化技巧，提出了一个在训练时多分支，而在推理时为类似于VGG的直筒形网络（3x3卷积+ReLU堆叠成的基本块），命名为RepVGG。这是第一次一个简单的模型在ImageNet上获得了80%以上的top1准确率，并且直筒形状的结构让RepVGG有着很高的计算密度与推理速度，相比于EfficientNet和RegNet有更好的性能与速度的折中。<a
+href="https://zhuanlan.zhihu.com/p/344324470">作者本人在知乎上的稿子</a>。<a
+href="https://github.com/DingXiaoH/RepVGG">代码仓库</a>。</p>
 </blockquote>
 <span id="more"></span>
 <h2 id="方法">方法</h2>
-<h3 id="线性分解稀疏化">线性分解+稀疏化</h3>
-<p>记输入 <span class="math inline">\(I\in \mathbb{R}^{h\times w \times
-m}\)</span>，原来的卷积核为 <span class="math inline">\(K \in
-\mathbb{R}^{s\times s \times m \times n}\)</span>，输出为 <span
-class="math inline">\(O \in \mathbb{R}^{(h-s+1)\times(h-s+1)\times
-n}\)</span> （stride=1,
-padding=0），作者将标准卷积表示为如下形式，计算复杂度为 <span
-class="math inline">\(O(s^2mn(h-s+1)^2)\)</span></p>
-<p><span class="math display">\[
-O(y, x, j) = \sum_{i=1}^m\sum_{u,v=1}^s K(u,v,i,j)I(y+u-1, x+v-1,i)
-\]</span></p>
-<p>使用的第一种变换是对原卷积核 <span class="math inline">\(K\)</span>
-在通道维度上进行分解，得到 <span class="math inline">\(P\in
-\mathbb{R}^{m\times m}\)</span> 和 <span class="math inline">\(R \in
-\mathbb{R}^{s\times s \times m \times n}\)</span>；这样有 <span
-class="math inline">\(O \approx R*J\)</span>；</p>
-<p><img src="equ2.png" /></p>
-<p>第二种变换是继续将 <span class="math inline">\(R\)</span>
-进行线性分解，为第 <span class="math inline">\(i\)</span> 个通道的 <span
-class="math inline">\(R(\cdot,\cdot, i, \cdot)\)</span> 找到 <span
-class="math inline">\(q_i\)</span> 个基 <span
-class="math inline">\(\mathcal{Q}_i\in \mathbb{R}^{s\times s\times
-q_i}\)</span>，与权重 <span class="math inline">\(\mathcal{S}_i\in
-\mathbb{R}^{q_i\times n}\)</span> 的线性组合得到 <span
-class="math inline">\(R(\cdot,\cdot, i, \cdot)\)</span></p>
-<p>用 <span class="math inline">\(\mathcal{T}_i \in
-\mathbb{R}^{(h-s+1)\times (h-s+1)\times q_i}\)</span>
-表示变换后的输入的第 <span class="math inline">\(i\)</span> 的通道与第
-<span class="math inline">\(i\)</span> 组基进行卷积得到的 <span
-class="math inline">\(q_i\)</span> 个中间结果：</p>
-<p><img src="equ3.png" /></p>
-<p>将此中间结果再与权重进行线性组合得到输出：</p>
-<p><span class="math display">\[
-O(y, x, j) \approx \sum_{i=1}^m \sum_{k=1}^{q_i} \mathcal{S}_i(k, j)
-\mathcal{T}_i(y, x, k)
-\]</span></p>
-<p>从 <span class="math inline">\(I\)</span> 到 <span
-class="math inline">\(J\)</span> 的变换需要 <span
-class="math inline">\(O(m^2hw)\)</span> 的计算；</p>
-<p>从 <span class="math inline">\(J\)</span> 到 <span
-class="math inline">\(\mathcal{T}\)</span> 需要 <span
-class="math inline">\(s^2(h-s+1)^2\sum_{i=1}^mq_i\)</span> 的计算；</p>
-<p>最后与权重线性组合的过程可以用单个 <span
-class="math inline">\((h-s+1)^2\times\sum_{i=1}^m q_i\)</span> (变形
-<span class="math inline">\(\mathcal{T}\)</span>) 和 <span
-class="math inline">\(\sum_{i=1}^m q_i \times n\)</span> (变形 <span
-class="math inline">\(\mathcal{S}\)</span>)
-矩阵乘法得到，而我们希望权重矩阵是稀疏的（<span
-class="math inline">\(\gamma\)</span>
-是密集度，即非零元素占比）并使用稀疏的矩阵乘法，这样最后的稀疏矩阵乘法计算复杂度为
-<span class="math inline">\(O(\gamma
-n(\sum_{i=1}^mq_i)(h-s+1)^2)\)</span>；</p>
-<p>综上，笔者得到总体的计算复杂度是： <span class="math display">\[
-(\gamma n + s^2)\left( \sum_{i=1}^m q_i \right ) (h-s+1)^2 + m^2hw
-\]</span></p>
-<p>而原文中给的复杂度，将 <span class="math inline">\(i\)</span>
-上限错误写成了 <span class="math inline">\(n\)</span>；在 <span
-class="math inline">\(q_i &lt; s^2\)</span> 的条件下，<span
-class="math inline">\(\sum_{i=1}^m q_i &lt;
-ms^2\)</span>，即我们给出的这个复杂度比原文的复杂度更“紧”；而原文的写法也更好与原卷积的计算复杂度进行比较；</p>
-<p><img src="equ6.png" /></p>
-<p>不过原文对 <span class="math inline">\(i\)</span>
-的上限错误也导致其接下来的另一个小错误：与原复杂度 <span
-class="math inline">\(mns^2(h-s+1)^2\)</span>
-对比，希望现在的复杂度优势项是 <span class="math inline">\(\gamma
-mns^2(h-s+1)\)</span>（<span class="math inline">\(\gamma\)</span>
-决定了加速比），另外两项就要相比于优势项可忽略，即 <span
-class="math inline">\(\sum_{i=1}^m q_i = m\overline{q} &lt; \gamma
-mn\)</span> （原文写的是 <span class="math inline">\(\overline{q}
-&lt;\gamma m\)</span>），还有 <span class="math inline">\(m \ll \gamma
-ns^2\)</span>；</p>
-<p>综上，要想在理论上对算法复杂度有改进，需要满足：</p>
-<p><span class="math display">\[
-\left\{
-  \begin{matrix}
-    q_i &lt; s^2\\
-    \overline{q} &lt; \gamma n\\
-    m &lt; \gamma ns^2
-  \end{matrix}
-\right.
-\]</span></p>
+<h3 id="为什么需要多分支的网络">为什么需要多分支的网络</h3>
+<p>我们不否认直筒型的、深层的网络理论上具有足够的学习能力，但是很难训练；从GoogLeNet、ResNet起，大家就尝到了多分支网络的甜头，对于shortcut连接，一些普遍的解释为：</p>
+<ul>
+<li>获得了多种浅层模型的集成的效果，具体地说，<span
+class="math inline">\(n\)</span>个有shortcut的block，相当于<span
+class="math inline">\(2^n\)</span>个网络的集成；</li>
+<li>在非线性层存在的前提下，复杂的连接，增加了模型的非线性；</li>
+</ul>
+<p>然而，这种多分支结构也引入了缺陷：</p>
+<ul>
+<li>多分支使得显存消耗增加；</li>
+<li>复杂的模型降低了并行度；</li>
+</ul>
+<p>作者指出，尽管一些模型具有较低的FLOPs，但是因为并行度不够等原因，计算密度低，模型在推理时的速度慢。</p>
+<h3 id="模型重参数化">模型重参数化</h3>
+<p>本文的重参数化，侧重于“使用先前的模型结构的参数，构造新结构的参数，使得模型结构修改前后，对于数据流的作用是等价的”，即找到一种参数的代数变换，使得<span
+class="math inline">\(x+g(x)+f(x)=h(x)\)</span>；</p>
+<p>作者在文中强调了这个工作与DiractNet的区别：DiractNet的重参数化是用得到的参数计算另一个数学表达式来优化。笔者后续也会更新一些别的重参数化的论文阅读。</p>
+<h3 id="winograd-convolution">Winograd Convolution</h3>
+<p>这是一种对于步长为1的3x3卷积的加速算法，对于<span
+class="math inline">\(F(2\times 2, 3\times
+3)\)</span>（表示输出尺寸为2x2，卷积核尺寸为3x3的一卷积运算），考虑每一个输出的每一个位置来自一对长度为9的向量的内积，标准卷积方法需要2x2x3x3=36次乘法计算，而winograd方法通过观察到im2col之后的矩阵存在大量重复元素，设计算法将乘法次数减少到16次。这个<a
+href="https://www.slideshare.net/embeddedvision/even-faster-cnns-exploring-the-new-class-of-winograd-algorithms-a-presentation-from-arm?from_action=save">slide</a>清楚地讲述了在<span
+class="math inline">\(F(2,3)\)</span>上的算法，又如何扩展到<span
+class="math inline">\(F(2\times 2, 3\times
+3)\)</span>，进而再扩展到更大尺寸，更多通道上的3x3步长1卷积。</p>
+<p>作者整个模型都使用3x3,stride=1的卷积，旨在利用上这种加速算法。</p>
+<h3 id="训练时块结构与重参数化方法">训练时块结构与重参数化方法</h3>
+<p><img src="image-20221003132412029.png" /></p>
+<p>作者为每个块设计了两条额外分支，在每个块的最后（图中没有画出来）的是ReLU非线性层，不参与后续的重参数化。在推理前，目的时将3个分支的参数合并到单分支的3x3卷积中去。</p>
+<p><img src="image-20221003132802917.png" /></p>
+<p>上图主要展示了，如何将1x1卷积和原始输入构造为具有等价输出的3x3卷积，下面的公式化描述介绍了如何“吸BN”。</p>
+<p><img src="image-20221003133459134.png" /></p>
+<p>在实现时，注意的第一个细节是，将1x1卷积转化为3x3卷积时，除了给卷积核pad
+0之外，图像的padding也要减去<span class="math inline">\(\lfloor
+\frac{\text{kernel size}}{2}\rfloor\)</span>，这才使得结果等价。</p>
+<p>另一个细节是，由于作者穿插设置了部分块使用分组卷积（后面的整体架构一节中会讲到），对于3x3卷积和1x1卷积的分支，在重参数化时没有什么需要对此特殊处理的，对与将恒等映射改写为3x3卷积的情况，则需要注意分组卷积的组数。</p>
 <blockquote>
-<p>如果了解论文<a href="https://arxiv.org/abs/1405.3866">Speeding up
-Convolutional Neural Networks with Low Rank
-Expansions</a>，就会发现这里使用的kernel
-basis线性组合的方法与该论文的scheme1分解方法基本一致，这里在之前添加了channel
-basis，没有把kernel
-basis进一步做成可分离的，并且对于每个通道使用不同数量的kernel
-basis；</p>
+<p>分组卷积，就是将<span
+class="math inline">\(C_1\)</span>维的输入tensor和<span
+class="math inline">\(C_2/g\)</span>个<span
+class="math inline">\(C_1\)</span>维卷积核分成<span
+class="math inline">\(g\)</span>个<span
+class="math inline">\(C_1/g\)</span>维的卷积，得到的<span
+class="math inline">\(g\)</span>个<span
+class="math inline">\(C_2/g\)</span>的tensor在channel维度拼接到一起。因此，对于恒等映射等价的第<span
+class="math inline">\(i\)</span>个卷积核，应该只在<span
+class="math inline">\(i ~\text{mod}~
+g\)</span>维的3x3的矩阵的中心为1。</p>
 </blockquote>
-<h3 id="参数学习">参数学习</h3>
-<p>接下来的问题就是，如何学习 <span class="math inline">\(P\)</span>,
-<span class="math inline">\(Q_i\)</span>, <span
-class="math inline">\(S_i\)</span> (<span class="math inline">\(i = 1,
-\dots, m\)</span>)，并且让 <span class="math inline">\(S_i\)</span>
-是稀疏的？</p>
-<p>总体步骤分为初始化和微调，在初始化阶段主要获得合适的 <span
-class="math inline">\(P\)</span>, <span
-class="math inline">\(Q_i\)</span>, <span
-class="math inline">\(S_i\)</span>，使得重建误差很小，但是此时的稀疏性并不好；在微调阶段使用分类损失+稀疏正则项，对
-<span class="math inline">\(S_i\)</span> 进行稀疏化；</p>
-<h4 id="初始化">初始化</h4>
-<p>对 <span class="math inline">\(K\)</span> 在 通道方向分解得到 <span
-class="math inline">\(R\)</span>, <span
-class="math inline">\(P\)</span>；对 <span
-class="math inline">\(R(\cdot, \cdot, i, \cdot)\)</span>
-在个数方向上分解得到 <span class="math inline">\(S_i\)</span>, <span
-class="math inline">\(Q_i\)</span>；这两种高维张量的分解都可以通过reshape转化为矩阵分解问题，因而有三种初始化方法：</p>
-<ul>
-<li>使用字典学习算法（本文作者指出该优化是非凸的且在精度和稀疏度上有中和）；</li>
-<li>使用主成分分析；</li>
-<li>初始化 <span class="math inline">\(P\)</span> 和 <span
-class="math inline">\(Q_i\)</span> 为单位标准基：那么令 <span
-class="math inline">\(R=K\)</span> 即可以使得 <span
-class="math inline">\(K(u,v,i,j) = \sum_{k=1}^m R(u, v, k,
-j)P(k,i)\)</span>；不过，<span class="math inline">\(S_i\)</span> 与
-<span class="math inline">\(R(\cdot, \cdot, i, \cdot)\)</span>
-的维度不一致，如果 <span class="math inline">\(q_i \ge
-n\)</span>，可以通过构造在初始化时使得 <span
-class="math inline">\(R(u,v,i,j) = \sum_{k=1}^{q_i}
-S_i(k,j)Q_i(u,v,k)\)</span>，反之若 <span class="math inline">\(q_i &lt;
-n\)</span>，则不能；</li>
-</ul>
-<h4 id="微调">微调</h4>
-<p>微调阶段作者主要希望在保持性能的前提下增加 <span
-class="math inline">\(S_i\)</span> 的稀疏度，设计目标函数如下： <img
-src="equ7.png" /></p>
-<h3 id="稀疏化与低秩化的区别">稀疏化与低秩化的区别</h3>
-<p>设 <span class="math inline">\(M \in \mathbb{R}^{m\times
-n}\)</span>，<span class="math inline">\(S \in \mathbb{R}^{m\times
-n}\)</span>，<span class="math inline">\(P\in \mathbb{R}^{n \times
-n}\)</span>，有矩阵分解 <span class="math inline">\(M=SP\)</span>；对
-<span class="math inline">\(S\)</span> 进行稀疏化，相当于增多 <span
-class="math inline">\(S\)</span> 的零元素个数；对 <span
-class="math inline">\(S\)</span> 进行低秩化，相当于增加 <span
-class="math inline">\(S\)</span>
-的零列（可以由其他列线性组合得到的列）；</p>
-<p>从性能上看，稀疏化比起低秩化损失更小；从速度上看，低秩化是结构性的，稀疏化是非结构性的，前者更便于使用现有的算子高效实现达到实际的加速目的；</p>
-<h3 id="稀疏的矩阵乘法">稀疏的矩阵乘法</h3>
-<p>作者利用推理时模型的如下两个事实：</p>
-<ul>
-<li>与卷积核相关的稀疏矩阵不再改变；</li>
-<li>输入不是稀疏的；</li>
-</ul>
-<p>在OpenBLAS上实现了一种密集卷积与稀疏卷积的算法：</p>
-<p>对于每一个子块的乘法，<span class="math inline">\(C=A\times
-B\)</span>，其中 <span class="math inline">\(A\in \mathbb{R}^{8\times
-k}\)</span>，<span class="math inline">\(B\in \mathbb{R}^{k\times
-8}\)</span>，8是当时作者使用的AVX指令集最大可以并行计算的float的数量；在密集乘法中，<span
-class="math inline">\(C\)</span> 的一列可以看作是 <span
-class="math inline">\(A\)</span> 的一列与 <span
-class="math inline">\(B\)</span> 的对应列的加权和；假设 <span
-class="math inline">\(A\)</span> 是密集的，<span
-class="math inline">\(B\)</span> 是稀疏的，作者通过寻找 <span
-class="math inline">\(B\)</span> 中非零元素的位置，按照 <span
-class="math inline">\(B\)</span>
-的行列顺序，重新生成了乘法计算的代码，如下图所示：</p>
-<p><img src="fig3.png" /></p>
-<h3 id="线性层的稀疏化">线性层的稀疏化</h3>
-<p>可以将线性层权重分解为密集矩阵与稀疏矩阵的乘法，并选择稀疏化维度更大的那个矩阵，为了使得密集矩阵更小；</p>
+<p>对于一个<code>RepVGGBlock</code>，作者定义了<code>switch_to_deploy</code>方法，在训练后，推理前，遍历网络并对所有<code>RepVGGBlock</code>调用该方法：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">switch_to_deploy</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;rbr_reparam&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="comment"># 获得与3个分支的作用等价的1个卷积核以及偏差</span></span><br><span class="line">    kernel, bias = self.get_equivalent_kernel_bias()</span><br><span class="line">    <span class="comment"># 构造新的3x3卷积，各种参数配置保持不变，但使用计算好的参数</span></span><br><span class="line">    self.rbr_reparam = nn.Conv2d(in_channels=self.rbr_dense.conv.in_channels, out_channels=self.rbr_dense.conv.out_channels,</span><br><span class="line">                                 kernel_size=self.rbr_dense.conv.kernel_size, stride=self.rbr_dense.conv.stride,</span><br><span class="line">                                 padding=self.rbr_dense.conv.padding, dilation=self.rbr_dense.conv.dilation, groups=self.rbr_dense.conv.groups, bias=<span class="literal">True</span>)</span><br><span class="line">    self.rbr_reparam.weight.data = kernel</span><br><span class="line">    self.rbr_reparam.bias.data = bias</span><br><span class="line">    <span class="comment"># 删除训练时模型中的分支结构</span></span><br><span class="line">    self.__delattr__(<span class="string">&#x27;rbr_dense&#x27;</span>)</span><br><span class="line">    self.__delattr__(<span class="string">&#x27;rbr_1x1&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;rbr_identity&#x27;</span>):</span><br><span class="line">        self.__delattr__(<span class="string">&#x27;rbr_identity&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;id_tensor&#x27;</span>):</span><br><span class="line">            self.__delattr__(<span class="string">&#x27;id_tensor&#x27;</span>)</span><br><span class="line">            self.deploy = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_equivalent_kernel_bias</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;三合一</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    kernel3x3, bias3x3 = self._fuse_bn_tensor(self.rbr_dense)</span><br><span class="line">    kernel1x1, bias1x1 = self._fuse_bn_tensor(self.rbr_1x1)</span><br><span class="line">    kernelid, biasid = self._fuse_bn_tensor(self.rbr_identity)</span><br><span class="line">    <span class="keyword">return</span> kernel3x3 + self._pad_1x1_to_3x3_tensor(kernel1x1) + kernelid, bias3x3 + bias1x1 + biasid</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_pad_1x1_to_3x3_tensor</span>(<span class="params">self, kernel1x1</span>):</span><br><span class="line">    <span class="keyword">if</span> kernel1x1 <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> torch.nn.functional.pad(kernel1x1, [<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_fuse_bn_tensor</span>(<span class="params">self, branch</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;吸BN</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> branch <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(branch, nn.Sequential):</span><br><span class="line">        <span class="comment"># 3x3或1x1的conv_bn分支</span></span><br><span class="line">        kernel = branch.conv.weight</span><br><span class="line">        running_mean = branch.bn.running_mean</span><br><span class="line">        running_var = branch.bn.running_var</span><br><span class="line">        gamma = branch.bn.weight</span><br><span class="line">        beta = branch.bn.bias</span><br><span class="line">        eps = branch.bn.eps</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># 恒等映射分支（只有一个BN层）</span></span><br><span class="line">        <span class="keyword">assert</span> <span class="built_in">isinstance</span>(branch, nn.BatchNorm2d)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;id_tensor&#x27;</span>):</span><br><span class="line">            input_dim = self.in_channels // self.groups</span><br><span class="line">            kernel_value = np.zeros((self.in_channels, input_dim, <span class="number">3</span>, <span class="number">3</span>), dtype=np.float32)  <span class="comment"># 构造的3x3卷积核</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(self.in_channels):</span><br><span class="line">                kernel_value[i, i % input_dim, <span class="number">1</span>, <span class="number">1</span>] = <span class="number">1</span></span><br><span class="line">                self.id_tensor = torch.from_numpy(kernel_value).to(branch.weight.device)</span><br><span class="line">                kernel = self.id_tensor</span><br><span class="line">                running_mean = branch.running_mean</span><br><span class="line">                running_var = branch.running_var</span><br><span class="line">                gamma = branch.weight</span><br><span class="line">                beta = branch.bias</span><br><span class="line">                eps = branch.eps</span><br><span class="line">                std = (running_var + eps).sqrt()</span><br><span class="line">     t = (gamma / std).reshape(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">     <span class="keyword">return</span> kernel * t, beta - running_mean * gamma / std</span><br></pre></td></tr></table></figure>
+<h3 id="整体架构">整体架构</h3>
+<p>作者配置架构的原则就两个：简单的根据经验设置+减少参数；</p>
+<p><img src="image-20221003142015913.png" /></p>
+<p>上表展示了不同分辨率的特征图有几个block，以及每个block的通道数，其中<span
+class="math inline">\(a, b\)</span>是缩放因子，有<span
+class="math inline">\(a&lt;b\)</span>，stage1个stage5都只有一一个block的原因是为了减少参数量。</p>
+<p>可选的，可以穿插地将部分block的groups设置为一个全局常数，比如2或者4。相邻的block都使用分组卷积，可能会导致通道内信息交换受限。</p>
+<p>最新的代码中，作者添加了RepVGGplus，使用了更深的层数，辅助头，以及在非线性层之后使用<a
+href="https://arxiv.org/pdf/1709.01507.pdf">SEBlock</a>。</p>
 <h2 id="实验">实验</h2>
-<p>在对分类模型稀疏化时，作者首先拿到已训练好的权重，之后按照前文方法修改卷积计算，进行初始化+微调，并应用阈值函数来获得稳定的稀疏；在收敛之后，去除稀疏限制（但保留阈值函数）再微调一阵以达到最佳精度；</p>
-<p>作者在实验中比较了微调后卷积核与原来卷积核的相似度，发现从conv1到conv3，这种相似度从0.85下降到0.34，而精度没有太大损失，说明没有必要逐个卷积核地恢复，基于分类损失的全局微调很有效；</p>
-<p>作者还比较了对基的三种初始化方式，发现他们在性能上没有显著差异，但PCA的初始化，微调后得到的稀疏度最高；接着作者发现，稀疏度与主成分有很强的相关性，越重要的成分越容易稀疏；</p>
-<p>更多实验详见原文。</p>
+<p>这一部分作者想强调的点在于，他们使用了Pytorch官方教程中简单的数据增强，随心的模型配置，就让推理时的模型获得了相比于同样训练设置下参数相近的ResNet，
+EfficientNet,
+ResNeXt等更快的推理速度和更好的性能（尽管该模型往往参数量更大，FLOPs更大，但速度却最快）。</p>
+<p>在消融实验中，作者不仅证明了3个并行分支，一个不能少，并且，通过将ResNet中的Block替换为RepVGG
+Block，证明了性能的优越并不是靠在训练时堆参数得到的。</p>
+<p>此外作者还刷了刷Cityscapes的点。</p>
+<p>实验结果的细节见论文，并且在仓库中，作者更新了最新的模型配置与性能（在ImageNet上最高刷到了84.06%）。</p>
+<h2 id="总结">总结</h2>
+<p>本文提出的结构重参数化技巧让VGG风格的模型“再次伟大”，本质上还是利用数学上的等价转换将训练好的复杂模型简化。除了卷积，其他算子（如MLP）有没有响应的简化方法？该模型虽然速度快，适用于满载荷的业务场景，但是较高的FLOPs也将带来更多功耗，这在各种终端中也是至关重要的。</p>
 ]]></content>
       <categories>
         <category>论文阅读</category>
       </categories>
       <tags>
-        <tag>模型压缩</tag>
-        <tag>卷积分解</tag>
-        <tag>稀疏化</tag>
+        <tag>结构重参数化</tag>
       </tags>
   </entry>
   <entry>
@@ -5182,126 +4990,258 @@ connection+别的什么结构会有更好的结果？</p>
       </tags>
   </entry>
   <entry>
-    <title>稳定的数值计算</title>
-    <url>/2022/08/30/Stable-Calculations/</url>
-    <content><![CDATA[<p>本文将介绍在实现softmax和交叉熵损失计算时需要注意的一些数学问题，并且回顾相关函数的定义与性质；代码来源于<a
-href="https://mp.weixin.qq.com/s/5qYbxSe6X5KZo1ISOE4r8A">极市平台 -
-编写高效的Pytorch代码技巧</a>；</p>
+    <title>SegFormer论文阅读</title>
+    <url>/2022/09/07/SegFormer/</url>
+    <content><![CDATA[<p>标题：《<strong>SegFormer: Simple and Efficient Design for Semantic
+Segmentation with Transformers</strong>》</p>
+<p>作者：<em>Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandkumar, Jose
+M. Alvarez, Ping Luo</em></p>
+<p>录用情况：NeurIPS'2021</p>
+<p>开源代码：在MMSegmentation中已有实现</p>
+<p>这篇文章提出了一个简单高效的语义分割模型，使用了多尺度的Transformer结构做为Encoder，和使用MLP实现的简单的Decoder；在Transformer-Based中，作者没有使用显式的位置编码，而使用CNN建模位置信息；并且还使用了一些策略将attention计算的复杂度从<span
+class="math inline">\(O(N^2)\)</span>降低到<span
+class="math inline">\(O(N^2/R)\)</span>；</p>
+<img src="/2022/09/07/SegFormer/image-20220907185126016.png" class="" title="Figure1">
+<blockquote>
+<p>本文的很多方法都不是原创，但是在作者的组合、改进下，取得了性能与参数量平衡的结果；</p>
+</blockquote>
 <span id="more"></span>
-<h2 id="部分技巧">部分技巧</h2>
-<p>计算机中的浮点数运算通常存在两个问题：精度损失和算术溢出，本质上都是浮点计算单元的位数有限导致的。在训练模型过程中令人讨厌的问题之一就是梯度/loss出现<code>Nan</code>或者<code>Inf</code>，当算法本身在数学上没有错误时，就要考虑是不是出现了不稳定的数值计算，尤其警惕那些特别小或者特别大的数值；下面记录两个避免数值问题的技巧：</p>
-<h3 id="softmax">softmax</h3>
-<p>不稳定的写法如下，<span
-class="math inline">\(e^x\)</span>很容易发生上溢：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">unstable_softmax</span>(<span class="params">logits</span>):</span><br><span class="line">    exp = torch.exp(logits)</span><br><span class="line">    <span class="keyword">return</span> exp / torch.<span class="built_in">sum</span>(exp)</span><br></pre></td></tr></table></figure>
-<p>可以将分子分母同时除以一个常数，相当于对输入数据减去一个常量，经验上，这个常量取输入的最大值即可：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">softmax</span>(<span class="params">logits</span>):</span><br><span class="line">    exp = torch.exp(logits - torch.<span class="built_in">max</span>(logits))</span><br><span class="line">    <span class="keyword">return</span> exp / torch.<span class="built_in">sum</span>(exp)</span><br></pre></td></tr></table></figure>
-<h3 id="cross-entropy">cross entropy</h3>
-<blockquote>
-<p>计算交叉熵损失通常在对预测得分完成softmax之后，但这并不意味着它的实现与softmax解耦了，事实上，下面的改进正是利用了这种耦合性</p>
-</blockquote>
-<p>不稳定的写法如下，<span class="math inline">\(\log
-x\)</span>很容易发生下溢：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">unstable_softmax_cross_entropy</span>(<span class="params">labels, logits</span>):</span><br><span class="line">    logits = torch.log(softmax(logits))</span><br><span class="line">    <span class="keyword">return</span> -torch.<span class="built_in">sum</span>(labels * logits)</span><br></pre></td></tr></table></figure>
-<p>可以这样重写： <span class="math display">\[
-\log p_i =
-\log(\frac{e^{x_i}}{\sum_je^{x_j}})=\log(\frac{e^{x_i-m}}{\sum_je^{x_j-m}})=(x_i-m)
-- \text{LSE}(\mathbf{x}-\mathbf{1}m)
-\]</span> 其中<span class="math inline">\(m=\max_jx_j\)</span>；<span
-class="math inline">\(\text{LSE}\)</span>是LogSoftMax；</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">softmax_cross_entropy</span>(<span class="params">labels, logits, dim=-<span class="number">1</span></span>):</span><br><span class="line">    scaled_logits = logits - torch.<span class="built_in">max</span>(logits)</span><br><span class="line">    normalized_logits = scaled_logits - torch.logsumexp(scaled_logits, dim)</span><br><span class="line">    <span class="keyword">return</span> -torch.<span class="built_in">sum</span>(labels * normalized_logits)</span><br></pre></td></tr></table></figure>
-<h2 id="补充的数学知识">补充的数学知识</h2>
-<h3 id="softmax-1">softmax</h3>
-<p>通常使用这个函数将输出转化为一组在<span
-class="math inline">\((0,1)\)</span>范围内的，和为1的输出，有着概率意义；</p>
-<p>softmax是这样的函数：<span
-class="math inline">\(\sigma:\mathbb{R}^K\rightarrow
-(0,1)^K\)</span>，其中<span class="math inline">\(K&gt;1\)</span> <span
-class="math display">\[
-\sigma(\mathbf{z})_i=\frac{e^{z_i}}{\sum_{j=1}^Ke^{z_j}}
-\]</span> 除了以<span
-class="math inline">\(e\)</span>为底，任何一个<span
-class="math inline">\(b&gt;0\)</span>可以作为底，如果<span
-class="math inline">\(0&lt;b&lt;1\)</span>，则原来更小的值将获得更大的输出；如果<span
-class="math inline">\(b&gt;1\)</span>，则原来更大的值将获得更小的输出；令<span
-class="math inline">\(b=e^\beta\)</span>，其中<span
-class="math inline">\(\beta\)</span>是实数，则还有： <span
-class="math display">\[
-\sigma(\mathbf{z})_i=\frac{e^{\beta z_i}}{\sum_{j=1}^Ke^{\beta z_j}}
-\]</span> softmax是平滑版的argmax，当<span
-class="math inline">\(\beta\rightarrow
-\infty\)</span>时，softmax收敛到argmax；一般地，平滑即连续可导，这样的性质在神经网络中非常重要；如果<span
-class="math inline">\(z_1,\dots,z_n\)</span>两两不相等，有： <span
-class="math display">\[
-\arg\max(z_1,\dots,z_n)=(y_1,\dots,y_n)=(0,\dots,0,1,0,\dots,0)
-\]</span> 其中<span
-class="math inline">\(\mathbf{z}\)</span>的一个微小的改变都可能让argmax的输出发生跳变；</p>
-<blockquote>
-<p>argmax不可导，但是max(x1,x2)在x1!=x2时是可导的，后文也会介绍max的平滑近似——LSE</p>
-</blockquote>
-<p>类似的，当<span class="math inline">\(\beta\rightarrow
--\infty\)</span>时，argmax收敛到argmin；</p>
-<h3 id="cross-entropy的梯度推导">cross entropy的梯度推导</h3>
-<p>softmax+交叉熵耦合在一起的另一个原因是，其导数的形式非常简洁：</p>
-<p>假设真值为第<span class="math inline">\(i\)</span>个类别，<span
-class="math inline">\(\mathbf{q}\)</span>是真实分布，<span
-class="math inline">\(\mathbf{p}=\text{softmax}(\mathbf{s})\)</span>是估计分布，则损失函数<span
-class="math inline">\(L=-\sum_jq_j\log p_j=-\log p_i\)</span>，其中<span
-class="math inline">\(p_i =
-\frac{\exp(s_i)}{\sum_j\exp(s_j)}\)</span>；要求出<span
-class="math inline">\(\frac{\partial L}{\partial
-\mathbf{s}}\)</span>，其中<span
-class="math inline">\(\mathbf{s}=(1,\dots,j,\dots,d)\)</span>，分为两种情况：</p>
-<p>下面用<span class="math inline">\(\sum\)</span>代替<span
-class="math inline">\(s\)</span>，注意<span
-class="math inline">\(\frac{\partial L}{\partial
-p_i}=-\frac{1}{p_i}=-\frac{\sum{}}{\exp(s_i)}\)</span></p>
-<ol type="1">
-<li><p><span class="math inline">\(j = i\)</span>，此时<span
-class="math inline">\(p_i\)</span>的分子也是<span
-class="math inline">\(s_j\)</span>的函数： <span class="math display">\[
-\frac{\partial
-{p_i}}{\partial{s_j}}=\frac{\exp(s_i)\sum{}-\exp(2s_i)}{\sum{}^2}
-\]</span> 则 <span class="math display">\[
+<h2 id="模型结构">模型结构</h2>
+<h3 id="整体">整体</h3>
+<p><img src="image-20220907185427672.png" /></p>
+<h3 id="overlapped-patch-merging">Overlapped Patch Merging</h3>
+<p>将SA的输出重新reshape为<span class="math inline">\(B\times H \times W
+\times C\)</span>，之后让patch与patch之间有overlapped的思想在T2T
+ViT中就出现了，在实现时可以统一用一个带有<code>stride</code>的卷积操作实现；</p>
+<h3 id="efficient-self-attention">Efficient Self-Attention</h3>
+<p>作者借用了Pyramid Vision Transformer中的策略，将key,
+value矩阵应用如下的映射，从而将attention计算的复杂度从<span
+class="math inline">\(O(N^2)\)</span>降低到<span
+class="math inline">\(O(N^2/R)\)</span>； <span class="math display">\[
 \begin{aligned}
-\frac{\partial L}{\partial s_j} &amp;=
--\frac{\sum{}}{\exp(s_i)}\frac{\exp(s_i)\sum{}-\exp(2s_i)}{\sum{}^2}\\
-&amp;=p_i-1\\
-&amp;=p_j-q_j
+\hat{K}&amp;=\text{Reshape}(\frac{N}{R},C\cdot R)(K)\\
+K&amp;=\text{Linear}(C\cdot R, C)(\hat{K})
 \end{aligned}
-\]</span></p></li>
-<li><p><span class="math inline">\(j\ne i\)</span>，此时<span
-class="math inline">\(p_i\)</span>的分子与<span
-class="math inline">\(s_j\)</span>无关： <span class="math display">\[
-\frac{\partial {p_i}}{\partial{s_j}}=\frac{-\exp(s_i+s_j)}{\sum{}^2}
-\]</span> 则 <span class="math display">\[
-\begin{aligned}
-\frac{\partial L}{\partial s_j} &amp;=
--\frac{\sum{}}{\exp(s_i)}\frac{-\exp(s_i+s_j)}{\sum{}^2}\\
-&amp;=p_j\\
-&amp;=p_j-q_j
-\end{aligned}
-\]</span></p></li>
-</ol>
-<p>综上所述，<span class="math inline">\(\frac{\partial L}{\partial
-\mathbf{s}}=\mathbf{p}-\mathbf{q}\)</span></p>
-<h3 id="logsoftexp">LogSoftExp</h3>
-<p>函数的形式为： <span class="math display">\[
-\text{LSE}(\mathbf{x})=\log(\sum_je^{x_j})
-\]</span> 该函数是max函数的平滑版本，是凸函数，假设<span
-class="math inline">\(\mathbf{x}\in\mathbb{R}^n\)</span>，<span
-class="math inline">\(m=\max_j x_j\)</span>，则 <span
-class="math display">\[
-e^m\le \sum_j^ne^{x_j}\le ne^m
-\]</span> 两边同时取对数，则有： <span class="math display">\[
-m\le \text{LSE}(\mathbf{x}) \le \log(n) + m
 \]</span>
-在使用计算机计算LSE时同样也有数值问题，而解决方法同样是，对于等式右边，减去再加上<span
-class="math inline">\(m = \log e^m\)</span></p>
+在实现时，对key，value使用步长为R的RxR卷积，即同时完成了上述两步；</p>
+<h3 id="mix-ffn">Mix FFN</h3>
+<p>借鉴Conditional Positional Encodings for Vision
+Transformers中的经验，作者将原来Transformer中使用MLP的FFN模块改为了使用3x3卷积的模块，不再使用显式得PE：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">fc1 = Conv2d(</span><br><span class="line">    in_channels=in_channels,</span><br><span class="line">    out_channels=feedforward_channels,</span><br><span class="line">    kernel_size=<span class="number">1</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    bias=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># 3x3 depth wise conv to provide positional encode information</span></span><br><span class="line">pe_conv = Conv2d(</span><br><span class="line">    in_channels=feedforward_channels,</span><br><span class="line">    out_channels=feedforward_channels,</span><br><span class="line">    kernel_size=<span class="number">3</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    padding=(<span class="number">3</span> - <span class="number">1</span>) // <span class="number">2</span>,</span><br><span class="line">    bias=<span class="literal">True</span>,</span><br><span class="line">    groups=feedforward_channels)</span><br><span class="line">fc2 = Conv2d(</span><br><span class="line">    in_channels=feedforward_channels,</span><br><span class="line">    out_channels=in_channels,</span><br><span class="line">    kernel_size=<span class="number">1</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    bias=<span class="literal">True</span>)</span><br><span class="line">drop = nn.Dropout(ffn_drop)</span><br><span class="line">layers = [fc1, pe_conv, self.activate, drop, fc2, drop]</span><br></pre></td></tr></table></figure>
+<h3 id="all-mlp-decoder">All-MLP Decoder</h3>
+<p>作者称，他敢使用这么简单的一个Decoder的原因是，他分析到之前设计的Encoder已经拥有了足够大的感受野，不再需要设计像ASPP那样heavy的结构，如下图所示：</p>
+<p><img src="image-20220907192316099.png" /></p>
+<p>MLP结构为：</p>
+<p><img src="image-20220907192434172.png" /></p>
+<h2 id="实验结果">实验结果</h2>
+<p>作者修改4个Stage中各种参数（见论文附录），得到了6种配置，在3个数据集上的效果如下：</p>
+<p><img src="image-20220907192703069.png" /></p>
+<p>与先前模型的对比：</p>
+<p><img src="image-20220907192900552.png" /></p>
+<p>更多实验见原文；</p>
+<h2 id="小结">小结</h2>
+<p>作者提出了一种简单的语义分割方法，并且得到了一个3.7M的小模型；抛开作者讲的故事，单看整体的模型结构，像是Transformer结构与CNN的穿插使用；另外，作者在消融实验中似乎没有比较使用原始self
+attention和efficient self
+attention的性能与成本差距，或者说，在之前的论文中已经做了相似的实验，这需要我继续阅读相关论文；</p>
 ]]></content>
       <categories>
-        <category>基础知识</category>
+        <category>论文阅读</category>
       </categories>
+      <tags>
+        <tag>语义分割</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SCNN：一种卷积核的稀疏化方法以及CPU上的高效稀疏矩阵乘法</title>
+    <url>/2023/02/01/SCNN/</url>
+    <content><![CDATA[<img src="/2023/02/01/SCNN/fig1.png" class="">
+<p><strong>论文</strong>：<a
+href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Liu_Sparse_Convolutional_Neural_2015_CVPR_paper.pdf"><strong>Sparse
+Convolutional Neural Networks</strong></a></p>
+<p><strong>作者</strong>：<em>Baoyuan Liu, Min Wang, Hassan Foroosh,
+Marshall F. Tappen, Marianna Penksy</em></p>
+<p><strong>一作单位</strong>：Computational Imaging Lab, Computer
+Science, University of Central Florida, Orlando, FL, USA</p>
+<p><strong>录用情况</strong>：CVPR'2015</p>
+<blockquote>
+<p>本文将卷积核两次分解，之后对第二次分解得到的“权重”矩阵进行稀疏化，对于ILSVRC2012数据集上训练的一个5层卷积层的网络，经过微调，在1%的性能损失下，获得了90%的稀疏率；尽管稀疏的算法在高度并行的GPU设备上并不吃香，但是对无GPU设备的加速仍有其意义，因此本文设计了在CPU上高效的稀疏矩阵乘法，获得了实质的推理加速；</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="方法">方法</h2>
+<h3 id="线性分解稀疏化">线性分解+稀疏化</h3>
+<p>记输入 <span class="math inline">\(I\in \mathbb{R}^{h\times w \times
+m}\)</span>，原来的卷积核为 <span class="math inline">\(K \in
+\mathbb{R}^{s\times s \times m \times n}\)</span>，输出为 <span
+class="math inline">\(O \in \mathbb{R}^{(h-s+1)\times(h-s+1)\times
+n}\)</span> （stride=1,
+padding=0），作者将标准卷积表示为如下形式，计算复杂度为 <span
+class="math inline">\(O(s^2mn(h-s+1)^2)\)</span></p>
+<p><span class="math display">\[
+O(y, x, j) = \sum_{i=1}^m\sum_{u,v=1}^s K(u,v,i,j)I(y+u-1, x+v-1,i)
+\]</span></p>
+<p>使用的第一种变换是对原卷积核 <span class="math inline">\(K\)</span>
+在通道维度上进行分解，得到 <span class="math inline">\(P\in
+\mathbb{R}^{m\times m}\)</span> 和 <span class="math inline">\(R \in
+\mathbb{R}^{s\times s \times m \times n}\)</span>；这样有 <span
+class="math inline">\(O \approx R*J\)</span>；</p>
+<p><img src="equ2.png" /></p>
+<p>第二种变换是继续将 <span class="math inline">\(R\)</span>
+进行线性分解，为第 <span class="math inline">\(i\)</span> 个通道的 <span
+class="math inline">\(R(\cdot,\cdot, i, \cdot)\)</span> 找到 <span
+class="math inline">\(q_i\)</span> 个基 <span
+class="math inline">\(\mathcal{Q}_i\in \mathbb{R}^{s\times s\times
+q_i}\)</span>，与权重 <span class="math inline">\(\mathcal{S}_i\in
+\mathbb{R}^{q_i\times n}\)</span> 的线性组合得到 <span
+class="math inline">\(R(\cdot,\cdot, i, \cdot)\)</span></p>
+<p>用 <span class="math inline">\(\mathcal{T}_i \in
+\mathbb{R}^{(h-s+1)\times (h-s+1)\times q_i}\)</span>
+表示变换后的输入的第 <span class="math inline">\(i\)</span> 的通道与第
+<span class="math inline">\(i\)</span> 组基进行卷积得到的 <span
+class="math inline">\(q_i\)</span> 个中间结果：</p>
+<p><img src="equ3.png" /></p>
+<p>将此中间结果再与权重进行线性组合得到输出：</p>
+<p><span class="math display">\[
+O(y, x, j) \approx \sum_{i=1}^m \sum_{k=1}^{q_i} \mathcal{S}_i(k, j)
+\mathcal{T}_i(y, x, k)
+\]</span></p>
+<p>从 <span class="math inline">\(I\)</span> 到 <span
+class="math inline">\(J\)</span> 的变换需要 <span
+class="math inline">\(O(m^2hw)\)</span> 的计算；</p>
+<p>从 <span class="math inline">\(J\)</span> 到 <span
+class="math inline">\(\mathcal{T}\)</span> 需要 <span
+class="math inline">\(s^2(h-s+1)^2\sum_{i=1}^mq_i\)</span> 的计算；</p>
+<p>最后与权重线性组合的过程可以用单个 <span
+class="math inline">\((h-s+1)^2\times\sum_{i=1}^m q_i\)</span> (变形
+<span class="math inline">\(\mathcal{T}\)</span>) 和 <span
+class="math inline">\(\sum_{i=1}^m q_i \times n\)</span> (变形 <span
+class="math inline">\(\mathcal{S}\)</span>)
+矩阵乘法得到，而我们希望权重矩阵是稀疏的（<span
+class="math inline">\(\gamma\)</span>
+是密集度，即非零元素占比）并使用稀疏的矩阵乘法，这样最后的稀疏矩阵乘法计算复杂度为
+<span class="math inline">\(O(\gamma
+n(\sum_{i=1}^mq_i)(h-s+1)^2)\)</span>；</p>
+<p>综上，笔者得到总体的计算复杂度是： <span class="math display">\[
+(\gamma n + s^2)\left( \sum_{i=1}^m q_i \right ) (h-s+1)^2 + m^2hw
+\]</span></p>
+<p>而原文中给的复杂度，将 <span class="math inline">\(i\)</span>
+上限错误写成了 <span class="math inline">\(n\)</span>；在 <span
+class="math inline">\(q_i &lt; s^2\)</span> 的条件下，<span
+class="math inline">\(\sum_{i=1}^m q_i &lt;
+ms^2\)</span>，即我们给出的这个复杂度比原文的复杂度更“紧”；而原文的写法也更好与原卷积的计算复杂度进行比较；</p>
+<p><img src="equ6.png" /></p>
+<p>不过原文对 <span class="math inline">\(i\)</span>
+的上限错误也导致其接下来的另一个小错误：与原复杂度 <span
+class="math inline">\(mns^2(h-s+1)^2\)</span>
+对比，希望现在的复杂度优势项是 <span class="math inline">\(\gamma
+mns^2(h-s+1)\)</span>（<span class="math inline">\(\gamma\)</span>
+决定了加速比），另外两项就要相比于优势项可忽略，即 <span
+class="math inline">\(\sum_{i=1}^m q_i = m\overline{q} &lt; \gamma
+mn\)</span> （原文写的是 <span class="math inline">\(\overline{q}
+&lt;\gamma m\)</span>），还有 <span class="math inline">\(m \ll \gamma
+ns^2\)</span>；</p>
+<p>综上，要想在理论上对算法复杂度有改进，需要满足：</p>
+<p><span class="math display">\[
+\left\{
+  \begin{matrix}
+    q_i &lt; s^2\\
+    \overline{q} &lt; \gamma n\\
+    m &lt; \gamma ns^2
+  \end{matrix}
+\right.
+\]</span></p>
+<blockquote>
+<p>如果了解论文<a href="https://arxiv.org/abs/1405.3866">Speeding up
+Convolutional Neural Networks with Low Rank
+Expansions</a>，就会发现这里使用的kernel
+basis线性组合的方法与该论文的scheme1分解方法基本一致，这里在之前添加了channel
+basis，没有把kernel
+basis进一步做成可分离的，并且对于每个通道使用不同数量的kernel
+basis；</p>
+</blockquote>
+<h3 id="参数学习">参数学习</h3>
+<p>接下来的问题就是，如何学习 <span class="math inline">\(P\)</span>,
+<span class="math inline">\(Q_i\)</span>, <span
+class="math inline">\(S_i\)</span> (<span class="math inline">\(i = 1,
+\dots, m\)</span>)，并且让 <span class="math inline">\(S_i\)</span>
+是稀疏的？</p>
+<p>总体步骤分为初始化和微调，在初始化阶段主要获得合适的 <span
+class="math inline">\(P\)</span>, <span
+class="math inline">\(Q_i\)</span>, <span
+class="math inline">\(S_i\)</span>，使得重建误差很小，但是此时的稀疏性并不好；在微调阶段使用分类损失+稀疏正则项，对
+<span class="math inline">\(S_i\)</span> 进行稀疏化；</p>
+<h4 id="初始化">初始化</h4>
+<p>对 <span class="math inline">\(K\)</span> 在 通道方向分解得到 <span
+class="math inline">\(R\)</span>, <span
+class="math inline">\(P\)</span>；对 <span
+class="math inline">\(R(\cdot, \cdot, i, \cdot)\)</span>
+在个数方向上分解得到 <span class="math inline">\(S_i\)</span>, <span
+class="math inline">\(Q_i\)</span>；这两种高维张量的分解都可以通过reshape转化为矩阵分解问题，因而有三种初始化方法：</p>
+<ul>
+<li>使用字典学习算法（本文作者指出该优化是非凸的且在精度和稀疏度上有中和）；</li>
+<li>使用主成分分析；</li>
+<li>初始化 <span class="math inline">\(P\)</span> 和 <span
+class="math inline">\(Q_i\)</span> 为单位标准基：那么令 <span
+class="math inline">\(R=K\)</span> 即可以使得 <span
+class="math inline">\(K(u,v,i,j) = \sum_{k=1}^m R(u, v, k,
+j)P(k,i)\)</span>；不过，<span class="math inline">\(S_i\)</span> 与
+<span class="math inline">\(R(\cdot, \cdot, i, \cdot)\)</span>
+的维度不一致，如果 <span class="math inline">\(q_i \ge
+n\)</span>，可以通过构造在初始化时使得 <span
+class="math inline">\(R(u,v,i,j) = \sum_{k=1}^{q_i}
+S_i(k,j)Q_i(u,v,k)\)</span>，反之若 <span class="math inline">\(q_i &lt;
+n\)</span>，则不能；</li>
+</ul>
+<h4 id="微调">微调</h4>
+<p>微调阶段作者主要希望在保持性能的前提下增加 <span
+class="math inline">\(S_i\)</span> 的稀疏度，设计目标函数如下： <img
+src="equ7.png" /></p>
+<h3 id="稀疏化与低秩化的区别">稀疏化与低秩化的区别</h3>
+<p>设 <span class="math inline">\(M \in \mathbb{R}^{m\times
+n}\)</span>，<span class="math inline">\(S \in \mathbb{R}^{m\times
+n}\)</span>，<span class="math inline">\(P\in \mathbb{R}^{n \times
+n}\)</span>，有矩阵分解 <span class="math inline">\(M=SP\)</span>；对
+<span class="math inline">\(S\)</span> 进行稀疏化，相当于增多 <span
+class="math inline">\(S\)</span> 的零元素个数；对 <span
+class="math inline">\(S\)</span> 进行低秩化，相当于增加 <span
+class="math inline">\(S\)</span>
+的零列（可以由其他列线性组合得到的列）；</p>
+<p>从性能上看，稀疏化比起低秩化损失更小；从速度上看，低秩化是结构性的，稀疏化是非结构性的，前者更便于使用现有的算子高效实现达到实际的加速目的；</p>
+<h3 id="稀疏的矩阵乘法">稀疏的矩阵乘法</h3>
+<p>作者利用推理时模型的如下两个事实：</p>
+<ul>
+<li>与卷积核相关的稀疏矩阵不再改变；</li>
+<li>输入不是稀疏的；</li>
+</ul>
+<p>在OpenBLAS上实现了一种密集卷积与稀疏卷积的算法：</p>
+<p>对于每一个子块的乘法，<span class="math inline">\(C=A\times
+B\)</span>，其中 <span class="math inline">\(A\in \mathbb{R}^{8\times
+k}\)</span>，<span class="math inline">\(B\in \mathbb{R}^{k\times
+8}\)</span>，8是当时作者使用的AVX指令集最大可以并行计算的float的数量；在密集乘法中，<span
+class="math inline">\(C\)</span> 的一列可以看作是 <span
+class="math inline">\(A\)</span> 的一列与 <span
+class="math inline">\(B\)</span> 的对应列的加权和；假设 <span
+class="math inline">\(A\)</span> 是密集的，<span
+class="math inline">\(B\)</span> 是稀疏的，作者通过寻找 <span
+class="math inline">\(B\)</span> 中非零元素的位置，按照 <span
+class="math inline">\(B\)</span>
+的行列顺序，重新生成了乘法计算的代码，如下图所示：</p>
+<p><img src="fig3.png" /></p>
+<h3 id="线性层的稀疏化">线性层的稀疏化</h3>
+<p>可以将线性层权重分解为密集矩阵与稀疏矩阵的乘法，并选择稀疏化维度更大的那个矩阵，为了使得密集矩阵更小；</p>
+<h2 id="实验">实验</h2>
+<p>在对分类模型稀疏化时，作者首先拿到已训练好的权重，之后按照前文方法修改卷积计算，进行初始化+微调，并应用阈值函数来获得稳定的稀疏；在收敛之后，去除稀疏限制（但保留阈值函数）再微调一阵以达到最佳精度；</p>
+<p>作者在实验中比较了微调后卷积核与原来卷积核的相似度，发现从conv1到conv3，这种相似度从0.85下降到0.34，而精度没有太大损失，说明没有必要逐个卷积核地恢复，基于分类损失的全局微调很有效；</p>
+<p>作者还比较了对基的三种初始化方式，发现他们在性能上没有显著差异，但PCA的初始化，微调后得到的稀疏度最高；接着作者发现，稀疏度与主成分有很强的相关性，越重要的成分越容易稀疏；</p>
+<p>更多实验详见原文。</p>
+]]></content>
+      <categories>
+        <category>论文阅读</category>
+      </categories>
+      <tags>
+        <tag>模型压缩</tag>
+        <tag>卷积分解</tag>
+        <tag>稀疏化</tag>
+      </tags>
   </entry>
   <entry>
     <title>把卷积分解成sum-pooling和更小的卷积</title>
@@ -5444,66 +5384,126 @@ kernel的构造基的方式，使得运算被简化成sum-pooling和更小的卷
       </tags>
   </entry>
   <entry>
-    <title>SegFormer论文阅读</title>
-    <url>/2022/09/07/SegFormer/</url>
-    <content><![CDATA[<p>标题：《<strong>SegFormer: Simple and Efficient Design for Semantic
-Segmentation with Transformers</strong>》</p>
-<p>作者：<em>Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandkumar, Jose
-M. Alvarez, Ping Luo</em></p>
-<p>录用情况：NeurIPS'2021</p>
-<p>开源代码：在MMSegmentation中已有实现</p>
-<p>这篇文章提出了一个简单高效的语义分割模型，使用了多尺度的Transformer结构做为Encoder，和使用MLP实现的简单的Decoder；在Transformer-Based中，作者没有使用显式的位置编码，而使用CNN建模位置信息；并且还使用了一些策略将attention计算的复杂度从<span
-class="math inline">\(O(N^2)\)</span>降低到<span
-class="math inline">\(O(N^2/R)\)</span>；</p>
-<img src="/2022/09/07/SegFormer/image-20220907185126016.png" class="" title="Figure1">
-<blockquote>
-<p>本文的很多方法都不是原创，但是在作者的组合、改进下，取得了性能与参数量平衡的结果；</p>
-</blockquote>
+    <title>稳定的数值计算</title>
+    <url>/2022/08/30/Stable-Calculations/</url>
+    <content><![CDATA[<p>本文将介绍在实现softmax和交叉熵损失计算时需要注意的一些数学问题，并且回顾相关函数的定义与性质；代码来源于<a
+href="https://mp.weixin.qq.com/s/5qYbxSe6X5KZo1ISOE4r8A">极市平台 -
+编写高效的Pytorch代码技巧</a>；</p>
 <span id="more"></span>
-<h2 id="模型结构">模型结构</h2>
-<h3 id="整体">整体</h3>
-<p><img src="image-20220907185427672.png" /></p>
-<h3 id="overlapped-patch-merging">Overlapped Patch Merging</h3>
-<p>将SA的输出重新reshape为<span class="math inline">\(B\times H \times W
-\times C\)</span>，之后让patch与patch之间有overlapped的思想在T2T
-ViT中就出现了，在实现时可以统一用一个带有<code>stride</code>的卷积操作实现；</p>
-<h3 id="efficient-self-attention">Efficient Self-Attention</h3>
-<p>作者借用了Pyramid Vision Transformer中的策略，将key,
-value矩阵应用如下的映射，从而将attention计算的复杂度从<span
-class="math inline">\(O(N^2)\)</span>降低到<span
-class="math inline">\(O(N^2/R)\)</span>； <span class="math display">\[
+<h2 id="部分技巧">部分技巧</h2>
+<p>计算机中的浮点数运算通常存在两个问题：精度损失和算术溢出，本质上都是浮点计算单元的位数有限导致的。在训练模型过程中令人讨厌的问题之一就是梯度/loss出现<code>Nan</code>或者<code>Inf</code>，当算法本身在数学上没有错误时，就要考虑是不是出现了不稳定的数值计算，尤其警惕那些特别小或者特别大的数值；下面记录两个避免数值问题的技巧：</p>
+<h3 id="softmax">softmax</h3>
+<p>不稳定的写法如下，<span
+class="math inline">\(e^x\)</span>很容易发生上溢：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">unstable_softmax</span>(<span class="params">logits</span>):</span><br><span class="line">    exp = torch.exp(logits)</span><br><span class="line">    <span class="keyword">return</span> exp / torch.<span class="built_in">sum</span>(exp)</span><br></pre></td></tr></table></figure>
+<p>可以将分子分母同时除以一个常数，相当于对输入数据减去一个常量，经验上，这个常量取输入的最大值即可：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">softmax</span>(<span class="params">logits</span>):</span><br><span class="line">    exp = torch.exp(logits - torch.<span class="built_in">max</span>(logits))</span><br><span class="line">    <span class="keyword">return</span> exp / torch.<span class="built_in">sum</span>(exp)</span><br></pre></td></tr></table></figure>
+<h3 id="cross-entropy">cross entropy</h3>
+<blockquote>
+<p>计算交叉熵损失通常在对预测得分完成softmax之后，但这并不意味着它的实现与softmax解耦了，事实上，下面的改进正是利用了这种耦合性</p>
+</blockquote>
+<p>不稳定的写法如下，<span class="math inline">\(\log
+x\)</span>很容易发生下溢：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">unstable_softmax_cross_entropy</span>(<span class="params">labels, logits</span>):</span><br><span class="line">    logits = torch.log(softmax(logits))</span><br><span class="line">    <span class="keyword">return</span> -torch.<span class="built_in">sum</span>(labels * logits)</span><br></pre></td></tr></table></figure>
+<p>可以这样重写： <span class="math display">\[
+\log p_i =
+\log(\frac{e^{x_i}}{\sum_je^{x_j}})=\log(\frac{e^{x_i-m}}{\sum_je^{x_j-m}})=(x_i-m)
+- \text{LSE}(\mathbf{x}-\mathbf{1}m)
+\]</span> 其中<span class="math inline">\(m=\max_jx_j\)</span>；<span
+class="math inline">\(\text{LSE}\)</span>是LogSoftMax；</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">softmax_cross_entropy</span>(<span class="params">labels, logits, dim=-<span class="number">1</span></span>):</span><br><span class="line">    scaled_logits = logits - torch.<span class="built_in">max</span>(logits)</span><br><span class="line">    normalized_logits = scaled_logits - torch.logsumexp(scaled_logits, dim)</span><br><span class="line">    <span class="keyword">return</span> -torch.<span class="built_in">sum</span>(labels * normalized_logits)</span><br></pre></td></tr></table></figure>
+<h2 id="补充的数学知识">补充的数学知识</h2>
+<h3 id="softmax-1">softmax</h3>
+<p>通常使用这个函数将输出转化为一组在<span
+class="math inline">\((0,1)\)</span>范围内的，和为1的输出，有着概率意义；</p>
+<p>softmax是这样的函数：<span
+class="math inline">\(\sigma:\mathbb{R}^K\rightarrow
+(0,1)^K\)</span>，其中<span class="math inline">\(K&gt;1\)</span> <span
+class="math display">\[
+\sigma(\mathbf{z})_i=\frac{e^{z_i}}{\sum_{j=1}^Ke^{z_j}}
+\]</span> 除了以<span
+class="math inline">\(e\)</span>为底，任何一个<span
+class="math inline">\(b&gt;0\)</span>可以作为底，如果<span
+class="math inline">\(0&lt;b&lt;1\)</span>，则原来更小的值将获得更大的输出；如果<span
+class="math inline">\(b&gt;1\)</span>，则原来更大的值将获得更小的输出；令<span
+class="math inline">\(b=e^\beta\)</span>，其中<span
+class="math inline">\(\beta\)</span>是实数，则还有： <span
+class="math display">\[
+\sigma(\mathbf{z})_i=\frac{e^{\beta z_i}}{\sum_{j=1}^Ke^{\beta z_j}}
+\]</span> softmax是平滑版的argmax，当<span
+class="math inline">\(\beta\rightarrow
+\infty\)</span>时，softmax收敛到argmax；一般地，平滑即连续可导，这样的性质在神经网络中非常重要；如果<span
+class="math inline">\(z_1,\dots,z_n\)</span>两两不相等，有： <span
+class="math display">\[
+\arg\max(z_1,\dots,z_n)=(y_1,\dots,y_n)=(0,\dots,0,1,0,\dots,0)
+\]</span> 其中<span
+class="math inline">\(\mathbf{z}\)</span>的一个微小的改变都可能让argmax的输出发生跳变；</p>
+<blockquote>
+<p>argmax不可导，但是max(x1,x2)在x1!=x2时是可导的，后文也会介绍max的平滑近似——LSE</p>
+</blockquote>
+<p>类似的，当<span class="math inline">\(\beta\rightarrow
+-\infty\)</span>时，argmax收敛到argmin；</p>
+<h3 id="cross-entropy的梯度推导">cross entropy的梯度推导</h3>
+<p>softmax+交叉熵耦合在一起的另一个原因是，其导数的形式非常简洁：</p>
+<p>假设真值为第<span class="math inline">\(i\)</span>个类别，<span
+class="math inline">\(\mathbf{q}\)</span>是真实分布，<span
+class="math inline">\(\mathbf{p}=\text{softmax}(\mathbf{s})\)</span>是估计分布，则损失函数<span
+class="math inline">\(L=-\sum_jq_j\log p_j=-\log p_i\)</span>，其中<span
+class="math inline">\(p_i =
+\frac{\exp(s_i)}{\sum_j\exp(s_j)}\)</span>；要求出<span
+class="math inline">\(\frac{\partial L}{\partial
+\mathbf{s}}\)</span>，其中<span
+class="math inline">\(\mathbf{s}=(1,\dots,j,\dots,d)\)</span>，分为两种情况：</p>
+<p>下面用<span class="math inline">\(\sum\)</span>代替<span
+class="math inline">\(s\)</span>，注意<span
+class="math inline">\(\frac{\partial L}{\partial
+p_i}=-\frac{1}{p_i}=-\frac{\sum{}}{\exp(s_i)}\)</span></p>
+<ol type="1">
+<li><p><span class="math inline">\(j = i\)</span>，此时<span
+class="math inline">\(p_i\)</span>的分子也是<span
+class="math inline">\(s_j\)</span>的函数： <span class="math display">\[
+\frac{\partial
+{p_i}}{\partial{s_j}}=\frac{\exp(s_i)\sum{}-\exp(2s_i)}{\sum{}^2}
+\]</span> 则 <span class="math display">\[
 \begin{aligned}
-\hat{K}&amp;=\text{Reshape}(\frac{N}{R},C\cdot R)(K)\\
-K&amp;=\text{Linear}(C\cdot R, C)(\hat{K})
+\frac{\partial L}{\partial s_j} &amp;=
+-\frac{\sum{}}{\exp(s_i)}\frac{\exp(s_i)\sum{}-\exp(2s_i)}{\sum{}^2}\\
+&amp;=p_i-1\\
+&amp;=p_j-q_j
 \end{aligned}
+\]</span></p></li>
+<li><p><span class="math inline">\(j\ne i\)</span>，此时<span
+class="math inline">\(p_i\)</span>的分子与<span
+class="math inline">\(s_j\)</span>无关： <span class="math display">\[
+\frac{\partial {p_i}}{\partial{s_j}}=\frac{-\exp(s_i+s_j)}{\sum{}^2}
+\]</span> 则 <span class="math display">\[
+\begin{aligned}
+\frac{\partial L}{\partial s_j} &amp;=
+-\frac{\sum{}}{\exp(s_i)}\frac{-\exp(s_i+s_j)}{\sum{}^2}\\
+&amp;=p_j\\
+&amp;=p_j-q_j
+\end{aligned}
+\]</span></p></li>
+</ol>
+<p>综上所述，<span class="math inline">\(\frac{\partial L}{\partial
+\mathbf{s}}=\mathbf{p}-\mathbf{q}\)</span></p>
+<h3 id="logsoftexp">LogSoftExp</h3>
+<p>函数的形式为： <span class="math display">\[
+\text{LSE}(\mathbf{x})=\log(\sum_je^{x_j})
+\]</span> 该函数是max函数的平滑版本，是凸函数，假设<span
+class="math inline">\(\mathbf{x}\in\mathbb{R}^n\)</span>，<span
+class="math inline">\(m=\max_j x_j\)</span>，则 <span
+class="math display">\[
+e^m\le \sum_j^ne^{x_j}\le ne^m
+\]</span> 两边同时取对数，则有： <span class="math display">\[
+m\le \text{LSE}(\mathbf{x}) \le \log(n) + m
 \]</span>
-在实现时，对key，value使用步长为R的RxR卷积，即同时完成了上述两步；</p>
-<h3 id="mix-ffn">Mix FFN</h3>
-<p>借鉴Conditional Positional Encodings for Vision
-Transformers中的经验，作者将原来Transformer中使用MLP的FFN模块改为了使用3x3卷积的模块，不再使用显式得PE：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">fc1 = Conv2d(</span><br><span class="line">    in_channels=in_channels,</span><br><span class="line">    out_channels=feedforward_channels,</span><br><span class="line">    kernel_size=<span class="number">1</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    bias=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># 3x3 depth wise conv to provide positional encode information</span></span><br><span class="line">pe_conv = Conv2d(</span><br><span class="line">    in_channels=feedforward_channels,</span><br><span class="line">    out_channels=feedforward_channels,</span><br><span class="line">    kernel_size=<span class="number">3</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    padding=(<span class="number">3</span> - <span class="number">1</span>) // <span class="number">2</span>,</span><br><span class="line">    bias=<span class="literal">True</span>,</span><br><span class="line">    groups=feedforward_channels)</span><br><span class="line">fc2 = Conv2d(</span><br><span class="line">    in_channels=feedforward_channels,</span><br><span class="line">    out_channels=in_channels,</span><br><span class="line">    kernel_size=<span class="number">1</span>,</span><br><span class="line">    stride=<span class="number">1</span>,</span><br><span class="line">    bias=<span class="literal">True</span>)</span><br><span class="line">drop = nn.Dropout(ffn_drop)</span><br><span class="line">layers = [fc1, pe_conv, self.activate, drop, fc2, drop]</span><br></pre></td></tr></table></figure>
-<h3 id="all-mlp-decoder">All-MLP Decoder</h3>
-<p>作者称，他敢使用这么简单的一个Decoder的原因是，他分析到之前设计的Encoder已经拥有了足够大的感受野，不再需要设计像ASPP那样heavy的结构，如下图所示：</p>
-<p><img src="image-20220907192316099.png" /></p>
-<p>MLP结构为：</p>
-<p><img src="image-20220907192434172.png" /></p>
-<h2 id="实验结果">实验结果</h2>
-<p>作者修改4个Stage中各种参数（见论文附录），得到了6种配置，在3个数据集上的效果如下：</p>
-<p><img src="image-20220907192703069.png" /></p>
-<p>与先前模型的对比：</p>
-<p><img src="image-20220907192900552.png" /></p>
-<p>更多实验见原文；</p>
-<h2 id="小结">小结</h2>
-<p>作者提出了一种简单的语义分割方法，并且得到了一个3.7M的小模型；抛开作者讲的故事，单看整体的模型结构，像是Transformer结构与CNN的穿插使用；另外，作者在消融实验中似乎没有比较使用原始self
-attention和efficient self
-attention的性能与成本差距，或者说，在之前的论文中已经做了相似的实验，这需要我继续阅读相关论文；</p>
+在使用计算机计算LSE时同样也有数值问题，而解决方法同样是，对于等式右边，减去再加上<span
+class="math inline">\(m = \log e^m\)</span></p>
 ]]></content>
       <categories>
-        <category>论文阅读</category>
+        <category>基础知识</category>
       </categories>
-      <tags>
-        <tag>语义分割</tag>
-      </tags>
   </entry>
   <entry>
     <title>学习结构化稀疏：精度与速度的双赢？</title>
@@ -5811,38 +5811,6 @@ href="https://github.com/microsoft/Swin-Transformer">github代码</a></p>
       <tags>
         <tag>Transformer</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>《灵与肉》观后感</title>
-    <url>/2022/02/06/%E3%80%8A%E7%81%B5%E4%B8%8E%E8%82%89%E3%80%8B%E8%A7%82%E5%90%8E%E6%84%9F/</url>
-    <content><![CDATA[<img src="/2022/02/06/%E3%80%8A%E7%81%B5%E4%B8%8E%E8%82%89%E3%80%8B%E8%A7%82%E5%90%8E%E6%84%9F/stills.jpg" class="" title="《灵与肉》剧照">
-<blockquote>
-<p>依然是想到哪写到哪的胡言乱语，不过我很享受在写的过程中，拾起一片片回忆的贝壳，透过今天的阳光，品味它的纹理的过程。</p>
-</blockquote>
-<p>我很少看电视剧，觉得它总是用过多的巧合、反复的套路、拖沓的节奏讲一些很浅显的道理；不过，对于我妈来说，工作了一天后，打开电视是一种惯例了。过年回到家，我正赶上她在看电视剧，我一如既往地看两眼，吐吐槽就走开了。不过就在前几天的一个下午，我被<a
-href="https://baike.baidu.com/item/%E7%81%B5%E4%B8%8E%E8%82%89/13012440?fr=aladdin">《灵与肉》</a>给吸引住了。</p>
-<span id="more"></span>
-<p>故事吸引我的原因很简单，它体现出来了时代现实与个人理想的矛盾，或者就像故事的名字一样，灵魂意向与肉体位置的不一致。带着探求解答的心理，我不停歇地看下去，主人公许灵均一次次有些“软弱”地向命运的不公妥协，老梅用书中的知识一次次为徐灵均守住精神世界，当他们的美好生活还没有完全到来时，我心中那份观众视角对人物角色的爱恨情仇渐渐淡下去了，现实视角对生活的重新审视多了起来。</p>
-<p>我最近时常觉得，自己要么是比同龄人多了一份固执，要么是比同龄人少了一份稳重。</p>
-<p>15岁那年，我遇到了我的青春期，依稀记得一些课堂上的叛逆、人际关系的迷茫，我急急忙忙地参加了一场考试，转到了一个新的环境中去。在新的学校，认识了更多谈得来的朋友，为难我的事情一下变少了，只有那冬天又冷又困人的早班公交车、青春期男生女生那一点心中的悸动偶尔令我不知所措：迷迷糊糊地闭上了眼，被好心的大妈叫醒，穿着奇怪颜色衣服，手里拿着一本《诗经》，头顶着洗后没干被冻成冰柱的头发，从一个不认识的车站，趁着冬夜还没被打破，奔向不太熟悉的校园。</p>
-<p>新的环境还没有落稳脚跟，我又为自己找了无数个跟着朋友们去更远的大城市读书的理由：家里太吵学不进去、好几个朋友都要走没人玩、离开温室能带来更多机遇；提着一些奇怪衣服，奇怪头发包裹着一脑袋自我为中心的奇怪思想，我坐上了4小时行程的绿皮火车，在新学期开学前一周就先在附近的一个宾馆和朋友住下了，一面准备开学考试，一面认识这里的街巷。</p>
-<p>几天前，在匿名墙里有一个话题，“大家觉得自己的高中生活怎么样”，我很真诚地添加了回复，“那时可能觉得五味杂陈，现在回想起来却只剩下了美好的回忆”。我也见到剧中的许灵均也说过类似的话！当然，我那时所以为的痛苦现在看来，不过是一个小孩子的胡思乱想罢了，我那时的“勇敢的决定”，大多也都是胡闹，全然也不能与许灵均的苦难相提并论，而我在苦难面前，也不像许灵均那般坚韧。</p>
-<p>写出来不怕笑话，那时令我痛苦的大多都是些什么事情啊：不满意”仗势欺人横行霸道“的宿管；不满意”粗暴严格“的校规；不满意收钱”自愿“补课；不会协调白天的时间而只能在深夜偷偷打灯奋笔疾书；静不下心来而被氮元素的计算和排列组合的问题急地死去活来；女朋友和别的男生多说两句就要生气；担心因为早恋被抓现行影响”前途“，反而又闹僵了两人的关系；安排不好早晨扫雪的任务在同学和班主任”两头不是人“；担心好兄弟认为自己是”见色忘义“而急得手足无措；因为乱七八糟的小事而没能把课代表坚持做下去；因为体质不好总是感冒去医院，还担心感染水痘被停课的风险。。。</p>
-<p>不过，在那些个周六的夜晚，我独自呆在6人的宿舍中，洗过的衣服因为没用力拧而滴滴答答地往盆子里滴水。起初我还会因为别人都能在假期回亲戚家而伤神，后来我慢慢习惯了这个属于自己的独立的小时空：夏天的时候，我就和朋友一直打篮球打到只剩下去吃饭的力气再回宿舍，有时冬天躁动了，带着扫雪工具拿着篮球也要去球场打一会；不打球的时候，我可能拿着一本夺人眼泪的小说，在有一点氤氲的屋子里看得浑身发抖，手脚冰凉；有时我也喜欢弹会儿吉他，唱几首音域不那么宽广的歌；兴致再好的时候，我还会拿起毛笔，临一临字帖，默一默背诵的古诗词之类的；查手机的风口松的时候，我就在手机上跟人聊天，看一些篮球相关视频；学习压力大的时候，我也绝不愿意用那些写不完的作业破坏了这美好的时刻，最多是拿出一个小本子，一笔一划地写一些计划。</p>
-<p>我想，也许就是在那些个周六夜晚，各种的胡思乱想为我那时的喜怒哀乐埋下了昙花种子。也让我在之后逢年过节回到家中，与家中亲戚的那些个“世俗”想法开始有了隔阂，回家这件事本身对我来说成为了一个坐在返程的车上的一个美好想象，和坐在家中忍受着亲戚们“乌七八糟”的价值观（当然是在少不经事的我看来）。</p>
-<p>我感觉自己是个“文化人”，我觉得自己平时主动或被动接受的，都是最先进的思想，我坐在家里，就想那个被下放劳动改造的许灵均一样，但是我却不像他那样包容！渐渐地，我不满的对象扩大到了我出生和成长的这个小城市，地方小，节奏慢。在大学的第二个寒假，对家乡的这种羞于启齿但不能扑灭的厌恶之情在我心里彻底燃烧起来了：在中国传统都要回家的春节，我选择独自在大学的宿舍里度过，试图继续找到高中时那些个周六夜晚的惬意。
-但是，时光不能倒流，往日的感觉可能就停留在了往日，或者仅仅存在我的回忆中罢了。我没有换来想要的宁静，却收到了爷爷在过年期间，住进了重病房的消息。好在救治及时和家人的悉心照顾，爷爷除了变得更瘦一点，吃得更少了一点之外，都还好。</p>
-<p>今年春节回家的路在回家前两天被疫情切断了；值得庆兴的是，在年前我获得了返乡的机会；在中转的城市，因为政策的滞后我没有住处，明明遵守着各项规定的我只能坐上黑车，去又冷又臭的黑旅社凑活一晚上；倘若是几年前的我，可能真的会咽不下这份委屈大闹一场，在与最好的朋友吐槽过后，想了想没有什么文化但是却也曾经经历过这些的黑车司机的劝告，我终于还是忍下了。</p>
-<p>家里还是那个样子，有人说你要一直读到博士然后赚大钱，有人不停重复着网上谣传的健康食谱和病态的审美，有人说着你要当上领导然后帮着家里人。嗨，现在看来，这些话也只有自家人才能放下社会上的伪装，在茶余饭后不停地讲，表示各自对自家人的关心吧。</p>
-<p>而社会上的种种冲突也好，降临到自己头上时，苦难、不公怕是难以避免的，书上也许写着正义，写着道德与法治，可社会的运作哪里如写书那般轻松？书本会给我们开阔的视野和先进的思想，当这些思想与现实发生冲突，带来痛苦时，不妨再次回到书里，看看从前那些不得意的古人如何遣词造句，纾解心意；看看那些向许灵均这样最终熬过了苦难的人，是如何把坚守自己的理想，在苦难中前行的。我知道，离开校园后，才会有真正的现实社会等着我，新时代下的苦难的形式不会再是挨钢鞭，挨批斗。时代的一粒沙子，落到一个人头上就是一篇荒漠，在这荒漠中承受史无前例的肉体和精神的痛苦的时候，也许灵魂可以向那些看见绿洲的前辈同行。</p>
-<blockquote>
-<p>P.S.
-这部由楼健编导的电视剧改编自作家张贤亮的同名小说，几天前我恰好在书店的书架上看到这本书，是一部中短篇小说集，许灵均的故事仅仅是很小篇幅，我粗糙地读了一遍，发现电视剧的编剧添加了大量的人物和故事情节，在主题上也稍稍有不同，两者都是值得一读/看的。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>随笔</category>
-      </categories>
   </entry>
   <entry>
     <title>线性代数要点总结</title>
@@ -7678,6 +7646,38 @@ class="math inline">\(1-\alpha\)</span>的置信区间</li>
 <p>至于我做什么的时候最专注，我可以自豪地说，但凡是我在手头做的事情我都很专注，比如写这篇文章，解一道问题，为女朋友做礼物，而悲哀的是我找不出那个“最”，也不能长期专注，所以没有日记，没有解决问题的一般思路，女朋友也会分手。从不是因为缺乏精力（我倒是总愿意去尝试新东西），而是缺少一个在“长远的动机”和“每天起床第一句（先给自己打口气）”之间的联系。在远处，我希望我能让人们的生活更智能，希望自己能有一个温馨的家，希望自己能用音乐、文字表达自己；在近处，我学习欲望不高，社交能力不强，单词背了又忘，重复的弹音阶也记不住每个位置是什么音，锻炼着怎么都很乏味的身体。以为高考完我的美好人生就要到来，却发现自己做不好的事情越来越多，又该如何专注到一件事上去呢？</p>
 <p>至于快乐，那必须要与快感区分开。我也相信自己过去拥有快乐，专注做事，朋友见面，虚荣心得到满足，可每当我回想一件，过去不复存在的悲伤就涌上来一次，想回到眼前，曾经的快乐随着淡忘又不值当了。我信仰快乐是一个过程，尤其在走向未来的过程中。而我需要的是无数个在时间轴上铺开的未来，这个寒假，我会期待着爱情公寓5的更新而感到快乐，下学期，我会期待新的挑战而快乐。那么，要我回答我做什么事最快乐，我会先说追求未来的时候，然后我需要选一个不会成为我的过去的未来，我就只能选择：平静地走向死亡。那我现在还能快乐吗？</p>
 <p>再回到欲望的话题上来。理想是穿着衣服的欲望，说出来总归要体面些。本硕博连读背后可能就是“高薪offer”，爱情背后可能就是“我馋她身子”。每个人最终会因为各种过程不同而导致追求的结果不同，但追求的的东西的背后说来还是欲望。原谅我把世界说的这么不堪，我只是发觉，曾经支撑我走的还不错的虚荣心现在正阻止我相信成人世界的事实，我不是世界中心的一朵白莲花，我是一个普通人，如果还能再加一个条件的话，我希望自己过得好些。</p>
+]]></content>
+      <categories>
+        <category>随笔</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>《灵与肉》观后感</title>
+    <url>/2022/02/06/%E3%80%8A%E7%81%B5%E4%B8%8E%E8%82%89%E3%80%8B%E8%A7%82%E5%90%8E%E6%84%9F/</url>
+    <content><![CDATA[<img src="/2022/02/06/%E3%80%8A%E7%81%B5%E4%B8%8E%E8%82%89%E3%80%8B%E8%A7%82%E5%90%8E%E6%84%9F/stills.jpg" class="" title="《灵与肉》剧照">
+<blockquote>
+<p>依然是想到哪写到哪的胡言乱语，不过我很享受在写的过程中，拾起一片片回忆的贝壳，透过今天的阳光，品味它的纹理的过程。</p>
+</blockquote>
+<p>我很少看电视剧，觉得它总是用过多的巧合、反复的套路、拖沓的节奏讲一些很浅显的道理；不过，对于我妈来说，工作了一天后，打开电视是一种惯例了。过年回到家，我正赶上她在看电视剧，我一如既往地看两眼，吐吐槽就走开了。不过就在前几天的一个下午，我被<a
+href="https://baike.baidu.com/item/%E7%81%B5%E4%B8%8E%E8%82%89/13012440?fr=aladdin">《灵与肉》</a>给吸引住了。</p>
+<span id="more"></span>
+<p>故事吸引我的原因很简单，它体现出来了时代现实与个人理想的矛盾，或者就像故事的名字一样，灵魂意向与肉体位置的不一致。带着探求解答的心理，我不停歇地看下去，主人公许灵均一次次有些“软弱”地向命运的不公妥协，老梅用书中的知识一次次为徐灵均守住精神世界，当他们的美好生活还没有完全到来时，我心中那份观众视角对人物角色的爱恨情仇渐渐淡下去了，现实视角对生活的重新审视多了起来。</p>
+<p>我最近时常觉得，自己要么是比同龄人多了一份固执，要么是比同龄人少了一份稳重。</p>
+<p>15岁那年，我遇到了我的青春期，依稀记得一些课堂上的叛逆、人际关系的迷茫，我急急忙忙地参加了一场考试，转到了一个新的环境中去。在新的学校，认识了更多谈得来的朋友，为难我的事情一下变少了，只有那冬天又冷又困人的早班公交车、青春期男生女生那一点心中的悸动偶尔令我不知所措：迷迷糊糊地闭上了眼，被好心的大妈叫醒，穿着奇怪颜色衣服，手里拿着一本《诗经》，头顶着洗后没干被冻成冰柱的头发，从一个不认识的车站，趁着冬夜还没被打破，奔向不太熟悉的校园。</p>
+<p>新的环境还没有落稳脚跟，我又为自己找了无数个跟着朋友们去更远的大城市读书的理由：家里太吵学不进去、好几个朋友都要走没人玩、离开温室能带来更多机遇；提着一些奇怪衣服，奇怪头发包裹着一脑袋自我为中心的奇怪思想，我坐上了4小时行程的绿皮火车，在新学期开学前一周就先在附近的一个宾馆和朋友住下了，一面准备开学考试，一面认识这里的街巷。</p>
+<p>几天前，在匿名墙里有一个话题，“大家觉得自己的高中生活怎么样”，我很真诚地添加了回复，“那时可能觉得五味杂陈，现在回想起来却只剩下了美好的回忆”。我也见到剧中的许灵均也说过类似的话！当然，我那时所以为的痛苦现在看来，不过是一个小孩子的胡思乱想罢了，我那时的“勇敢的决定”，大多也都是胡闹，全然也不能与许灵均的苦难相提并论，而我在苦难面前，也不像许灵均那般坚韧。</p>
+<p>写出来不怕笑话，那时令我痛苦的大多都是些什么事情啊：不满意”仗势欺人横行霸道“的宿管；不满意”粗暴严格“的校规；不满意收钱”自愿“补课；不会协调白天的时间而只能在深夜偷偷打灯奋笔疾书；静不下心来而被氮元素的计算和排列组合的问题急地死去活来；女朋友和别的男生多说两句就要生气；担心因为早恋被抓现行影响”前途“，反而又闹僵了两人的关系；安排不好早晨扫雪的任务在同学和班主任”两头不是人“；担心好兄弟认为自己是”见色忘义“而急得手足无措；因为乱七八糟的小事而没能把课代表坚持做下去；因为体质不好总是感冒去医院，还担心感染水痘被停课的风险。。。</p>
+<p>不过，在那些个周六的夜晚，我独自呆在6人的宿舍中，洗过的衣服因为没用力拧而滴滴答答地往盆子里滴水。起初我还会因为别人都能在假期回亲戚家而伤神，后来我慢慢习惯了这个属于自己的独立的小时空：夏天的时候，我就和朋友一直打篮球打到只剩下去吃饭的力气再回宿舍，有时冬天躁动了，带着扫雪工具拿着篮球也要去球场打一会；不打球的时候，我可能拿着一本夺人眼泪的小说，在有一点氤氲的屋子里看得浑身发抖，手脚冰凉；有时我也喜欢弹会儿吉他，唱几首音域不那么宽广的歌；兴致再好的时候，我还会拿起毛笔，临一临字帖，默一默背诵的古诗词之类的；查手机的风口松的时候，我就在手机上跟人聊天，看一些篮球相关视频；学习压力大的时候，我也绝不愿意用那些写不完的作业破坏了这美好的时刻，最多是拿出一个小本子，一笔一划地写一些计划。</p>
+<p>我想，也许就是在那些个周六夜晚，各种的胡思乱想为我那时的喜怒哀乐埋下了昙花种子。也让我在之后逢年过节回到家中，与家中亲戚的那些个“世俗”想法开始有了隔阂，回家这件事本身对我来说成为了一个坐在返程的车上的一个美好想象，和坐在家中忍受着亲戚们“乌七八糟”的价值观（当然是在少不经事的我看来）。</p>
+<p>我感觉自己是个“文化人”，我觉得自己平时主动或被动接受的，都是最先进的思想，我坐在家里，就想那个被下放劳动改造的许灵均一样，但是我却不像他那样包容！渐渐地，我不满的对象扩大到了我出生和成长的这个小城市，地方小，节奏慢。在大学的第二个寒假，对家乡的这种羞于启齿但不能扑灭的厌恶之情在我心里彻底燃烧起来了：在中国传统都要回家的春节，我选择独自在大学的宿舍里度过，试图继续找到高中时那些个周六夜晚的惬意。
+但是，时光不能倒流，往日的感觉可能就停留在了往日，或者仅仅存在我的回忆中罢了。我没有换来想要的宁静，却收到了爷爷在过年期间，住进了重病房的消息。好在救治及时和家人的悉心照顾，爷爷除了变得更瘦一点，吃得更少了一点之外，都还好。</p>
+<p>今年春节回家的路在回家前两天被疫情切断了；值得庆兴的是，在年前我获得了返乡的机会；在中转的城市，因为政策的滞后我没有住处，明明遵守着各项规定的我只能坐上黑车，去又冷又臭的黑旅社凑活一晚上；倘若是几年前的我，可能真的会咽不下这份委屈大闹一场，在与最好的朋友吐槽过后，想了想没有什么文化但是却也曾经经历过这些的黑车司机的劝告，我终于还是忍下了。</p>
+<p>家里还是那个样子，有人说你要一直读到博士然后赚大钱，有人不停重复着网上谣传的健康食谱和病态的审美，有人说着你要当上领导然后帮着家里人。嗨，现在看来，这些话也只有自家人才能放下社会上的伪装，在茶余饭后不停地讲，表示各自对自家人的关心吧。</p>
+<p>而社会上的种种冲突也好，降临到自己头上时，苦难、不公怕是难以避免的，书上也许写着正义，写着道德与法治，可社会的运作哪里如写书那般轻松？书本会给我们开阔的视野和先进的思想，当这些思想与现实发生冲突，带来痛苦时，不妨再次回到书里，看看从前那些不得意的古人如何遣词造句，纾解心意；看看那些向许灵均这样最终熬过了苦难的人，是如何把坚守自己的理想，在苦难中前行的。我知道，离开校园后，才会有真正的现实社会等着我，新时代下的苦难的形式不会再是挨钢鞭，挨批斗。时代的一粒沙子，落到一个人头上就是一篇荒漠，在这荒漠中承受史无前例的肉体和精神的痛苦的时候，也许灵魂可以向那些看见绿洲的前辈同行。</p>
+<blockquote>
+<p>P.S.
+这部由楼健编导的电视剧改编自作家张贤亮的同名小说，几天前我恰好在书店的书架上看到这本书，是一部中短篇小说集，许灵均的故事仅仅是很小篇幅，我粗糙地读了一遍，发现电视剧的编剧添加了大量的人物和故事情节，在主题上也稍稍有不同，两者都是值得一读/看的。</p>
+</blockquote>
 ]]></content>
       <categories>
         <category>随笔</category>
